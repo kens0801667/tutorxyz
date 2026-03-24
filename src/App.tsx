@@ -22,6 +22,7 @@ export default function App() {
   const [sessionStartTime, setSessionStartTime] = useState<Date | null>(null);
   
   const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [grantedScopes, setGrantedScopes] = useState<string>('');
   const [isSavingToCalendar, setIsSavingToCalendar] = useState(false);
   
   const [isCheckingKey, setIsCheckingKey] = useState(false);
@@ -30,20 +31,37 @@ export default function App() {
 
   const checkApiKey = async (token: string) => {
     setIsCheckingKey(true);
-    const config = await getConfigFromDrive(token);
-    if (config && config.geminiApiKey) {
-      setGeminiApiKey(config.geminiApiKey);
-      setAppConfig(config);
-      setShowApiKeySetup(false);
-    } else {
-      setShowApiKeySetup(true);
+    try {
+      const config = await getConfigFromDrive(token);
+      if (config && config.geminiApiKey) {
+        setGeminiApiKey(config.geminiApiKey);
+        setAppConfig(config);
+        setShowApiKeySetup(false);
+      } else {
+        setShowApiKeySetup(true);
+      }
+    } catch (error: any) {
+      if (error.message === 'UNAUTHORIZED') {
+        handleLogout();
+      } else {
+        console.error("Config check failed", error);
+        setShowApiKeySetup(true);
+      }
     }
     setIsCheckingKey(false);
+  };
+
+  const checkScope = (requiredScope: string) => {
+    if (!grantedScopes) return false;
+    // Google returns scopes as a space-separated string
+    const scopesList = grantedScopes.split(' ');
+    return scopesList.includes(requiredScope);
   };
 
   const login = useGoogleLogin({
     onSuccess: (tokenResponse) => {
       setAccessToken(tokenResponse.access_token);
+      setGrantedScopes(tokenResponse.scope || '');
       checkApiKey(tokenResponse.access_token);
     },
     scope: 'https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/drive.appdata',
@@ -64,13 +82,29 @@ export default function App() {
 
   const handleSaveConfig = async (config: AppConfig) => {
     if (!accessToken) return;
-    const success = await saveConfigToDrive(accessToken, config);
-    if (success) {
-      setGeminiApiKey(config.geminiApiKey);
-      setAppConfig(config);
-      setShowApiKeySetup(false);
-    } else {
-      alert("儲存設定失敗，請重試。");
+    
+    if (!checkScope('https://www.googleapis.com/auth/drive.appdata')) {
+      const confirm = window.confirm('儲存金鑰需要您的 Google Drive 授權。是否現在進行授權？');
+      if (confirm) login();
+      return;
+    }
+
+    try {
+      const success = await saveConfigToDrive(accessToken, config);
+      if (success) {
+        setGeminiApiKey(config.geminiApiKey);
+        setAppConfig(config);
+        setShowApiKeySetup(false);
+      } else {
+        alert("儲存設定失敗，請重試。");
+      }
+    } catch (error: any) {
+      if (error.message === 'UNAUTHORIZED') {
+        alert('登入已過期，請重新登入。');
+        handleLogout();
+      } else {
+        alert("儲存設定失敗，請重試。");
+      }
     }
   };
 
@@ -116,13 +150,24 @@ export default function App() {
         const endTime = new Date();
         const startTime = sessionStartTime || new Date(endTime.getTime() - 30 * 60000); // Fallback to 30 mins if null
 
+        if (!checkScope('https://www.googleapis.com/auth/calendar')) {
+          const confirm = window.confirm('儲存至日曆功能需要您的授權。是否現在進行授權？');
+          if (confirm) login();
+          return;
+        }
+
         const calendarId = await getOrCreateCalendar(accessToken, appConfig.calendarName);
         await addTestResultToCalendar(accessToken, calendarId, sessionInfo.topic, finalScore, mistakes, words.length, startTime, endTime);
         
         alert('測驗成績已成功儲存至您的 Google 日曆！');
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error saving to calendar:", error);
-        alert('儲存至日曆失敗，請檢查權限設定。');
+        if (error.message === 'UNAUTHORIZED') {
+          alert('登入已過期，請重新登入。');
+          handleLogout();
+        } else {
+          alert('儲存至日曆失敗，請檢查權限設定。');
+        }
       } finally {
         setIsSavingToCalendar(false);
       }

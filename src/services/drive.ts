@@ -18,7 +18,9 @@ export async function getConfigFromDrive(accessToken: string): Promise<AppConfig
       },
     });
     
+    if (searchResponse.status === 401) throw new Error('UNAUTHORIZED');
     if (!searchResponse.ok) return null;
+
     const searchData = await searchResponse.json();
     
     if (!searchData.files || searchData.files.length === 0) {
@@ -34,7 +36,9 @@ export async function getConfigFromDrive(accessToken: string): Promise<AppConfig
       },
     });
     
+    if (fileResponse.status === 401) throw new Error('UNAUTHORIZED');
     if (!fileResponse.ok) return null;
+
     const config = await fileResponse.json();
     return {
       geminiApiKey: config.geminiApiKey || '',
@@ -87,7 +91,9 @@ export async function saveConfigToDrive(accessToken: string, config: AppConfig):
         })
       });
       
+      if (createMetaResponse.status === 401) throw new Error('UNAUTHORIZED');
       if (!createMetaResponse.ok) {
+
         console.error("Failed to create file metadata", await createMetaResponse.text());
         return false;
       }
@@ -105,7 +111,9 @@ export async function saveConfigToDrive(accessToken: string, config: AppConfig):
       body: fileContent
     });
     
+    if (uploadResponse.status === 401) throw new Error('UNAUTHORIZED');
     if (!uploadResponse.ok) {
+
       console.error("Failed to upload file content", await uploadResponse.text());
       return false;
     }

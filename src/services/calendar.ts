@@ -4,6 +4,9 @@ export async function getOrCreateCalendar(accessToken: string, calendarName: str
     headers: { Authorization: `Bearer ${accessToken}` }
   });
   
+  if (listRes.status === 401) {
+    throw new Error('UNAUTHORIZED');
+  }
   if (!listRes.ok) {
     throw new Error('Failed to list calendars');
   }
@@ -25,6 +28,9 @@ export async function getOrCreateCalendar(accessToken: string, calendarName: str
     body: JSON.stringify({ summary: calendarName })
   });
   
+  if (createRes.status === 401) {
+    throw new Error('UNAUTHORIZED');
+  }
   if (!createRes.ok) {
     throw new Error('Failed to create calendar');
   }
@@ -66,6 +72,9 @@ export async function addTestResultToCalendar(
     body: JSON.stringify(event)
   });
 
+  if (res.status === 401) {
+    throw new Error('UNAUTHORIZED');
+  }
   if (!res.ok) {
     throw new Error('Failed to add event to calendar');
   }
