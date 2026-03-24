@@ -249,6 +249,17 @@ export default function App() {
           />
         )}
       </main>
+
+      {/* Persistent Footer for logged-in users */}
+      <footer className="bg-white border-t border-slate-200 py-3 px-4 text-center">
+        <div className="flex justify-center gap-4 text-xs font-medium">
+          <a href="/privacy.html" className="text-slate-500 hover:text-indigo-600 transition-colors">隱私權政策</a>
+          <a href="/terms.html" className="text-slate-500 hover:text-indigo-600 transition-colors">服務條款</a>
+          <span className="text-slate-300">|</span>
+          <span className="text-slate-400">© 2026 tutorxyz</span>
+        </div>
+      </footer>
     </div>
   );
 }
+
