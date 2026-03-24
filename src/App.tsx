@@ -47,7 +47,9 @@ export default function App() {
       checkApiKey(tokenResponse.access_token);
     },
     scope: 'https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/drive.appdata',
+    include_granted_scopes: true,
     onError: () => {
+
       alert("登入失敗，請重試。");
     }
   });
