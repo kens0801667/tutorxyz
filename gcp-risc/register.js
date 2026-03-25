@@ -22,7 +22,8 @@ async function handleRisc() {
     const auth = new GoogleAuth({
       scopes: [
         'https://www.googleapis.com/auth/cloud-platform',
-        'https://www.googleapis.com/auth/risc.configuration.readwrite'
+        'https://www.googleapis.com/auth/risc.configuration.readwrite',
+        'https://www.googleapis.com/auth/risc.verify'
       ]
     });
     
