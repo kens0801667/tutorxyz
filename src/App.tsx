@@ -59,17 +59,37 @@ export default function App() {
   };
 
   const login = useGoogleLogin({
-    onSuccess: (tokenResponse) => {
-      setAccessToken(tokenResponse.access_token);
-      setGrantedScopes(tokenResponse.scope || '');
-      checkApiKey(tokenResponse.access_token);
-    },
-    scope: 'https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/drive.appdata',
-    include_granted_scopes: true,
-    onError: () => {
+    onSuccess: (response) => {
+      // Validate state to prevent CSRF
+      const savedState = sessionStorage.getItem('oauth_state');
+      if (response.state && response.state !== savedState) {
+        console.error("OAuth state mismatch! CSRF suspected.");
+        alert("驗證錯誤，請重試。");
+        sessionStorage.removeItem('oauth_state');
+        return;
+      }
+      sessionStorage.removeItem('oauth_state');
 
+      setAccessToken(response.access_token);
+      localStorage.setItem('google_access_token', response.access_token);
+      setGrantedScopes(response.scope || ''); // Keep original scope setting
+      checkApiKey(response.access_token); // Keep original API key check
+    },
+    onError: () => {
+      sessionStorage.removeItem('oauth_state');
       alert("登入失敗，請重試。");
-    }
+    },
+    onNonOAuthError: () => {
+      sessionStorage.removeItem('oauth_state');
+    },
+    scope: 'https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/drive.appdata',
+    include_granted_scopes: true,
+    // Use state parameter for security
+    state: (() => {
+      const state = Math.random().toString(36).substring(2, 15);
+      sessionStorage.setItem('oauth_state', state);
+      return state;
+    })(),
   });
 
   const handleLogout = () => {
