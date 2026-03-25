@@ -10,18 +10,21 @@ const GOOGLE_JWKS_URL = 'https://www.googleapis.com/oauth2/v3/certs';
  * This function receives security events from Google and verifies them.
  */
 functions.http('riscReceiver', async (req, res) => {
-  // 1. Google RISC sends events as plain text (JWT) in the request body
-  const token = req.body;
+  // Google RISC sends the JWT in the raw body. 
+  // Using rawBody is the most robust way in GCP/Functions-framework environments.
+  let token = req.rawBody ? req.rawBody.toString() : req.body;
 
-  if (!token || typeof token !== 'string') {
-    console.warn('Received invalid or empty token');
-    return res.status(400).send('Invalid token');
+  if (!token || typeof token !== 'string' || token.trim() === '') {
+    console.warn('Received invalid, empty, or non-string token');
+    console.log('Body Type:', typeof req.body);
+    console.log('RawBody Present:', !!req.rawBody);
+    return res.status(400).send('Invalid token structure');
   }
 
   try {
     // 2. Fetch Google's public keys and verify the JWT
     const JWKS = jose.createRemoteJWKSet(new URL(GOOGLE_JWKS_URL));
-    
+
     const { payload } = await jose.jwtVerify(token, JWKS, {
       issuer: 'https://accounts.google.com',
       audience: GOOGLE_CLIENT_ID,
@@ -37,7 +40,7 @@ functions.http('riscReceiver', async (req, res) => {
     const events = payload.events || {};
     for (const eventType in events) {
       console.info(`Handling event type: ${eventType}`);
-      
+
       // In a serverless/client-only architecture, we mostly use this for administrative logging.
       // The client App will naturally handle session expiration/revocation via 401 errors.
     }
