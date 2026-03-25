@@ -22,7 +22,10 @@ async function registerRisc() {
 
   try {
     const auth = new GoogleAuth({
-      scopes: 'https://www.googleapis.com/auth/cloud-platform'
+      scopes: [
+        'https://www.googleapis.com/auth/cloud-platform',
+        'https://www.googleapis.com/auth/risc.configuration.readwrite'
+      ]
     });
     
     const client = await auth.getClient();
