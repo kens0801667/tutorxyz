@@ -5,6 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "jose": "^5.2.0",
-    "@google-cloud/functions-framework": "^3.3.0"
+    "@google-cloud/functions-framework": "^3.3.0",
+    "google-auth-library": "^9.6.3"
   }
 }
