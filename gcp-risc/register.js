@@ -38,7 +38,7 @@ async function registerRisc() {
     const body = {
       delivery: {
         delivery_method: 'https://schemas.openid.net/secevent/risc/delivery-method/push',
-        endpoint: endpoint
+        url: endpoint
       }
     };
 
