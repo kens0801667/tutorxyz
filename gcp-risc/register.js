@@ -39,7 +39,13 @@ async function handleRisc() {
         delivery: {
           delivery_method: 'https://schemas.openid.net/secevent/risc/delivery-method/push',
           url: endpoint
-        }
+        },
+        events_requested: [
+          'https://schemas.openid.net/secevent/risc/event-type/sessions-revoked',
+          'https://schemas.openid.net/secevent/oauth/event-type/tokens-revoked',
+          'https://schemas.openid.net/secevent/risc/event-type/account-disabled',
+          'https://schemas.openid.net/secevent/risc/event-type/verification'
+        ]
       };
       const response = await client.request({ url, method: 'POST', data: body });
       console.log('Successfully registered!', response.status);
