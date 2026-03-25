@@ -68,6 +68,7 @@ export function HistoryTab({ onStartTest }: Props) {
             onClick={() => setEditingList(null)}
             disabled={isSaving}
             className="p-2 hover:bg-slate-100 rounded-full transition-colors disabled:opacity-50"
+            aria-label="返回"
           >
             <ChevronLeft className="w-6 h-6 text-slate-600" />
           </button>
@@ -128,6 +129,7 @@ export function HistoryTab({ onStartTest }: Props) {
                 onClick={() => handleEdit(list)}
                 className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors"
                 title="編輯"
+                aria-label="編輯單字清單"
               >
                 <Edit2 className="w-5 h-5" />
               </button>
@@ -135,6 +137,7 @@ export function HistoryTab({ onStartTest }: Props) {
                 onClick={() => handleDelete(list.id)}
                 className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
                 title="刪除"
+                aria-label="刪除單字清單"
               >
                 <Trash2 className="w-5 h-5" />
               </button>

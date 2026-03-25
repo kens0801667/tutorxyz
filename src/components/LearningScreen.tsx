@@ -218,6 +218,7 @@ export function LearningScreen({ words, onComplete, onRestart, teacherStyle }: P
                 disabled={isLoadingAudio || isPlaying}
                 className="w-16 h-16 sm:w-20 sm:h-20 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center hover:bg-indigo-100 transition-colors disabled:opacity-50 flex-shrink-0"
                 title="聽發音"
+                aria-label="播放單字發音"
               >
                 {isLoadingAudio ? <Loader2 className="w-8 h-8 sm:w-10 sm:h-10 animate-spin" /> : <Volume2 className="w-8 h-8 sm:w-10 sm:h-10" />}
               </button>
@@ -226,6 +227,7 @@ export function LearningScreen({ words, onComplete, onRestart, teacherStyle }: P
                 disabled={isLoadingAudio || isPlaying}
                 className="w-16 h-16 sm:w-20 sm:h-20 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center hover:bg-emerald-100 transition-colors disabled:opacity-50 flex-shrink-0"
                 title="老師講解"
+                aria-label="播放老師講解"
               >
                 {isLoadingAudio ? <Loader2 className="w-8 h-8 sm:w-10 sm:h-10 animate-spin" /> : <Play className="w-8 h-8 sm:w-10 sm:h-10 ml-1" />}
               </button>
@@ -238,6 +240,7 @@ export function LearningScreen({ words, onComplete, onRestart, teacherStyle }: P
                   onClick={() => playAudio(word.exampleSentence)}
                   disabled={isLoadingAudio || isPlaying}
                   className="text-indigo-500 hover:text-indigo-700 disabled:opacity-50 flex-shrink-0"
+                  aria-label="播放例句發音"
                 >
                   <Volume2 className="w-5 h-5 sm:w-6 sm:h-6" />
                 </button>
@@ -254,6 +257,7 @@ export function LearningScreen({ words, onComplete, onRestart, teacherStyle }: P
           onClick={handlePrev}
           disabled={currentIndex === 0}
           className="p-4 sm:p-6 bg-white rounded-full shadow-md text-slate-600 hover:bg-slate-50 disabled:opacity-30 transition-all flex-shrink-0"
+          aria-label="上一個單字"
         >
           <ChevronLeft className="w-6 h-6 sm:w-8 h-8" />
         </button>

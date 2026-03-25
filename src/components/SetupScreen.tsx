@@ -261,12 +261,14 @@ export function SetupScreen({ onStart }: Props) {
                       <button
                         onClick={stopCamera}
                         className="px-6 py-2 bg-white/20 backdrop-blur-md text-white rounded-full font-medium hover:bg-white/30 transition-colors"
+                        aria-label="取消拍攝"
                       >
                         取消
                       </button>
                       <button
                         onClick={capturePhoto}
                         className="w-14 h-14 bg-white rounded-full border-4 border-indigo-500 shadow-lg hover:scale-105 transition-transform flex items-center justify-center"
+                        aria-label="拍攝照片"
                       >
                         <Camera className="w-6 h-6 text-indigo-600" />
                       </button>
@@ -301,10 +303,13 @@ export function SetupScreen({ onStart }: Props) {
                     src={imagePreview} 
                     alt="Selected vocabulary list" 
                     className="w-full h-48 sm:h-64 object-contain"
+                    width={800}
+                    height={600}
                   />
                   <button
                     onClick={clearImage}
                     className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-sm text-slate-700 rounded-full shadow-sm hover:bg-red-50 hover:text-red-600 transition-colors"
+                    aria-label="清除圖片"
                   >
                     <X className="w-5 h-5" />
                   </button>
