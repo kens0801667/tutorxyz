@@ -1,0 +1,10 @@
+{
+  "name": "tutorxyz-risc-receiver",
+  "version": "1.0.0",
+  "description": "Google RISC security event receiver for tutorxyz",
+  "main": "index.js",
+  "dependencies": {
+    "jose": "^5.2.0",
+    "@google-cloud/functions-framework": "^3.3.0"
+  }
+}
