@@ -54,6 +54,7 @@ export function LoginScreen({ onLogin }: Props) {
             <button 
               onClick={onLogin}
               className="inline-flex items-center justify-center gap-3 px-10 py-4 bg-indigo-600 text-white font-bold text-xl rounded-full hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200 hover:shadow-xl hover:shadow-indigo-300 hover:-translate-y-1 w-full sm:w-auto"
+              aria-label="使用 Google 帳號開始學習"
             >
               <LogIn className="w-6 h-6" />
               使用 Google 帳號開始學習

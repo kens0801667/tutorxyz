@@ -265,6 +265,7 @@ export default function App() {
             <button 
               onClick={handleLogout}
               className="flex items-center gap-2 px-3 py-2 md:px-4 md:py-2 text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
+              aria-label="登出帳號"
             >
               <LogOut className="w-5 h-5" />
               <span className="hidden sm:block">登出</span>
