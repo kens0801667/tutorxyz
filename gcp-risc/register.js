@@ -9,16 +9,14 @@ const { GoogleAuth } = require('google-auth-library');
  * 2. Set the environment variable: export ENDPOINT_URL="https://your-cloud-run-url"
  * 3. Run: node register.js
  */
-async function registerRisc() {
+async function handleRisc() {
+  const mode = process.argv[2] || 'register'; // 'register' or 'verify'
   const endpoint = process.env.ENDPOINT_URL;
   
-  if (!endpoint) {
-    console.error('Error: Please set the ENDPOINT_URL environment variable.');
-    console.log('Example: export ENDPOINT_URL="https://risc-receiver-xxx.run.app"');
+  if (!endpoint && mode === 'register') {
+    console.error('Error: Please set the ENDPOINT_URL environment variable for registration.');
     process.exit(1);
   }
-
-  console.log(`Authenticating and registering endpoint: ${endpoint}...`);
 
   try {
     const auth = new GoogleAuth({
@@ -30,40 +28,34 @@ async function registerRisc() {
     
     const client = await auth.getClient();
     const projectId = await auth.getProjectId();
-    
-    console.log(`Using Project ID: ${projectId}`);
+    console.log(`Using Project ID: ${projectId} (Mode: ${mode})`);
 
-    const url = 'https://risc.googleapis.com/v1beta/stream:update';
-    
-    const body = {
-      delivery: {
-        delivery_method: 'https://schemas.openid.net/secevent/risc/delivery-method/push',
-        url: endpoint
-      }
-    };
-
-    const response = await client.request({
-      url,
-      method: 'POST',
-      data: body
-    });
-
-    console.log('Successfully registered!');
-    console.log('Response Status:', response.status);
-    console.log('Response Data:', JSON.stringify(response.data, null, 2));
-    
-    console.log('\nNext Step: Go to Google Cloud Console to send a test event to verify.');
+    if (mode === 'register') {
+      // --- Registration Logic ---
+      console.log(`Registering endpoint: ${endpoint}...`);
+      const url = 'https://risc.googleapis.com/v1beta/stream:update';
+      const body = {
+        delivery: {
+          delivery_method: 'https://schemas.openid.net/secevent/risc/delivery-method/push',
+          url: endpoint
+        }
+      };
+      const response = await client.request({ url, method: 'POST', data: body });
+      console.log('Successfully registered!', response.status);
+    } else if (mode === 'verify') {
+      // --- Verification Logic ---
+      console.log('Triggering verification event from Google...');
+      const url = 'https://risc.googleapis.com/v1beta/stream:verify';
+      const body = { state: "Verification test from tutorxyz at " + new Date().toISOString() };
+      const response = await client.request({ url, method: 'POST', data: body });
+      console.log('Verification request sent!', response.status);
+      console.log('Check your Cloud Run logs to see the incoming JWT!');
+    }
 
   } catch (error) {
-    console.error('Registration failed:');
-    if (error.response) {
-      console.error(`Status: ${error.response.status}`);
-      console.error('Data:', JSON.stringify(error.response.data, null, 2));
-    } else {
-      console.error(error.message);
-    }
+    console.error(`${mode} failed:`, error.response ? JSON.stringify(error.response.data, null, 2) : error.message);
     process.exit(1);
   }
 }
 
-registerRisc();
+handleRisc();
