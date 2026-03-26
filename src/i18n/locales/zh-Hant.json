@@ -54,6 +54,14 @@
       "upload": "上傳照片",
       "clear": "清除圖片",
       "selected": "已選擇照片"
+    },
+    "defaults": {
+      "level": "國一上學期",
+      "topic": "學校生活與文具"
+    },
+    "units": {
+      "word_count": "{{count}} 個",
+      "word_count_max": "最多 {{count}} 個"
     }
   },
   "learning": {

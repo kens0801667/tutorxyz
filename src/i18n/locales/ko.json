@@ -54,6 +54,14 @@
       "upload": "사진 업로드",
       "clear": "사진 삭제",
       "selected": "선택된 사진"
+    },
+    "defaults": {
+      "level": "중학교 1학년 1학기",
+      "topic": "학교 생활과 문구류"
+    },
+    "units": {
+      "word_count": "{{count}} 개",
+      "word_count_max": "최대 {{count}} 개"
     }
   },
   "learning": {

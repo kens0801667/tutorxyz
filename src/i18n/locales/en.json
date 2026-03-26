@@ -1,0 +1,207 @@
+{
+  "login": {
+    "title": "tutorxyz",
+    "subtitle": "AI Smart Vocabulary Tutor",
+    "description": "Combining Gemini AI technology to providing children with an immersive vocabulary learning environment. Through real-time conversation practice, American pronunciation correction and customized tests, learning a language becomes natural and fun.",
+    "why_google_title": "Why login with Google?",
+    "calendar_title": "Google Calendar Integration",
+    "calendar_desc": "We request access to your calendar to record test results (scores, mistakes, duration) in a dedicated calendar, allowing parents and children to track learning progress.",
+    "drive_title": "Google Drive Access",
+    "drive_desc": "We use the Google Drive App Data folder to store your API Key and preferences. This ensures your sensitive data stays in your personal cloud space.",
+    "cta_button": "Start Learning with Google",
+    "agreement": "By logging in, you agree to our Terms of Service and Privacy Policy.",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "contact": "Contact Support",
+    "copyright": "© 2026 tutorxyz. All rights reserved."
+  },
+  "setup": {
+    "title": "AI Vocabulary Tutor",
+    "subtitle": "Personalized lessons tailored for children",
+    "tabs": {
+      "topic": "By Topic",
+      "image": "Photo / Upload",
+      "text": "Manual Input",
+      "history": "History"
+    },
+    "level_label": "Grade, Ability or Scope",
+    "level_placeholder": "e.g., Grade 7, A2 Elementary, Unit 3...",
+    "topic_label": "Learning Topic",
+    "topic_placeholder": "e.g., School Life, Animals, Fruits...",
+    "image_label": "Upload Vocabulary List Photo",
+    "text_label": "Enter Vocabulary List",
+    "text_placeholder": "Enter or paste your list...\ne.g.:\napple\nbanana\ncat",
+    "count_label": "Word count",
+    "count_max_label": "Max words to extract",
+    "start_button": "Start Learning",
+    "loading": {
+      "topic": "Generating words...",
+      "image": "Recognizing words...",
+      "text": "Processing words..."
+    },
+    "errors": {
+      "camera_denied": "Cannot open camera. Please check permissions.",
+      "image_no_words": "No words identified in the image. Please try a clearer photo.",
+      "text_no_words": "No words identified in the text. Please try again.",
+      "failed": "Failed to generate words. Please try again."
+    },
+    "history_label": "History",
+    "custom_list_label": "Custom List",
+    "camera": {
+      "cancel": "Cancel",
+      "capture": "Capture Photo",
+      "live": "Live Camera",
+      "upload": "Upload Photo",
+      "clear": "Clear Image",
+      "selected": "Photo Selected"
+    },
+    "defaults": {
+      "level": "Grade 7 Semester 1",
+      "topic": "School Life & Stationery"
+    },
+    "units": {
+      "word_count": "{{count}} words",
+      "word_count_max": "Max {{count}} words"
+    }
+  },
+  "learning": {
+    "title": "Vocabulary Learning",
+    "cancel": "Cancel Learning",
+    "skip": "Skip Learning",
+    "pronounce": "Listen",
+    "explanation": "Teacher's Explanation",
+    "example": "Example",
+    "complete": "Complete",
+    "next": "Next",
+    "prev": "Prev"
+  },
+  "speaking": {
+    "title": "Real-time Speaking Test",
+    "cancel": "Cancel Test",
+    "connecting": "Connecting to Teacher Gemini...",
+    "finished_title": "Test Completed!",
+    "score_unit": "pts",
+    "next_button": "Go to Written Test",
+    "ai_speaking": "Teacher is speaking...",
+    "ai_listening": "Teacher is listening...",
+    "mic_label": "Your Microphone",
+    "mic_wait": "Please wait for the teacher",
+    "mic_active": "Please respond now",
+    "instruction": "Speak directly into the mic. The teacher will respond in real-time.",
+    "initial_prompt": "Hi teacher, I'm ready for the test. Let's start with the first question!"
+  },
+  "written": {
+    "title": "Written Test",
+    "cancel": "Cancel Test",
+    "loading": "AI is generating your test paper...",
+    "load_failed": "Failed to generate test",
+    "placeholder": "Enter answer...",
+    "submit": "Submit",
+    "next": "Next Question",
+    "view_report": "View Report",
+    "correct": "Correct!",
+    "wrong": "Wrong",
+    "correct_is": "Correct answer:"
+  },
+  "report": {
+    "title": "Learning Report",
+    "avg_speaking": "Avg Speaking Score",
+    "written_accuracy": "Written Accuracy",
+    "questions_unit": "questions",
+    "table": {
+      "word": "Word",
+      "written": "Written",
+      "speaking": "Speaking Score",
+      "ai_feedback": "AI Feedback"
+    },
+    "restart": "Start New Lesson",
+    "calendar_link": "View in Google Calendar"
+  },
+  "app": {
+    "steps": {
+      "setup": "Setup",
+      "learning": "Learning",
+      "speaking": "Speaking",
+      "written": "Written",
+      "report": "Report"
+    },
+    "nav": {
+      "settings": "Settings",
+      "logout": "Logout"
+    },
+    "loading": {
+      "checking_config": "Checking system settings...",
+      "saving_calendar": "Saving results to Google Calendar..."
+    },
+    "alerts": {
+      "auth_error": "Auth error, please try again.",
+      "login_failed": "Login failed, please try again.",
+      "drive_auth_confirm": "Drive access required. Grant now?",
+      "save_config_failed": "Failed to save config.",
+      "login_expired": "Login expired, please re-login.",
+      "calendar_auth_confirm": "Calendar access required. Grant now?",
+      "save_calendar_success": "Saved to Google Calendar!",
+      "save_calendar_failed": "Failed to save to calendar."
+    },
+    "footer": {
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service"
+    }
+  },
+  "calendar": {
+    "event_title": "Vocabulary Test: {{topic}} - Score: {{score}}",
+    "topic_label": "Topic",
+    "total_words_label": "Total Words",
+    "score_label": "Score",
+    "score_unit": "pts",
+    "duration_label": "Total Duration",
+    "duration_min": "min",
+    "duration_sec": "sec",
+    "mistakes_label": "Words to Improve",
+    "no_mistakes": "Perfect Score!"
+  },
+  "settings": {
+    "title": "System Settings",
+    "subtitle": "Configure Gemini API Key and preferences.",
+    "description": "Settings are securely stored in your personal Google Drive App Data folder.",
+    "api_key_title": "Gemini API Key",
+    "api_key_placeholder": "Enter key starting with AIzaSy...",
+    "cost_alert": {
+      "title": "Cost Warning",
+      "content": "Using Gemini API may incur costs depending on usage."
+    },
+    "no_key": "No key yet?",
+    "get_key": "Get key at Google AI Studio",
+    "calendar_title": "Calendar Name",
+    "calendar_desc": "Results will be recorded in this Google Calendar:",
+    "calendar_placeholder": "e.g., tutorxyz learning log",
+    "config_file_title": "Config Filename",
+    "config_file_desc": "Filename in Google Drive:",
+    "style_title": "Teacher Style",
+    "styles": {
+      "enthusiastic": {
+        "name": "Enthusiastic",
+        "desc": "Kore (Bright & Energetic)",
+        "icon": "🌟"
+      },
+      "strict": {
+        "name": "Strict",
+        "desc": "Fenrir (Calm & Steady)",
+        "icon": "🧐"
+      },
+      "socratic": {
+        "name": "Socratic",
+        "desc": "Charon (Gentle Sage)",
+        "icon": "🤔"
+      },
+      "humorous": {
+        "name": "Humorous",
+        "desc": "Puck (Light & Cheerful)",
+        "icon": "😂"
+      }
+    },
+    "save": "Save and Start",
+    "saving": "Saving settings...",
+    "cancel": "Cancel"
+  }
+}

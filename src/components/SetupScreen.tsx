@@ -15,11 +15,11 @@ export function SetupScreen({ onStart }: Props) {
   const [inputMode, setInputMode] = useState<'topic' | 'image' | 'text' | 'history'>('topic');
   const [topic, setTopic] = useState(() => {
     const saved = localStorage.getItem('last_topic');
-    return saved !== null ? saved : '學校生活與文具';
+    return saved !== null ? saved : '';
   });
   const [level, setLevel] = useState(() => {
     const saved = localStorage.getItem('last_level');
-    return saved !== null ? saved : '國一上學期';
+    return saved !== null ? saved : '';
   });
   const [count, setCount] = useState(() => {
     const saved = localStorage.getItem('last_count');
@@ -35,6 +35,27 @@ export function SetupScreen({ onStart }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+
+  useEffect(() => {
+    // If no saved values, initialize with current language defaults
+    if (!localStorage.getItem('last_topic') && !topic) {
+      setTopic(t('setup.defaults.topic'));
+    }
+    if (!localStorage.getItem('last_level') && !level) {
+      setLevel(t('setup.defaults.level'));
+    }
+  }, [t, topic, level]);
+
+  // Handle language change for defaults if user hasn't modified them
+  useEffect(() => {
+    // If the field is currently empty, it means we should provide the default for the new language
+    if (!localStorage.getItem('last_topic') && !topic) {
+      setTopic(t('setup.defaults.topic'));
+    }
+    if (!localStorage.getItem('last_level') && !level) {
+      setLevel(t('setup.defaults.level'));
+    }
+  }, [i18n.language, t]);
 
   useEffect(() => {
     return () => {
@@ -318,7 +339,9 @@ export function SetupScreen({ onStart }: Props) {
             <div className="space-y-6">
               <div>
                 <label className="block text-lg font-medium text-slate-700 mb-2">
-                  {inputMode === 'topic' ? t('setup.count_label') : t('setup.count_max_label')} ({count} 個)
+                  {inputMode === 'topic' 
+                    ? t('setup.units.word_count', { count }) 
+                    : t('setup.units.word_count_max', { count })}
                 </label>
                 <input 
                   type="range" 
