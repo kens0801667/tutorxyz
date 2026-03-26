@@ -22,30 +22,12 @@ export function MicCheckScreen({ onComplete, onSkip, isReady = true }: Props) {
   const detectionTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    initDevices();
+    startMic();
     return () => {
       stopMic();
       if (detectionTimerRef.current) clearTimeout(detectionTimerRef.current);
     };
   }, []);
-
-  const initDevices = async () => {
-    try {
-      // Trigger permission prompt if needed
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      stream.getTracks().forEach(t => t.stop());
-      
-      const allDevices = await navigator.mediaDevices.enumerateDevices();
-      const audioInputs = allDevices.filter(d => d.kind === 'audioinput');
-      setDevices(audioInputs);
-      if (audioInputs.length > 0) {
-        setSelectedDeviceId(audioInputs[0].deviceId);
-        startMic(audioInputs[0].deviceId);
-      }
-    } catch (err) {
-      handleError(err);
-    }
-  };
 
   const startMic = async (deviceId?: string) => {
     stopMic();
@@ -56,8 +38,12 @@ export function MicCheckScreen({ onComplete, onSkip, isReady = true }: Props) {
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
       micStreamRef.current = stream;
       
-      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
       audioContextRef.current = audioCtx;
+      
+      if (audioCtx.state === 'suspended') {
+        await audioCtx.resume();
+      }
       
       const source = audioCtx.createMediaStreamSource(stream);
       const analyser = audioCtx.createAnalyser();
@@ -65,6 +51,17 @@ export function MicCheckScreen({ onComplete, onSkip, isReady = true }: Props) {
       analyser.smoothingTimeConstant = 0.5;
       source.connect(analyser);
       analyserRef.current = analyser;
+
+      // Populate devices list if not already done
+      if (devices.length === 0) {
+        navigator.mediaDevices.enumerateDevices().then(allDevices => {
+          const audioInputs = allDevices.filter(d => d.kind === 'audioinput');
+          setDevices(audioInputs);
+          if (!deviceId) {
+            setSelectedDeviceId(stream.getTracks()[0].getSettings().deviceId || '');
+          }
+        });
+      }
       
       setIsInitializing(false);
       
@@ -124,11 +121,7 @@ export function MicCheckScreen({ onComplete, onSkip, isReady = true }: Props) {
   const handleRetry = () => {
     setError(null);
     setIsInitializing(true);
-    if (selectedDeviceId) {
-      startMic(selectedDeviceId);
-    } else {
-      initDevices();
-    }
+    startMic(selectedDeviceId || undefined);
   };
 
   const handleDeviceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
