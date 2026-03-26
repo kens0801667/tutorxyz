@@ -170,19 +170,11 @@ export function MicCheckScreen({ onComplete, onSkip, isReady = true }: Props) {
           </div>
         )}
 
-        <div className="grid grid-cols-2 gap-4 pt-4">
-          <button
-            onClick={onSkip}
-            className="flex items-center justify-center gap-2 py-4 px-6 rounded-2xl font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 transition-all"
-          >
-            <SkipForward className="w-5 h-5" />
-            直接略過
-          </button>
-          
+        <div className="pt-4">
           <button
             onClick={onComplete}
             disabled={(isInitializing && !error) || !isReady}
-            className={`flex items-center justify-center gap-2 py-4 px-6 rounded-2xl font-bold text-white transition-all shadow-lg ${
+            className={`w-full flex items-center justify-center gap-2 py-5 px-6 rounded-2xl font-bold text-white transition-all shadow-lg text-xl ${
               !isReady
                 ? 'bg-slate-300 shadow-none cursor-not-allowed'
                 : hasDetectedSound 
@@ -192,11 +184,21 @@ export function MicCheckScreen({ onComplete, onSkip, isReady = true }: Props) {
           >
             {!isReady ? (
               <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                準備中
+                <Loader2 className="w-6 h-6 animate-spin" />
+                正在準備課程...
               </>
-            ) : hasDetectedSound ? "開始練習" : "點此跳過"}
-            {isReady && <ArrowRight className="w-5 h-5" />}
+            ) : hasDetectedSound ? (
+              <>
+                <CheckCircle2 className="w-6 h-6" />
+                開始練習
+              </>
+            ) : (
+              <>
+                <SkipForward className="w-6 h-6" />
+                跳過檢測直接開始
+              </>
+            )}
+            {isReady && !hasDetectedSound && <ArrowRight className="w-5 h-5 ml-1 opacity-50" />}
           </button>
         </div>
       </div>
