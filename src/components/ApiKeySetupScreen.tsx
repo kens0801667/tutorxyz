@@ -47,6 +47,7 @@ export function ApiKeySetupScreen({ onSave, onCancel, initialConfig }: Props) {
       const source = audioCtx.createMediaStreamSource(stream);
       const analyser = audioCtx.createAnalyser();
       analyser.fftSize = 256;
+      analyser.smoothingTimeConstant = 0.5; // Reduced from 0.8 for faster response
       source.connect(analyser);
       analyserRef.current = analyser;
       
@@ -64,7 +65,10 @@ export function ApiKeySetupScreen({ onSave, onCancel, initialConfig }: Props) {
           sum += dataArray[i];
         }
         const average = sum / bufferLength;
-        setMicLevel(Math.min(100, (average / 128) * 100));
+        // Boost sensitivity: use a lower divisor (32 instead of 128) and square root for non-linear boost
+        const normalized = average / 255;
+        const sensitvityBoost = Math.sqrt(normalized) * 100;
+        setMicLevel(Math.min(100, sensitvityBoost * 1.5));
         
         animationFrameRef.current = requestAnimationFrame(updateLevel);
       };
