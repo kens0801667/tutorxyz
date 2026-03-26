@@ -29,6 +29,15 @@ export function MicCheckScreen({ onComplete, onSkip, isReady = true }: Props) {
     };
   }, []);
 
+  // Auto-proceed when BOTH sound is detected AND content is ready
+  useEffect(() => {
+    if (hasDetectedSound && isReady && !detectionTimerRef.current) {
+      detectionTimerRef.current = setTimeout(() => {
+        onComplete();
+      }, 1000);
+    }
+  }, [hasDetectedSound, isReady, onComplete]);
+
   const startMic = async (deviceId?: string) => {
     stopMic();
     try {
@@ -99,14 +108,7 @@ export function MicCheckScreen({ onComplete, onSkip, isReady = true }: Props) {
         animationFrameRef.current = requestAnimationFrame(updateLevel);
       };
       
-  // Auto-proceed when BOTH sound is detected AND content is ready
-  useEffect(() => {
-    if (hasDetectedSound && isReady && !detectionTimerRef.current) {
-      detectionTimerRef.current = setTimeout(() => {
-        onComplete();
-      }, 1000);
-    }
-  }, [hasDetectedSound, isReady, onComplete]);
+      setIsInitializing(false);
       setIsInitializing(false);
     } catch (err) {
       handleError(err);
