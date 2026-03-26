@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { BookOpen, Loader2, Camera, Upload, Image as ImageIcon, X, History, UserCircle2 } from 'lucide-react';
+import { BookOpen, Loader2, Camera, Upload, Image as ImageIcon, X, History, Mic, Activity } from 'lucide-react';
 import { Word, TeacherStyle } from '../types';
 import { generateVocabulary, extractWordsFromImage, extractWordsFromText } from '../services/gemini';
 import { saveCustomList } from '../services/history';
@@ -33,12 +33,77 @@ export function SetupScreen({ onStart }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const micStreamRef = useRef<MediaStream | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const animationFrameRef = useRef<number | null>(null);
+  
+  const [isMicTesting, setIsMicTesting] = useState(false);
+  const [micLevel, setMicLevel] = useState(0);
 
   useEffect(() => {
     return () => {
       stopCamera();
+      stopMicTest();
     };
   }, []);
+
+  const startMicTest = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      micStreamRef.current = stream;
+      
+      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      audioContextRef.current = audioCtx;
+      
+      const source = audioCtx.createMediaStreamSource(stream);
+      const analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 256;
+      source.connect(analyser);
+      analyserRef.current = analyser;
+      
+      setIsMicTesting(true);
+      
+      const bufferLength = analyser.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+      
+      const updateLevel = () => {
+        if (!analyserRef.current) return;
+        analyserRef.current.getByteFrequencyData(dataArray);
+        
+        let sum = 0;
+        for (let i = 0; i < bufferLength; i++) {
+          sum += dataArray[i];
+        }
+        const average = sum / bufferLength;
+        setMicLevel(Math.min(100, (average / 128) * 100)); // Map to 0-100
+        
+        animationFrameRef.current = requestAnimationFrame(updateLevel);
+      };
+      
+      updateLevel();
+    } catch (err) {
+      console.error("Error accessing microphone:", err);
+      alert("無法存取麥克風，請檢查權限設定。");
+    }
+  };
+
+  const stopMicTest = () => {
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
+    }
+    if (micStreamRef.current) {
+      micStreamRef.current.getTracks().forEach(track => track.stop());
+      micStreamRef.current = null;
+    }
+    if (audioContextRef.current) {
+      audioContextRef.current.close();
+      audioContextRef.current = null;
+    }
+    setIsMicTesting(false);
+    setMicLevel(0);
+  };
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -170,6 +235,41 @@ export function SetupScreen({ onStart }: Props) {
           <h1 className="text-4xl sm:text-5xl font-extrabold text-slate-800 tracking-tight">tutorxyz</h1>
           <h2 className="text-xl sm:text-2xl font-bold text-indigo-600">AI單字家教</h2>
           <p className="text-slate-500 text-base sm:text-lg pt-1">為孩子量身打造的專屬單字課</p>
+
+          {/* MicroPhone Test Section */}
+          <div className="mt-6 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2 text-slate-700 font-bold">
+                <Mic className="w-5 h-5 text-indigo-600" />
+                <span>麥克風測試</span>
+              </div>
+              <button
+                onClick={isMicTesting ? stopMicTest : startMicTest}
+                className={`px-4 py-1.5 rounded-full text-sm font-bold transition-all ${
+                  isMicTesting 
+                    ? 'bg-red-100 text-red-600 hover:bg-red-200' 
+                    : 'bg-indigo-100 text-indigo-600 hover:bg-indigo-200'
+                }`}
+              >
+                {isMicTesting ? "停止測試" : "開始測試"}
+              </button>
+            </div>
+            
+            <div className="relative h-4 bg-slate-200 rounded-full overflow-hidden">
+              <div 
+                className="absolute inset-y-0 left-0 bg-gradient-to-r from-emerald-400 to-indigo-500 transition-all duration-75"
+                style={{ width: `${micLevel}%` }}
+              ></div>
+              {isMicTesting && micLevel > 10 && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Activity className="w-3 h-3 text-white animate-pulse" />
+                </div>
+              )}
+            </div>
+            <p className="text-xs text-slate-400 mt-2 text-center">
+              {isMicTesting ? "正在偵測音量..." : "點擊按鈕檢查您的收音是否正常"}
+            </p>
+          </div>
         </div>
 
         {/* Input Mode Tabs */}
