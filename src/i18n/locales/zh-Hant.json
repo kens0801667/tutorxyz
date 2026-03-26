@@ -1,0 +1,199 @@
+{
+  "login": {
+    "title": "tutorxyz",
+    "subtitle": "AI 智能單字家教",
+    "description": "結合 Gemini AI 技術，為孩子提供沉浸式的單字學習環境。透過即時對話練習、美式發音糾正與客製化測驗，讓學習語言變得自然又有趣。",
+    "why_google_title": "為什麼需要登入 Google 帳號？",
+    "calendar_title": "串聯 Google 日曆：自動記錄學習歷程",
+    "calendar_desc": "我們申請存取您的日曆權限，是為了將每次的測驗成績（分數、錯誤單字、測驗時間）紀錄於專屬日曆中，讓家長與孩子能清晰追蹤長期的學習曲線。",
+    "drive_title": "存取 Google 雲端硬碟：保護您的隱私設定",
+    "drive_desc": "我們使用 Google Drive App Data 資料夾來儲存您的 AI 金鑰 (API Key) 及個人偏好設定。這確保了敏感資訊僅儲存在您個人的雲端空間，tutorxyz 伺服器不會保存您的私密金鑰。",
+    "cta_button": "使用 Google 帳號開始學習",
+    "agreement": "登入即表示您同意我們的服務條款與隱私權政策。",
+    "privacy": "隱私權政策",
+    "terms": "服務條款",
+    "contact": "聯繫支援",
+    "copyright": "© 2026 tutorxyz. 版權所有。"
+  },
+  "setup": {
+    "title": "AI單字家教",
+    "subtitle": "為孩子量身打造的專屬單字課",
+    "tabs": {
+      "topic": "依主題產生",
+      "image": "拍照 / 上傳",
+      "text": "手動輸入",
+      "history": "歷史紀錄"
+    },
+    "level_label": "年級、能力或課文範圍",
+    "level_placeholder": "例如：國一上學期、A2 初級、康軒第三課...",
+    "topic_label": "學習主題",
+    "topic_placeholder": "例如：學校生活與文具、動物、水果...",
+    "image_label": "上傳單字表照片",
+    "text_label": "輸入單字清單",
+    "text_placeholder": "請輸入或貼上單字清單...\n例如：\napple 蘋果\nbanana 香蕉\ncat 貓",
+    "count_label": "單字數量",
+    "count_max_label": "最多擷取單字數",
+    "start_button": "開始學習",
+    "loading": {
+      "topic": "正在產生單字...",
+      "image": "正在辨識單字...",
+      "text": "正在處理單字..."
+    },
+    "errors": {
+      "camera_denied": "無法開啟相機，請確認是否已授權相機權限。",
+      "image_no_words": "無法從圖片中辨識出任何英文單字，請重新拍攝或上傳更清晰的照片。",
+      "text_no_words": "無法從文字中辨識出任何英文單字，請重新輸入。",
+      "failed": "產生單字失敗，請重試。"
+    },
+    "history_label": "歷史紀錄",
+    "custom_list_label": "自訂單字表",
+    "camera": {
+      "cancel": "取消",
+      "capture": "拍攝照片",
+      "live": "即時拍攝",
+      "upload": "上傳照片",
+      "clear": "清除圖片",
+      "selected": "已選擇照片"
+    }
+  },
+  "learning": {
+    "title": "單字學習",
+    "cancel": "取消學習",
+    "skip": "略過學習",
+    "pronounce": "聽發音",
+    "explanation": "老師講解",
+    "example": "例句 Example",
+    "complete": "完成學習",
+    "next": "下一個",
+    "prev": "上一個"
+  },
+  "speaking": {
+    "title": "即時語音口說測驗",
+    "cancel": "取消測驗",
+    "connecting": "正在連線至 Teacher Gemini...",
+    "finished_title": "測驗完成！",
+    "score_unit": "分",
+    "next_button": "接續筆試",
+    "ai_speaking": "老師正在說話...",
+    "ai_listening": "老師正在聽你說...",
+    "mic_label": "你的麥克風",
+    "mic_wait": "請先聽老師說完",
+    "mic_active": "請直接說話回應",
+    "instruction": "請直接對著麥克風說話，老師會即時回應你。\n測驗包含：",
+    "initial_prompt": "老師你好，我準備好開始測驗了，請直接開始第一題！"
+  },
+  "written": {
+    "title": "筆試測驗",
+    "cancel": "取消測驗",
+    "loading": "AI 正在為您生成專屬試卷...",
+    "load_failed": "生成測驗失敗",
+    "placeholder": "請輸入答案...",
+    "submit": "送出答案",
+    "next": "下一題",
+    "view_report": "查看成績單",
+    "correct": "答對了！",
+    "wrong": "答錯了",
+    "correct_is": "正確答案是："
+  },
+  "report": {
+    "title": "學習成果報告",
+    "avg_speaking": "口說平均分數",
+    "written_accuracy": "筆試正確率",
+    "questions_unit": "題",
+    "table": {
+      "word": "單字",
+      "written": "筆試",
+      "speaking": "口說分數",
+      "ai_feedback": "AI 口說建議"
+    },
+    "restart": "開始新課程",
+    "calendar_link": "前往 Google 日曆查看學習紀錄"
+  },
+  "app": {
+    "steps": {
+      "setup": "設定",
+      "learning": "學習",
+      "speaking": "口說",
+      "written": "筆試",
+      "report": "報告"
+    },
+    "nav": {
+      "settings": "設定",
+      "logout": "登出"
+    },
+    "loading": {
+      "checking_config": "正在檢查系統設定...",
+      "saving_calendar": "正在儲存成績至 Google 日曆..."
+    },
+    "alerts": {
+      "auth_error": "驗證錯誤，請重試。",
+      "login_failed": "登入失敗，請重試。",
+      "drive_auth_confirm": "儲存金鑰需要您的 Google Drive 授權。是否現在進行授權？",
+      "save_config_failed": "儲存設定失敗，請重試。",
+      "login_expired": "登入已過期，請重新登入。",
+      "calendar_auth_confirm": "儲存至日曆功能需要您的授權。是否現在進行授權？",
+      "save_calendar_success": "測驗成績已成功儲存至您的 Google 日曆！",
+      "save_calendar_failed": "儲存至日曆失敗，請檢查權限設定。"
+    },
+    "footer": {
+      "privacy": "隱私權政策",
+      "terms": "服務條款"
+    }
+  },
+  "calendar": {
+    "event_title": "單字測驗: {{topic}} - 成績: {{score}}分",
+    "topic_label": "測驗主題",
+    "total_words_label": "本次測驗單字數",
+    "score_label": "分數",
+    "score_unit": "分",
+    "duration_label": "學習與測驗總花費時間",
+    "duration_min": "分",
+    "duration_sec": "秒",
+    "mistakes_label": "需要加強的單字",
+    "no_mistakes": "全對！太棒了！"
+  },
+  "settings": {
+    "title": "系統設定",
+    "subtitle": "請設定您的 Gemini API Key 與系統偏好。",
+    "description": "您的設定將會安全地儲存在您個人的 Google Drive 應用程式資料夾中。",
+    "api_key_title": "Gemini API Key",
+    "api_key_placeholder": "輸入 AIzaSy... 開頭的金鑰",
+    "cost_alert": {
+      "title": "費用提醒",
+      "content": "使用 Gemini API 可能會產生費用，具體取決於您的使用量與 Google Cloud 帳單設定。請妥善保管您的金鑰，避免外洩。"
+    },
+    "no_key": "還沒有金鑰？",
+    "get_key": "前往 Google AI Studio 申請",
+    "calendar_title": "日曆名稱設定",
+    "calendar_desc": "測驗成績將會自動記錄到這個名稱的 Google 日曆中：",
+    "calendar_placeholder": "例如：tutorxyz學習紀錄",
+    "config_file_title": "設定檔名稱",
+    "config_file_desc": "儲存在 Google Drive 中的檔名：",
+    "style_title": "老師教學風格",
+    "styles": {
+      "enthusiastic": {
+        "name": "熱情鼓勵型",
+        "desc": "Kore (明亮活力)",
+        "icon": "🌟"
+      },
+      "strict": {
+        "name": "嚴格精準型",
+        "desc": "Fenrir (低沉穩重)",
+        "icon": "🧐"
+      },
+      "socratic": {
+        "name": "引導啟發型",
+        "desc": "Charon (溫和智者)",
+        "icon": "🤔"
+      },
+      "humorous": {
+        "name": "幽默搞笑型",
+        "desc": "Puck (輕鬆活潑)",
+        "icon": "😂"
+      }
+    },
+    "save": "儲存並開始",
+    "saving": "正在儲存設定...",
+    "cancel": "取消"
+  }
+}

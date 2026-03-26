@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Key, ExternalLink, Loader2, CheckCircle2, AlertTriangle, Calendar, FileJson, Mic2 } from 'lucide-react';
+import { Key, ExternalLink, Loader2, CheckCircle2, AlertTriangle, Calendar, FileJson, Mic2, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { TeacherStyle } from '../types';
 
 export interface AppConfig {
@@ -16,11 +17,18 @@ interface Props {
 }
 
 export function ApiKeySetupScreen({ onSave, onCancel, initialConfig }: Props) {
+  const { t } = useTranslation();
   const [apiKey, setApiKey] = useState(initialConfig?.geminiApiKey || '');
-  const [calendarName, setCalendarName] = useState(initialConfig?.calendarName || 'tutorxyz學習紀錄');
+  const [calendarName, setCalendarName] = useState(initialConfig?.calendarName || '');
   const [configFileName, setConfigFileName] = useState(initialConfig?.configFileName || 'tutorxyz_config.json');
   const [teacherStyle, setTeacherStyle] = useState<TeacherStyle>(initialConfig?.teacherStyle || 'enthusiastic');
   const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    if (!calendarName && !initialConfig?.calendarName) {
+      setCalendarName(t('settings.calendar_placeholder'));
+    }
+  }, [t, calendarName, initialConfig]);
 
   const handleSave = async () => {
     if (!apiKey.trim() || !calendarName.trim() || !configFileName.trim()) return;
@@ -36,47 +44,57 @@ export function ApiKeySetupScreen({ onSave, onCancel, initialConfig }: Props) {
 
   return (
     <div className="flex flex-col items-center justify-center h-full max-w-2xl mx-auto p-4 sm:p-8">
-      <div className="bg-white rounded-3xl shadow-xl p-6 sm:p-10 w-full space-y-8">
+      <div className="bg-white rounded-3xl shadow-xl p-6 sm:p-10 w-full space-y-8 relative">
+        {onCancel && (
+          <button 
+            onClick={onCancel}
+            className="absolute top-6 right-6 p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-all"
+          >
+            <X className="w-6 h-6" />
+          </button>
+        )}
+
         <div className="text-center space-y-4">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-indigo-100 rounded-full mb-2">
             <Key className="w-10 h-10 text-indigo-600" />
           </div>
-          <h2 className="text-3xl font-bold text-slate-800">系統設定</h2>
+          <h2 className="text-3xl font-bold text-slate-800">{t('settings.title')}</h2>
           <p className="text-slate-500 text-lg">
-            請設定您的 Gemini API Key 與系統偏好。
-            您的設定將會安全地儲存在您個人的 Google Drive 應用程式資料夾中。
+            {t('settings.subtitle')}
+            <br />
+            {t('settings.description')}
           </p>
         </div>
 
         <div className="space-y-4 bg-slate-50 p-6 rounded-2xl border border-slate-100">
           <h3 className="font-bold text-slate-700 flex items-center gap-2">
             <Key className="w-5 h-5 text-indigo-600" />
-            Gemini API Key
+            {t('settings.api_key_title')}
           </h3>
           <div className="pl-7 space-y-3">
             <input
               type="password"
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
-              placeholder="AIzaSy..."
+              placeholder={t('settings.api_key_placeholder')}
               className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all outline-none font-mono"
             />
             <div className="flex items-start gap-2 text-amber-600 bg-amber-50 p-3 rounded-lg border border-amber-100">
               <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
               <div className="text-sm">
-                <p className="font-bold">費用提醒</p>
-                <p>使用 Gemini API 可能會產生費用，具體取決於您的使用量與 Google Cloud 帳單設定。請妥善保管您的金鑰，避免外洩。</p>
+                <p className="font-bold">{t('settings.cost_alert.title')}</p>
+                <p>{t('settings.cost_alert.content')}</p>
               </div>
             </div>
             <p className="text-slate-600 text-sm">
-              還沒有金鑰？
+              {t('settings.no_key')}
               <a 
                 href="https://aistudio.google.com/app/apikey" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1 text-indigo-600 hover:text-indigo-700 font-medium ml-1"
               >
-                前往 Google AI Studio 申請 <ExternalLink className="w-3 h-3" />
+                {t('settings.get_key')} <ExternalLink className="w-3 h-3" />
               </a>
             </p>
           </div>
@@ -85,33 +103,33 @@ export function ApiKeySetupScreen({ onSave, onCancel, initialConfig }: Props) {
         <div className="space-y-4 bg-slate-50 p-6 rounded-2xl border border-slate-100">
           <h3 className="font-bold text-slate-700 flex items-center gap-2">
             <Calendar className="w-5 h-5 text-indigo-600" />
-            日曆名稱設定
+            {t('settings.calendar_title')}
           </h3>
           <div className="pl-7">
-            <p className="text-slate-500 text-sm mb-2">測驗成績將會自動記錄到這個名稱的 Google 日曆中：</p>
+            <p className="text-slate-500 text-sm mb-2">{t('settings.calendar_desc')}</p>
             <input
               type="text"
               value={calendarName}
               onChange={(e) => setCalendarName(e.target.value)}
-              placeholder="例如：tutorxyz學習紀錄"
+              placeholder={t('settings.calendar_placeholder')}
               className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all outline-none"
             />
           </div>
         </div>
 
-        <div className="space-y-4 bg-slate-50 p-6 rounded-2xl border border-slate-100">
+        <div className="space-y-4 bg-slate-100 p-6 rounded-2xl">
           <h3 className="font-bold text-slate-700 flex items-center gap-2">
-            <FileJson className="w-5 h-5 text-indigo-600" />
-            設定檔儲存位置
+            <FileJson className="w-5 h-5 text-slate-500" />
+            {t('settings.config_file_title')}
           </h3>
           <div className="pl-7">
-            <p className="text-slate-500 text-sm mb-2">儲存在 Google Drive appDataFolder 中的檔案名稱：</p>
+            <p className="text-slate-500 text-sm mb-2">{t('settings.config_file_desc')}</p>
             <input
               type="text"
               value={configFileName}
               onChange={(e) => setConfigFileName(e.target.value)}
-              placeholder="例如：tutorxyz_config.json"
-              className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all outline-none font-mono"
+              className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 bg-slate-50 text-slate-600 focus:border-slate-400 outline-none font-mono text-sm"
+              readOnly
             />
           </div>
         </div>
@@ -119,31 +137,26 @@ export function ApiKeySetupScreen({ onSave, onCancel, initialConfig }: Props) {
         <div className="space-y-4 bg-slate-50 p-6 rounded-2xl border border-slate-100">
           <h3 className="font-bold text-slate-700 flex items-center gap-2">
             <Mic2 className="w-5 h-5 text-indigo-600" />
-            口語老師風格與音色
+            {t('settings.style_title')}
           </h3>
           <div className="pl-7 grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {[
-              { id: 'enthusiastic', label: '熱情鼓勵型', desc: 'Kore (明亮活力)', icon: '🌟' },
-              { id: 'strict', label: '嚴格精準型', desc: 'Fenrir (低沉穩重)', icon: '🧐' },
-              { id: 'socratic', label: '引導啟發型', desc: 'Charon (溫和智者)', icon: '🤔' },
-              { id: 'humorous', label: '幽默搞笑型', desc: 'Puck (輕鬆活潑)', icon: '😂' }
-            ].map((style) => (
+            {(['enthusiastic', 'strict', 'socratic', 'humorous'] as TeacherStyle[]).map((style) => (
               <button
-                key={style.id}
-                onClick={() => setTeacherStyle(style.id as TeacherStyle)}
+                key={style}
+                onClick={() => setTeacherStyle(style)}
                 className={`p-4 rounded-xl border-2 text-left transition-all ${
-                  teacherStyle === style.id
-                    ? 'border-indigo-600 bg-indigo-50/50 shadow-sm'
-                    : 'border-slate-200 hover:border-indigo-300 hover:bg-slate-50'
+                  teacherStyle === style 
+                    ? 'border-indigo-500 bg-indigo-50 ring-4 ring-indigo-500/10' 
+                    : 'border-slate-200 bg-white hover:border-slate-300'
                 }`}
               >
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-xl">{style.icon}</span>
-                  <span className={`font-bold ${teacherStyle === style.id ? 'text-indigo-700' : 'text-slate-700'}`}>
-                    {style.label}
+                  <span className="text-xl">{t(`settings.styles.${style}.icon`)}</span>
+                  <span className={`font-bold ${teacherStyle === style ? 'text-indigo-700' : 'text-slate-700'}`}>
+                    {t(`settings.styles.${style}.name`)}
                   </span>
                 </div>
-                <p className="text-sm text-slate-500">{style.desc}</p>
+                <p className="text-sm text-slate-500">{t(`settings.styles.${style}.desc`)}</p>
               </button>
             ))}
           </div>
@@ -156,7 +169,7 @@ export function ApiKeySetupScreen({ onSave, onCancel, initialConfig }: Props) {
               disabled={isSaving}
               className="flex-1 py-4 rounded-xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors disabled:opacity-50"
             >
-              取消
+              {t('settings.cancel')}
             </button>
           )}
           <button
@@ -167,12 +180,12 @@ export function ApiKeySetupScreen({ onSave, onCancel, initialConfig }: Props) {
             {isSaving ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin" />
-                儲存中...
+                {t('settings.saving')}
               </>
             ) : (
               <>
                 <CheckCircle2 className="w-5 h-5" />
-                儲存設定
+                {t('settings.save')}
               </>
             )}
           </button>

@@ -8,18 +8,24 @@ export function setGeminiApiKey(key: string) {
 }
 
 function getAI() {
-  const key = userApiKey || process.env.GEMINI_API_KEY;
+  const key = userApiKey || (typeof process !== 'undefined' ? process.env.GEMINI_API_KEY : null);
   if (!key) {
     throw new Error("Gemini API Key is missing. Please set it up first.");
   }
   return new GoogleGenAI({ apiKey: key });
 }
 
-export async function generateVocabulary(topic: string, level: string, count: number): Promise<Word[]> {
+function getLangName(lang: string) {
+  if (lang.startsWith('ko')) return "한국어 (Korean)";
+  return "繁體中文 (Traditional Chinese)";
+}
+
+export async function generateVocabulary(topic: string, level: string, count: number, lang: string): Promise<Word[]> {
   const ai = getAI();
+  const langName = getLangName(lang);
   const response = await ai.models.generateContent({
     model: "gemini-3-flash-preview",
-    contents: `你是一位專業的英語老師。請根據『${level}，主題：${topic}』，產生 ${count} 個必背單字。請以 JSON 格式回覆，包含欄位：word (英文單字), pos (詞性), meaning (繁體中文解釋), exampleSentence (英文例句), exampleTranslation (例句中文翻譯)。`,
+    contents: `You are a professional English teacher. Please generate ${count} essential vocabulary words based on: level "${level}", topic "${topic}". Please respond in JSON format and set the translation and explanation to ${langName}. Include fields: word (English word), pos (part of speech), meaning (word translation), exampleSentence (English sentence), exampleTranslation (example translation).`,
     config: {
       responseMimeType: "application/json",
       responseSchema: {
@@ -28,10 +34,10 @@ export async function generateVocabulary(topic: string, level: string, count: nu
           type: Type.OBJECT,
           properties: {
             word: { type: Type.STRING },
-            meaning: { type: Type.STRING, description: "Traditional Chinese translation" },
+            meaning: { type: Type.STRING },
             pos: { type: Type.STRING },
             exampleSentence: { type: Type.STRING },
-            exampleTranslation: { type: Type.STRING, description: "Traditional Chinese translation of the example sentence" }
+            exampleTranslation: { type: Type.STRING }
           },
           required: ["word", "meaning", "pos", "exampleSentence", "exampleTranslation"]
         }
@@ -39,8 +45,8 @@ export async function generateVocabulary(topic: string, level: string, count: nu
     }
   });
   
-  // Map the new fields (pos, meaning) to our internal Word interface (partOfSpeech, translation)
-  const rawData = JSON.parse(response.text || "[]");
+  const responseText = response.candidates?.[0]?.content?.parts?.[0]?.text || "[]";
+  const rawData = JSON.parse(responseText);
   return rawData.map((item: any) => ({
     word: item.word,
     translation: item.meaning,
@@ -50,7 +56,8 @@ export async function generateVocabulary(topic: string, level: string, count: nu
   }));
 }
 
-export async function extractWordsFromImage(base64Data: string, mimeType: string, count: number): Promise<Word[]> {
+export async function extractWordsFromImage(base64Data: string, mimeType: string, count: number, lang: string): Promise<Word[]> {
+  const langName = getLangName(lang);
   const response = await getAI().models.generateContent({
     model: "gemini-3-flash-preview",
     contents: [
@@ -60,15 +67,15 @@ export async function extractWordsFromImage(base64Data: string, mimeType: string
           mimeType: mimeType
         }
       },
-      `請從這張圖片中擷取英文單字。請回傳一個 JSON 陣列，包含最多 ${count} 個單字。
-      每個單字物件必須包含以下欄位：
-      - word: 英文單字
-      - meaning: 繁體中文翻譯
-      - pos: 詞性 (例如 n., v., adj.)
-      - exampleSentence: 一句簡單的英文例句
-      - exampleTranslation: 例句的繁體中文翻譯
+      `Please extract English vocabulary words from this image. Return a JSON array with a maximum of ${count} words. Use ${langName} for translations and explanations. 
+      Each word object must include: 
+      - word: English word
+      - meaning: translation in ${langName}
+      - pos: part of speech (e.g., n., v., adj.)
+      - exampleSentence: a simple English example sentence
+      - exampleTranslation: translation of the example sentence in ${langName}
       
-      如果圖片中沒有足夠的單字，請盡可能擷取。如果圖片中沒有任何單字，請回傳空陣列 []。`
+      If there are not enough words in the image, extract as many as possible. If no words are found, return an empty array [].`
     ],
     config: {
       responseMimeType: "application/json",
@@ -78,10 +85,10 @@ export async function extractWordsFromImage(base64Data: string, mimeType: string
           type: Type.OBJECT,
           properties: {
             word: { type: Type.STRING },
-            meaning: { type: Type.STRING, description: "Traditional Chinese translation" },
+            meaning: { type: Type.STRING },
             pos: { type: Type.STRING },
             exampleSentence: { type: Type.STRING },
-            exampleTranslation: { type: Type.STRING, description: "Traditional Chinese translation of the example sentence" }
+            exampleTranslation: { type: Type.STRING }
           },
           required: ["word", "meaning", "pos", "exampleSentence", "exampleTranslation"]
         }
@@ -89,7 +96,8 @@ export async function extractWordsFromImage(base64Data: string, mimeType: string
     }
   });
 
-  const rawData = JSON.parse(response.text || "[]");
+  const responseText = response.candidates?.[0]?.content?.parts?.[0]?.text || "[]";
+  const rawData = JSON.parse(responseText);
   return rawData.map((item: any) => ({
     word: item.word,
     translation: item.meaning,
@@ -99,18 +107,19 @@ export async function extractWordsFromImage(base64Data: string, mimeType: string
   }));
 }
 
-export async function extractWordsFromText(text: string, count: number): Promise<Word[]> {
+export async function extractWordsFromText(text: string, count: number, lang: string): Promise<Word[]> {
+  const langName = getLangName(lang);
   const response = await getAI().models.generateContent({
     model: "gemini-3-flash-preview",
-    contents: `請從以下文字中擷取英文單字。請回傳一個 JSON 陣列，包含最多 ${count} 個單字。
+    contents: `請從以下文字中擷取英文單字。請回傳一個 JSON 陣列，包含最多 ${count} 個單字。請使用 ${langName} 進行翻譯。
       每個單字物件必須包含以下欄位：
       - word: 英文單字
-      - meaning: 繁體中文翻譯
+      - meaning: 單字翻譯
       - pos: 詞性 (例如 n., v., adj.)
       - exampleSentence: 一句簡單的英文例句
-      - exampleTranslation: 例句的繁體中文翻譯
+      - exampleTranslation: 例句翻譯
       
-      如果文字中沒有提供中文翻譯，請自動補充。如果文字中沒有足夠的單字，請盡可能擷取。如果沒有任何單字，請回傳空陣列 []。
+      如果文字中沒有提供翻譯，請自動補充。如果文字中沒有足夠的單字，請盡可能擷取。如果沒有任何單字，請回傳空陣列 []。
       
       文字內容：
       ${text}`,
@@ -122,10 +131,10 @@ export async function extractWordsFromText(text: string, count: number): Promise
           type: Type.OBJECT,
           properties: {
             word: { type: Type.STRING },
-            meaning: { type: Type.STRING, description: "Traditional Chinese translation" },
+            meaning: { type: Type.STRING },
             pos: { type: Type.STRING },
             exampleSentence: { type: Type.STRING },
-            exampleTranslation: { type: Type.STRING, description: "Traditional Chinese translation of the example sentence" }
+            exampleTranslation: { type: Type.STRING }
           },
           required: ["word", "meaning", "pos", "exampleSentence", "exampleTranslation"]
         }
@@ -133,7 +142,8 @@ export async function extractWordsFromText(text: string, count: number): Promise
     }
   });
 
-  const rawData = JSON.parse(response.text || "[]");
+  const responseText = response.candidates?.[0]?.content?.parts?.[0]?.text || "[]";
+  const rawData = JSON.parse(responseText);
   return rawData.map((item: any) => ({
     word: item.word,
     translation: item.meaning,
@@ -143,18 +153,18 @@ export async function extractWordsFromText(text: string, count: number): Promise
   }));
 }
 
-export async function fillWordDetails(words: string[]): Promise<Word[]> {
+export async function fillWordDetails(words: string[], lang: string): Promise<Word[]> {
   if (words.length === 0) return [];
-  
+  const langName = getLangName(lang);
   const response = await getAI().models.generateContent({
     model: "gemini-3-flash-preview",
-    contents: `請為以下英文單字提供繁體中文翻譯、詞性、一個簡單實用的英文例句，以及例句的繁體中文翻譯。
+    contents: `請為以下英文單字提供 ${langName} 翻譯、詞性、一個簡單實用的英文例句，以及例句的 ${langName} 翻譯。
       請以 JSON 陣列格式回傳，每個單字物件必須包含以下欄位：
       - word: 英文單字
-      - meaning: 繁體中文翻譯
+      - meaning: 單字翻譯
       - pos: 詞性 (例如 n., v., adj.)
       - exampleSentence: 一句簡單的英文例句
-      - exampleTranslation: 例句的繁體中文翻譯
+      - exampleTranslation: 例句翻譯
       
       單字列表：
       ${words.join('\n')}`,
@@ -166,10 +176,10 @@ export async function fillWordDetails(words: string[]): Promise<Word[]> {
           type: Type.OBJECT,
           properties: {
             word: { type: Type.STRING },
-            meaning: { type: Type.STRING, description: "Traditional Chinese translation" },
+            meaning: { type: Type.STRING },
             pos: { type: Type.STRING },
             exampleSentence: { type: Type.STRING },
-            exampleTranslation: { type: Type.STRING, description: "Traditional Chinese translation of the example sentence" }
+            exampleTranslation: { type: Type.STRING }
           },
           required: ["word", "meaning", "pos", "exampleSentence", "exampleTranslation"]
         }
@@ -177,7 +187,8 @@ export async function fillWordDetails(words: string[]): Promise<Word[]> {
     }
   });
 
-  const rawData = JSON.parse(response.text || "[]");
+  const responseText = response.candidates?.[0]?.content?.parts?.[0]?.text || "[]";
+  const rawData = JSON.parse(responseText);
   return rawData.map((item: any) => ({
     word: item.word,
     translation: item.meaning,
@@ -197,12 +208,13 @@ export function getVoiceConfig(style: TeacherStyle) {
   }
 }
 
-export async function generateTeacherScript(word: string, meaning: string): Promise<string> {
+export async function generateTeacherScript(word: string, meaning: string, lang: string): Promise<string> {
+  const langName = getLangName(lang);
   const response = await getAI().models.generateContent({
     model: "gemini-3-flash-preview",
-    contents: `你是一位親切的英文家教。現在要教的單字是 '${word}' (${meaning})。請產生一段簡短的教學口白，必須包含：1. 唸出單字兩次、2. 唸出拼字、3. 簡單解釋、4. 造一個生活化的英文例句並附上中文翻譯。請以純文字回覆，方便語音系統朗讀。`,
+    contents: `You are a friendly English tutor. The word to teach now is '${word}' (translation: ${meaning}). Please generate a short teaching script in ${langName} that includes: 1. Pronouncing the word twice, 2. Spelling out the letters, 3. A simple explanation, and 4. Creating a real-life English example sentence with its ${langName} translation. Please reply in plain text only for the TTS system to read.`,
   });
-  return response.text || "";
+  return response.candidates?.[0]?.content?.parts?.[0]?.text || "";
 }
 
 export async function generateAudio(text: string, teacherStyle: TeacherStyle = 'enthusiastic'): Promise<string | undefined> {
@@ -237,7 +249,7 @@ export async function generateAudio(text: string, teacherStyle: TeacherStyle = '
 }
 
 export async function evaluateSpeakingDialog(word: string, meaning: string, studentInput: string, history: {role: string, parts: {text: string}[]}[]): Promise<{response: string, isCorrect: boolean}> {
-  const systemInstruction = `你是英文口說家教。測驗單字：${word} (中文：${meaning})。
+  const systemInstruction = `你是英文口說家教。測驗單字：${word} (解釋：${meaning})。
   目標：引導學生完成「唸出單字」與「拼出字母」。
   規則：
   1. 學生可以分開或同時完成「唸出單字」與「拼字」。
@@ -256,7 +268,8 @@ export async function evaluateSpeakingDialog(word: string, meaning: string, stud
   });
 
   const response = await chat.sendMessage({ message: studentInput });
-  const text = response.text || "";
+  const responseText = response.candidates?.[0]?.content?.parts?.[0]?.text || "";
+  const text = responseText;
   const isCorrect = text.includes("[CORRECT]");
   const cleanResponse = text.replace("[CORRECT]", "").trim();
 
@@ -266,65 +279,70 @@ export async function evaluateSpeakingDialog(word: string, meaning: string, stud
 export async function startLiveSpeakingSession(
   words: {word: string, translation: string}[],
   teacherStyle: TeacherStyle,
+  lang: string,
   onAudioData: (base64: string) => void,
   onInterrupted: () => void,
   onTestFinished: (score: number, feedback: string) => void
 ) {
   const wordListStr = words.map(w => `${w.word} (${w.translation})`).join(', ');
+  const langName = getLangName(lang);
   
   let stylePrompt = "";
   switch (teacherStyle) {
     case 'enthusiastic':
-      stylePrompt = `【你的風格：熱情鼓勵型 (The Enthusiastic Motivator)】
-特色： 高能量、語氣誇張、充滿正能量。無論學生答對或答錯，都會給予極大的情緒價值，主要目的是「建立開口說英文的自信」。
-AI 提示詞重點： 「你是一位極度熱情、隨時都在誇獎學生的啦啦隊老師。請多使用『太棒了』等字眼。學生答錯時，用極度溫柔且鼓勵的語氣給予提示。」`;
+      stylePrompt = `【Your Style: The Enthusiastic Motivator】
+Traits: High energy, encouraging, and full of positive vibes. Regardless of whether the student is right or wrong, provide immense emotional support to build their confidence in speaking English.
+Emphasis: "Be extremely warm, always praising the student. Use encouraging phrases like 'Fantastic!', 'Great job!'. If they make a mistake, provide hints in a soft and supportive tone."`;
       break;
     case 'strict':
-      stylePrompt = `【你的風格：嚴格精準型 (The Strict Academic)】
-特色： 講求效率與準確度。不講廢話，會立刻點出發音的瑕疵或拼字的錯誤，要求學生反覆練習直到完美。
-AI 提示詞重點： 「你是一位嚴謹、高標準的專業學術導師。語氣平穩、專業、不苟言笑。當學生發音有微小瑕疵時，必須立刻指正。以效率與正確性為最高原則。」`;
+      stylePrompt = `【Your Style: The Strict Academic】
+Traits: Focus on efficiency and accuracy. No fluff. Point out pronunciation flaws or spelling errors immediately and require the student to practice until perfect.
+Emphasis: "Be a rigorous, high-standard professional academic tutor. Tone should be steady, professional, and serious. Correct even minor pronunciation flaws immediately. Prioritize efficiency and correctness."`;
       break;
     case 'socratic':
-      stylePrompt = `【你的風格：引導啟發型 (The Socratic Guide)】
-特色： 絕對不直接給答案。善用提問、字根字首、或是生活中的聯想來引導學生自己想出答案。
-AI 提示詞重點： 「你是一位擅長啟發思考的智者老師。當學生不會拼字或發音時，絕對禁止直接給答案。必須給予線索引導他自己拼出來。」`;
+      stylePrompt = `【Your Style: The Socratic Guide】
+Traits: Never give answers directly. Use questions, etymology, or life associations to guide students to discover the answers themselves.
+Emphasis: "Be a wise teacher skilled in inspiring thought. When a student struggles with spelling or pronunciation, do not give the answer. Provide clues to lead them to spell it out themselves."`;
       break;
     case 'humorous':
-      stylePrompt = `【你的風格：幽默搞笑型 (The Comedian)】
-特色： 語氣輕鬆、像朋友一樣，會用好笑的諧音梗或誇張的情境來解釋單字，讓學習過程充滿樂趣。
-AI 提示詞重點： 「你是一位幽默、愛開玩笑的朋友型家教。用語氣輕鬆、時下流行的口吻說話。如果學生答錯，用輕鬆幽默的方式化解尷尬並給予提示。」`;
+      stylePrompt = `【Your Style: The Comedian】
+Traits: Relaxed tone, like a friend. Use funny puns or exaggerated scenarios to explain words, making the learning process enjoyable.
+Emphasis: "Be a humorous, joke-loving friend-type tutor. Speak with a relaxed, trendy tone. If the student makes a mistake, use humor to diffuse the awkwardness and provide hints."`;
       break;
   }
 
-  const systemInstruction = `你現在是一位專為台灣學生設計的英文口說家教「Teacher Gemini」。 我們現在要進行「即時語音單字測驗」。
+  const systemInstruction = `You are "Teacher Gemini", a professional English tutor for students who speak ${langName}. 
+
+CORE OBJECTIVE: Conduct a "Live Voice Vocabulary Test" to assess the student's English pronunciation and spelling.
+
+LANGUAGE ROLES:
+- TARGET LANGUAGE: English (The language the student is learning).
+- SUPPORT LANGUAGE: ${langName} (The student's native language, used for your explanations and clues).
 
 ${stylePrompt}
 
-【你的任務】 逐一測試學生以下單字的「發音」與「拼寫」：
-待測單字清單：[${wordListStr}]
+YOUR TASK:
+1. For each word in the list below, you must provide its definition or a clue ONLY in ${langName}.
+2. **STRICT RULE**: You are ABSOLUTELY PROHIBITED from saying the target English word until the student has successfully pronounced and spelled it.
+3. The student must respond by saying the English word AND spelling it out (e.g., "Apple, A-P-P-L-E").
 
-【互動規則】（請嚴格遵守，因為我們正在進行即時語音通話）
+Word List to be Tested: [${wordListStr}]
 
-極度簡短自然： 每次發言保持在 1 到 2 句話以內。請像真人一樣對話，絕對不要像在唸稿或給出長篇大論。
+INTERACTION RULES:
+- **Concise & Natural**: Keep each turn to 1-2 sentences. Avoid long lectures.
+- **One Word at a Time**: Only test one word from the list at a time.
+- **Proactive Feedback**: You MUST respond as soon as you detect any pause in student output. 
+    - If the student provided the word and the correct spelling: Praise them immediately and move to the next word.
+    - If they are only halfway through or seem to have stopped: Provide the next letter as a hint or ask them to continue in ${langName}.
+    - If you are unsure what they said: Ask them to repeat the word or spelling in ${langName}.
+- **Never Stay Silent**: If there is more than 1.5 seconds of silence after a student attempt, you MUST speak to keep the session alive.
+- **Acknowledge Partial Success**: If they get the pronunciation right but struggle with spelling, praise the pronunciation first and then guide the spelling.
 
-一次一件事： 一次只測驗「一個」單字。
-⚠️ 絕對禁止洩漏答案： 你只能唸出單字的「中文解釋」，絕對不能唸出英文單字！由學生來回答英文發音與拼寫。
-例如：「我們來測驗第一個單字，請問『蘋果』的英文怎麼說？請唸出來並拼給我聽。」（絕對不能說出 apple）
+JUDGMENT CRITERIA:
+- The student should provide the English pronunciation and the spelling. 
+- Be encouraging but accurate. If they finish the spelling, move to the next word immediately.
 
-嚴格判定： 學生必須同時唸出正確的「發音」並唸出正確的「字母拼寫」（例如：apple, a-p-p-l-e）。
-⚠️ 拼字嚴格限制： 不論是哪種風格，務必要求學生正確拼出每個字元（字母）才能通過該單字的測驗。如果拼字錯誤或沒有拼出每個字母，請糾正他們並要求重試。只有在發音與拼字完全正確時，才能算通過該單字的測驗。
-
-循序漸進的提示（絕不直接給答案）：
-如果學生發音錯了，請親自示範一次正確發音，請他跟著唸。
-如果學生拼錯了，或是說不知道，請給予提示。例如：「字首是 a 喔！」、「它有三個音節，li-bra-ry，再試試看？」
-
-推進： 學生完全答對（發音正確且拼字完全正確）後，根據你的風格給予回饋，然後立刻自然地進入清單上的下一個單字。
-
-隨機應變： 如果學生問了不相關的問題，簡短回答後，溫柔地把話題拉回測驗。
-
-測驗結束： 當清單上的單字都測驗完畢後，做一個簡短的總結與鼓勵，並呼叫 finishTest 結束測驗。
-
-【對話開場】 請主動打招呼，介紹自己，並直接開始測驗第一個單字（記得只說中文解釋）。`;
+【Session Start】 Greet the student in ${langName}, introduce yourself, and start by explaining the first word's meaning in ${langName}.`
 
   const sessionPromise = getAI().live.connect({
     model: "gemini-2.5-flash-native-audio-preview-09-2025",
@@ -344,7 +362,7 @@ ${stylePrompt}
           const call = message.toolCall.functionCalls?.[0];
           if (call && call.name === 'finishTest') {
             const args = call.args as any;
-            onTestFinished(args.score || 100, args.feedback || "測驗完成！");
+            onTestFinished(args.score || 100, args.feedback || "Test Finished!");
             
             // Send tool response
             sessionPromise.then(session => {
@@ -375,17 +393,17 @@ ${stylePrompt}
       tools: [{
         functionDeclarations: [{
           name: "finishTest",
-          description: "當所有單字都測驗完畢，且你已經做完總結後，呼叫此函數來結束測驗並給予評分。",
+          description: "Finish the session and provide the final score and feedback.",
           parameters: {
             type: Type.OBJECT,
             properties: {
               score: {
                 type: Type.NUMBER,
-                description: "學生整體表現分數 (0-100)"
+                description: "Final score (0-100)"
               },
               feedback: {
                 type: Type.STRING,
-                description: "給學生的簡短總結評語"
+                description: "Final feedback for the student"
               }
             },
             required: ["score", "feedback"]
@@ -399,7 +417,8 @@ ${stylePrompt}
 }
 
 
-export async function evaluatePronunciation(audioBase64: string, mimeType: string, word: string): Promise<{score: number, feedback: string}> {
+export async function evaluatePronunciation(audioBase64: string, mimeType: string, word: string, lang: string): Promise<{score: number, feedback: string}> {
+  const langName = getLangName(lang);
   const response = await getAI().models.generateContent({
     model: "gemini-3-flash-preview",
     contents: [
@@ -415,7 +434,7 @@ export async function evaluatePronunciation(audioBase64: string, mimeType: strin
             text: `Evaluate the pronunciation of the English word "${word}" in the provided audio. 
             Return a JSON object with two fields: 
             "score" (number from 0 to 100), 
-            "feedback" (short string in Traditional Chinese explaining what was good or what needs improvement).`
+            "feedback" (short string in ${langName} explaining what was good or what needs improvement).`
           }
         ]
       }
@@ -432,22 +451,24 @@ export async function evaluatePronunciation(audioBase64: string, mimeType: strin
       }
     }
   });
-  return JSON.parse(response.text || '{"score": 0, "feedback": "Evaluation failed."}');
+  const responseText = response.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
+  return JSON.parse(responseText || '{"score": 0, "feedback": "Evaluation failed."}');
 }
 
-export async function generateWrittenTest(words: Word[]): Promise<TestQuestion[]> {
+export async function generateWrittenTest(words: Word[], lang: string): Promise<TestQuestion[]> {
   const wordList = words.map(w => w.word).join(", ");
   const halfCount = Math.ceil(words.length / 2);
+  const langName = getLangName(lang);
   const response = await getAI().models.generateContent({
     model: "gemini-3-flash-preview",
-    contents: `請根據以下單字清單：[${wordList}]，產生一份測驗卷，包含 ${halfCount} 題單選題與 ${words.length - halfCount} 題填空題。
-    請嚴格使用以下 JSON 格式回覆：
+    contents: `Based on the following word list: [${wordList}], generate a written test with ${halfCount} multiple-choice questions and ${words.length - halfCount} fill-in-the-blank questions. Please use ${langName} for question explanations.
+    Please strictly respond in the following JSON format:
     {
       "multiple_choice": [
         {"word": "apple", "question": "...", "options": ["A", "B", "C", "D"], "correctAnswerIndex": 0}
       ],
       "fill_in_the_blank": [
-        {"word": "apple", "question": "This is an ___ (蘋果).", "answer": "apple"}
+        {"word": "apple", "question": "This is an ___ (explanation).", "answer": "apple"}
       ]
     }`,
     config: {
@@ -490,7 +511,8 @@ export async function generateWrittenTest(words: Word[]): Promise<TestQuestion[]
   });
   
   try {
-    const data = JSON.parse(response.text || '{"multiple_choice": [], "fill_in_the_blank": []}');
+    const responseText = response.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
+    const data = JSON.parse(responseText || '{"multiple_choice": [], "fill_in_the_blank": []}');
     const mcQuestions: MultipleChoiceQuestion[] = (data.multiple_choice || []).map((q: any) => ({ ...q, type: 'multiple_choice' }));
     const fitbQuestions: FillInTheBlankQuestion[] = (data.fill_in_the_blank || []).map((q: any) => ({ ...q, type: 'fill_in_the_blank' }));
     

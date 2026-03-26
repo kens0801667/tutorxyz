@@ -1,3 +1,5 @@
+import i18n from '../i18n/config';
+
 export async function getOrCreateCalendar(accessToken: string, calendarName: string): Promise<string> {
   // 1. List calendars
   const listRes = await fetch('https://www.googleapis.com/calendar/v3/users/me/calendarList', {
@@ -52,12 +54,18 @@ export async function addTestResultToCalendar(
   const durationMs = endTime.getTime() - startTime.getTime();
   const durationMins = Math.floor(durationMs / 60000);
   const durationSecs = Math.floor((durationMs % 60000) / 1000);
-  const durationText = durationMins > 0 ? `${durationMins} 分 ${durationSecs} 秒` : `${durationSecs} 秒`;
   
-  const description = `測驗主題: ${topic}\n本次測驗單字數: ${totalWords}\n分數: ${score}分\n學習與測驗總花費時間: ${durationText}\n\n需要加強的單字:\n${mistakes.length > 0 ? mistakes.join('\n') : '全對！太棒了！'}`;
+  let durationText = "";
+  if (durationMins > 0) {
+    durationText = `${durationMins} ${i18n.t('calendar.duration_min')} ${durationSecs} ${i18n.t('calendar.duration_sec')}`;
+  } else {
+    durationText = `${durationSecs} ${i18n.t('calendar.duration_sec')}`;
+  }
+  
+  const description = `${i18n.t('calendar.topic_label')}: ${topic}\n${i18n.t('calendar.total_words_label')}: ${totalWords}\n${i18n.t('calendar.score_label')}: ${score}${i18n.t('calendar.score_unit')}\n${i18n.t('calendar.duration_label')}: ${durationText}\n\n${i18n.t('calendar.mistakes_label')}:\n${mistakes.length > 0 ? mistakes.join('\n') : i18n.t('calendar.no_mistakes')}`;
 
   const event = {
-    summary: `單字測驗: ${topic} - 成績: ${score}分`,
+    summary: i18n.t('calendar.event_title', { topic, score }),
     description: description,
     start: { dateTime: startTime.toISOString() },
     end: { dateTime: endTime.toISOString() },

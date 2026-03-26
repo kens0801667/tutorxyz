@@ -15,11 +15,11 @@ export function getCustomLists(): CustomList[] {
 export function saveCustomList(source: 'topic' | 'image' | 'text', words: Word[], customTitle?: string): CustomList {
   const lists = getCustomLists();
   const now = new Date();
-  const defaultTitle = `自訂單字表 - ${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+  const dateStr = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
   
   const newList: CustomList = {
     id: Date.now().toString(),
-    title: customTitle || defaultTitle,
+    title: customTitle ? (customTitle.includes('/') || customTitle.includes(':') ? customTitle : `${customTitle} - ${dateStr}`) : dateStr,
     source,
     words,
     createdAt: now.getTime(),

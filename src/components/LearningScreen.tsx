@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Volume2, ChevronRight, ChevronLeft, Loader2, Play } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Word, TeacherStyle } from '../types';
 import { generateAudio, generateTeacherScript, getVoiceConfig } from '../services/gemini';
 
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export function LearningScreen({ words, onComplete, onRestart, teacherStyle }: Props) {
+  const { t, i18n } = useTranslation();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoadingAudio, setIsLoadingAudio] = useState(false);
@@ -22,7 +24,7 @@ export function LearningScreen({ words, onComplete, onRestart, teacherStyle }: P
   const word = words[currentIndex];
 
   const stopCurrentAudio = () => {
-    playIdRef.current += 1; // Increment to cancel any pending playAudio
+    playIdRef.current += 1;
     if (audioSourceRef.current) {
       try {
         audioSourceRef.current.stop();
@@ -55,10 +57,9 @@ export function LearningScreen({ words, onComplete, onRestart, teacherStyle }: P
     const fallbackToBrowserTTS = () => {
       if (playIdRef.current !== currentPlayId) return;
       if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel(); // Cancel any existing speech
+        window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(text);
         
-        // Use teacher style config for fallback
         const voiceConfig = getVoiceConfig(teacherStyle);
         utterance.lang = voiceConfig.lang;
         utterance.pitch = voiceConfig.pitch;
@@ -85,7 +86,7 @@ export function LearningScreen({ words, onComplete, onRestart, teacherStyle }: P
       
       if (base64Audio) {
         stopCurrentAudio();
-        playIdRef.current = currentPlayId; // Restore the playId since stopCurrentAudio increments it
+        playIdRef.current = currentPlayId;
         
         if (!audioContextRef.current) {
           audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -95,7 +96,6 @@ export function LearningScreen({ words, onComplete, onRestart, teacherStyle }: P
           await audioContext.resume();
         }
         
-        // Decode base64 to raw PCM bytes
         const binaryString = window.atob(base64Audio);
         const len = binaryString.length;
         const bytes = new Uint8Array(len);
@@ -103,14 +103,12 @@ export function LearningScreen({ words, onComplete, onRestart, teacherStyle }: P
           bytes[i] = binaryString.charCodeAt(i);
         }
         
-        // Convert 16-bit PCM to Float32 for Web Audio API
         const int16Array = new Int16Array(bytes.buffer);
         const float32Array = new Float32Array(int16Array.length);
         for (let i = 0; i < int16Array.length; i++) {
           float32Array[i] = int16Array[i] / 32768.0;
         }
 
-        // Create audio buffer (1 channel, 24000 Hz)
         const audioBuffer = audioContext.createBuffer(1, float32Array.length, 24000);
         audioBuffer.getChannelData(0).set(float32Array);
 
@@ -145,7 +143,7 @@ export function LearningScreen({ words, onComplete, onRestart, teacherStyle }: P
     if (isPlaying || isLoadingAudio) return;
     setIsLoadingAudio(true);
     try {
-      const script = await generateTeacherScript(word.word, word.translation);
+      const script = await generateTeacherScript(word.word, word.translation, i18n.language);
       await playAudio(script);
     } catch (error) {
       console.error(error);
@@ -172,13 +170,13 @@ export function LearningScreen({ words, onComplete, onRestart, teacherStyle }: P
   return (
     <div className="flex flex-col h-full max-w-4xl mx-auto p-4 sm:p-6">
       <div className="flex flex-wrap justify-between items-center gap-4 mb-6 sm:mb-8">
-        <h2 className="text-xl sm:text-2xl font-bold text-slate-700 whitespace-nowrap">單字學習</h2>
+        <h2 className="text-xl sm:text-2xl font-bold text-slate-700 whitespace-nowrap">{t('learning.title')}</h2>
         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <button
             onClick={onRestart}
             className="px-3 py-2 sm:px-4 sm:py-2 text-xs sm:text-sm font-bold text-slate-500 hover:text-slate-700 hover:bg-slate-200 bg-slate-100 rounded-full transition-colors whitespace-nowrap"
           >
-            取消學習
+            {t('learning.cancel')}
           </button>
           <button
             onClick={() => {
@@ -187,7 +185,7 @@ export function LearningScreen({ words, onComplete, onRestart, teacherStyle }: P
             }}
             className="px-3 py-2 sm:px-4 sm:py-2 text-xs sm:text-sm font-bold text-indigo-500 hover:text-indigo-700 hover:bg-indigo-100 bg-indigo-50 rounded-full transition-colors whitespace-nowrap"
           >
-            略過學習
+            {t('learning.skip')}
           </button>
           <div className="bg-indigo-100 text-indigo-700 px-3 py-2 sm:px-4 sm:py-2 rounded-full font-bold text-sm sm:text-lg whitespace-nowrap">
             {currentIndex + 1} / {words.length}
@@ -217,8 +215,8 @@ export function LearningScreen({ words, onComplete, onRestart, teacherStyle }: P
                 onClick={() => playAudio(word.word)}
                 disabled={isLoadingAudio || isPlaying}
                 className="w-16 h-16 sm:w-20 sm:h-20 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center hover:bg-indigo-100 transition-colors disabled:opacity-50 flex-shrink-0"
-                title="聽發音"
-                aria-label="播放單字發音"
+                title={t('learning.pronounce')}
+                aria-label={t('learning.pronounce')}
               >
                 {isLoadingAudio ? <Loader2 className="w-8 h-8 sm:w-10 sm:h-10 animate-spin" /> : <Volume2 className="w-8 h-8 sm:w-10 sm:h-10" />}
               </button>
@@ -226,8 +224,8 @@ export function LearningScreen({ words, onComplete, onRestart, teacherStyle }: P
                 onClick={playTeacherScript}
                 disabled={isLoadingAudio || isPlaying}
                 className="w-16 h-16 sm:w-20 sm:h-20 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center hover:bg-emerald-100 transition-colors disabled:opacity-50 flex-shrink-0"
-                title="老師講解"
-                aria-label="播放老師講解"
+                title={t('learning.explanation')}
+                aria-label={t('learning.explanation')}
               >
                 {isLoadingAudio ? <Loader2 className="w-8 h-8 sm:w-10 sm:h-10 animate-spin" /> : <Play className="w-8 h-8 sm:w-10 sm:h-10 ml-1" />}
               </button>
@@ -235,12 +233,12 @@ export function LearningScreen({ words, onComplete, onRestart, teacherStyle }: P
 
             <div className="w-full bg-slate-50 rounded-2xl sm:rounded-3xl p-5 sm:p-8 text-left border border-slate-100">
               <div className="flex justify-between items-start mb-2 sm:mb-4">
-                <h3 className="text-lg sm:text-xl font-bold text-slate-400 uppercase tracking-wider">例句 Example</h3>
+                <h3 className="text-lg sm:text-xl font-bold text-slate-400 uppercase tracking-wider">{t('learning.example')}</h3>
                 <button 
                   onClick={() => playAudio(word.exampleSentence)}
                   disabled={isLoadingAudio || isPlaying}
                   className="text-indigo-500 hover:text-indigo-700 disabled:opacity-50 flex-shrink-0"
-                  aria-label="播放例句發音"
+                  aria-label={t('learning.example')}
                 >
                   <Volume2 className="w-5 h-5 sm:w-6 sm:h-6" />
                 </button>
@@ -257,7 +255,7 @@ export function LearningScreen({ words, onComplete, onRestart, teacherStyle }: P
           onClick={handlePrev}
           disabled={currentIndex === 0}
           className="p-4 sm:p-6 bg-white rounded-full shadow-md text-slate-600 hover:bg-slate-50 disabled:opacity-30 transition-all flex-shrink-0"
-          aria-label="上一個單字"
+          aria-label={t('learning.prev')}
         >
           <ChevronLeft className="w-6 h-6 sm:w-8 h-8" />
         </button>
@@ -265,7 +263,7 @@ export function LearningScreen({ words, onComplete, onRestart, teacherStyle }: P
           onClick={handleNext}
           className="flex-1 sm:flex-none px-6 sm:px-10 py-4 sm:py-5 bg-indigo-600 text-white text-xl sm:text-2xl font-bold rounded-full shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all flex items-center justify-center gap-2"
         >
-          {currentIndex === words.length - 1 ? '完成學習' : '下一個'}
+          {currentIndex === words.length - 1 ? t('learning.complete') : t('learning.next')}
           <ChevronRight className="w-6 h-6 sm:w-8 h-8" />
         </button>
       </div>

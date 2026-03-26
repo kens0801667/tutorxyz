@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { BookOpen, Loader2, Camera, Upload, Image as ImageIcon, X, History, UserCircle2 } from 'lucide-react';
-import { Word, TeacherStyle } from '../types';
+import { BookOpen, Loader2, Camera, Upload, Image as ImageIcon, X, History } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { Word } from '../types';
 import { generateVocabulary, extractWordsFromImage, extractWordsFromText } from '../services/gemini';
 import { saveCustomList } from '../services/history';
 import { HistoryTab } from './HistoryTab';
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export function SetupScreen({ onStart }: Props) {
+  const { t, i18n } = useTranslation();
   const [inputMode, setInputMode] = useState<'topic' | 'image' | 'text' | 'history'>('topic');
   const [topic, setTopic] = useState(() => {
     const saved = localStorage.getItem('last_topic');
@@ -64,7 +66,6 @@ export function SetupScreen({ onStart }: Props) {
         video: { facingMode: 'environment' }
       });
       setIsCameraOpen(true);
-      // Wait for the state to update and the video element to be rendered
       setTimeout(() => {
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
@@ -73,7 +74,7 @@ export function SetupScreen({ onStart }: Props) {
       streamRef.current = stream;
     } catch (err) {
       console.error("Error accessing camera:", err);
-      alert("無法開啟相機，請確認是否已授權相機權限。");
+      alert(t('setup.errors.camera_denied'));
     }
   };
 
@@ -120,41 +121,41 @@ export function SetupScreen({ onStart }: Props) {
         localStorage.setItem('last_level', level);
         localStorage.setItem('last_count', count.toString());
         
-        words = await generateVocabulary(topic, level, count);
+        words = await generateVocabulary(topic, level, count, i18n.language);
         const savedList = saveCustomList('topic', words, `[${level}] ${topic}`.trim());
         finalTopic = savedList.title;
-        finalLevel = '歷史紀錄';
+        finalLevel = t('setup.history_label');
       } else if (inputMode === 'image' && selectedImage && imagePreview) {
         const base64Data = imagePreview.split(',')[1];
-        words = await extractWordsFromImage(base64Data, selectedImage.type, count);
+        words = await extractWordsFromImage(base64Data, selectedImage.type, count, i18n.language);
         
         if (words.length === 0) {
-          alert('無法從圖片中辨識出任何英文單字，請重新拍攝或上傳更清晰的照片。');
+          alert(t('setup.errors.image_no_words'));
           setIsLoading(false);
           return;
         }
         
-        const savedList = saveCustomList('image', words);
+        const savedList = saveCustomList('image', words, t('setup.custom_list_label'));
         finalTopic = savedList.title;
-        finalLevel = '自訂單字表';
+        finalLevel = t('setup.custom_list_label');
       } else if (inputMode === 'text' && customText.trim()) {
-        words = await extractWordsFromText(customText, count);
+        words = await extractWordsFromText(customText, count, i18n.language);
         
         if (words.length === 0) {
-          alert('無法從文字中辨識出任何英文單字，請重新輸入。');
+          alert(t('setup.errors.text_no_words'));
           setIsLoading(false);
           return;
         }
         
-        const savedList = saveCustomList('text', words);
+        const savedList = saveCustomList('text', words, t('setup.custom_list_label'));
         finalTopic = savedList.title;
-        finalLevel = '自訂單字表';
+        finalLevel = t('setup.custom_list_label');
       }
 
       onStart(words, finalTopic, finalLevel);
     } catch (error) {
       console.error(error);
-      alert('產生單字失敗，請重試。');
+      alert(t('setup.errors.failed'));
     } finally {
       setIsLoading(false);
     }
@@ -167,54 +168,27 @@ export function SetupScreen({ onStart }: Props) {
           <div className="inline-flex items-center justify-center w-20 h-20 bg-indigo-100 rounded-full mb-4">
             <BookOpen className="w-10 h-10 text-indigo-600" />
           </div>
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-slate-800 tracking-tight">tutorxyz</h1>
-          <h2 className="text-xl sm:text-2xl font-bold text-indigo-600">AI單字家教</h2>
-          <p className="text-slate-500 text-base sm:text-lg pt-1">為孩子量身打造的專屬單字課</p>
+          <h1 className="text-4xl sm:text-5xl font-extrabold text-slate-800 tracking-tight">{t('login.title')}</h1>
+          <h2 className="text-xl sm:text-2xl font-bold text-indigo-600">{t('setup.title')}</h2>
+          <p className="text-slate-500 text-base sm:text-lg pt-1">{t('setup.subtitle')}</p>
         </div>
 
         {/* Input Mode Tabs */}
         <div className="flex p-1 bg-slate-100 rounded-xl overflow-x-auto">
-          <button
-            onClick={() => setInputMode('topic')}
-            className={`flex-1 py-3 px-2 text-sm sm:text-base font-medium rounded-lg transition-all whitespace-nowrap ${
-              inputMode === 'topic' 
-                ? 'bg-white text-indigo-600 shadow-sm' 
-                : 'text-slate-500 hover:text-slate-700'
-            }`}
-          >
-            依主題產生
-          </button>
-          <button
-            onClick={() => setInputMode('image')}
-            className={`flex-1 py-3 px-2 text-sm sm:text-base font-medium rounded-lg transition-all whitespace-nowrap ${
-              inputMode === 'image' 
-                ? 'bg-white text-indigo-600 shadow-sm' 
-                : 'text-slate-500 hover:text-slate-700'
-            }`}
-          >
-            拍照 / 上傳
-          </button>
-          <button
-            onClick={() => setInputMode('text')}
-            className={`flex-1 py-3 px-2 text-sm sm:text-base font-medium rounded-lg transition-all whitespace-nowrap ${
-              inputMode === 'text' 
-                ? 'bg-white text-indigo-600 shadow-sm' 
-                : 'text-slate-500 hover:text-slate-700'
-            }`}
-          >
-            手動輸入
-          </button>
-          <button
-            onClick={() => setInputMode('history')}
-            className={`flex-1 py-3 px-2 text-sm sm:text-base font-medium rounded-lg transition-all whitespace-nowrap flex items-center justify-center gap-1 ${
-              inputMode === 'history' 
-                ? 'bg-white text-indigo-600 shadow-sm' 
-                : 'text-slate-500 hover:text-slate-700'
-            }`}
-          >
-            <History className="w-4 h-4" />
-            歷史紀錄
-          </button>
+          {(['topic', 'image', 'text', 'history'] as const).map((mode) => (
+            <button
+              key={mode}
+              onClick={() => setInputMode(mode)}
+              className={`flex-1 py-3 px-2 text-sm sm:text-base font-medium rounded-lg transition-all whitespace-nowrap flex items-center justify-center gap-1 ${
+                inputMode === mode 
+                  ? 'bg-white text-indigo-600 shadow-sm' 
+                  : 'text-slate-500 hover:text-slate-700'
+              }`}
+            >
+              {mode === 'history' && <History className="w-4 h-4" />}
+              {t(`setup.tabs.${mode}`)}
+            </button>
+          ))}
         </div>
 
         <div className="space-y-6">
@@ -223,30 +197,30 @@ export function SetupScreen({ onStart }: Props) {
           ) : inputMode === 'topic' ? (
             <>
               <div>
-                <label className="block text-lg font-medium text-slate-700 mb-2">年級、能力或課文範圍</label>
+                <label className="block text-lg font-medium text-slate-700 mb-2">{t('setup.level_label')}</label>
                 <input 
                   type="text" 
                   value={level}
                   onChange={(e) => setLevel(e.target.value)}
                   className="w-full text-xl p-4 border-2 border-slate-200 rounded-2xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 outline-none transition-all bg-white"
-                  placeholder="例如：國一上學期、A2 初級、康軒第三課..."
+                  placeholder={t('setup.level_placeholder')}
                 />
               </div>
 
               <div>
-                <label className="block text-lg font-medium text-slate-700 mb-2">學習主題</label>
+                <label className="block text-lg font-medium text-slate-700 mb-2">{t('setup.topic_label')}</label>
                 <input 
                   type="text" 
                   value={topic}
                   onChange={(e) => setTopic(e.target.value)}
                   className="w-full text-xl p-4 border-2 border-slate-200 rounded-2xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 outline-none transition-all"
-                  placeholder="例如：學校生活與文具、動物、水果..."
+                  placeholder={t('setup.topic_placeholder')}
                 />
               </div>
             </>
           ) : inputMode === 'image' ? (
             <div className="space-y-4">
-              <label className="block text-lg font-medium text-slate-700 mb-2">上傳單字表照片</label>
+              <label className="block text-lg font-medium text-slate-700 mb-2">{t('setup.image_label')}</label>
               
               {!imagePreview ? (
                 isCameraOpen ? (
@@ -261,14 +235,14 @@ export function SetupScreen({ onStart }: Props) {
                       <button
                         onClick={stopCamera}
                         className="px-6 py-2 bg-white/20 backdrop-blur-md text-white rounded-full font-medium hover:bg-white/30 transition-colors"
-                        aria-label="取消拍攝"
+                        aria-label={t('setup.camera.cancel')}
                       >
-                        取消
+                        {t('setup.camera.cancel')}
                       </button>
                       <button
                         onClick={capturePhoto}
                         className="w-14 h-14 bg-white rounded-full border-4 border-indigo-500 shadow-lg hover:scale-105 transition-transform flex items-center justify-center"
-                        aria-label="拍攝照片"
+                        aria-label={t('setup.camera.capture')}
                       >
                         <Camera className="w-6 h-6 text-indigo-600" />
                       </button>
@@ -283,7 +257,7 @@ export function SetupScreen({ onStart }: Props) {
                       <div className="w-14 h-14 bg-slate-100 group-hover:bg-indigo-100 rounded-full flex items-center justify-center mb-4 transition-colors">
                         <Camera className="w-7 h-7 text-slate-500 group-hover:text-indigo-600" />
                       </div>
-                      <span className="text-slate-600 font-medium">即時拍攝</span>
+                      <span className="text-slate-600 font-medium">{t('setup.camera.live')}</span>
                     </button>
                     
                     <button
@@ -293,7 +267,7 @@ export function SetupScreen({ onStart }: Props) {
                       <div className="w-14 h-14 bg-slate-100 group-hover:bg-indigo-100 rounded-full flex items-center justify-center mb-4 transition-colors">
                         <Upload className="w-7 h-7 text-slate-500 group-hover:text-indigo-600" />
                       </div>
-                      <span className="text-slate-600 font-medium">上傳照片</span>
+                      <span className="text-slate-600 font-medium">{t('setup.camera.upload')}</span>
                     </button>
                   </div>
                 )
@@ -303,26 +277,23 @@ export function SetupScreen({ onStart }: Props) {
                     src={imagePreview} 
                     alt="Selected vocabulary list" 
                     className="w-full h-48 sm:h-64 object-contain"
-                    width={800}
-                    height={600}
                   />
                   <button
                     onClick={clearImage}
                     className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-sm text-slate-700 rounded-full shadow-sm hover:bg-red-50 hover:text-red-600 transition-colors"
-                    aria-label="清除圖片"
+                    aria-label={t('setup.camera.clear')}
                   >
                     <X className="w-5 h-5" />
                   </button>
                   <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
                     <div className="flex items-center text-white gap-2">
                       <ImageIcon className="w-4 h-4" />
-                      <span className="text-sm font-medium truncate">{selectedImage?.name || '已選擇照片'}</span>
+                      <span className="text-sm font-medium truncate">{selectedImage?.name || t('setup.camera.selected')}</span>
                     </div>
                   </div>
                 </div>
               )}
               
-              {/* Hidden file inputs */}
               <input
                 type="file"
                 accept="image/*"
@@ -333,12 +304,12 @@ export function SetupScreen({ onStart }: Props) {
             </div>
           ) : (
             <div className="space-y-4">
-              <label className="block text-lg font-medium text-slate-700 mb-2">輸入單字清單</label>
+              <label className="block text-lg font-medium text-slate-700 mb-2">{t('setup.text_label')}</label>
               <textarea
                 value={customText}
                 onChange={(e) => setCustomText(e.target.value)}
                 className="w-full h-48 text-lg p-4 border-2 border-slate-200 rounded-2xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 outline-none transition-all resize-none bg-white"
-                placeholder="請輸入或貼上單字清單...&#10;例如：&#10;apple 蘋果&#10;banana 香蕉&#10;cat 貓"
+                placeholder={t('setup.text_placeholder')}
               />
             </div>
           )}
@@ -347,7 +318,7 @@ export function SetupScreen({ onStart }: Props) {
             <div className="space-y-6">
               <div>
                 <label className="block text-lg font-medium text-slate-700 mb-2">
-                  {inputMode === 'topic' ? '單字數量' : '最多擷取單字數'} ({count} 個)
+                  {inputMode === 'topic' ? t('setup.count_label') : t('setup.count_max_label')} ({count} 個)
                 </label>
                 <input 
                   type="range" 
@@ -371,10 +342,10 @@ export function SetupScreen({ onStart }: Props) {
             {isLoading ? (
               <>
                 <Loader2 className="w-8 h-8 animate-spin" />
-                <span>{inputMode === 'image' ? '正在辨識單字...' : inputMode === 'text' ? '正在處理單字...' : '正在產生單字...'}</span>
+                <span>{t(`setup.loading.${inputMode}`)}</span>
               </>
             ) : (
-              '開始學習'
+              t('setup.start_button')
             )}
           </button>
         )}
