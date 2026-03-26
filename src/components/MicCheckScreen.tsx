@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Mic, Activity, CheckCircle2, ArrowRight, SkipForward, AlertCircle } from 'lucide-react';
+import { Mic, Activity, CheckCircle2, ArrowRight, SkipForward, AlertCircle, Loader2 } from 'lucide-react';
 
 interface Props {
   onComplete: () => void;
   onSkip: () => void;
+  isReady?: boolean;
 }
 
-export function MicCheckScreen({ onComplete, onSkip }: Props) {
+export function MicCheckScreen({ onComplete, onSkip, isReady = true }: Props) {
   const [micLevel, setMicLevel] = useState(0);
   const [hasDetectedSound, setHasDetectedSound] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -65,16 +66,19 @@ export function MicCheckScreen({ onComplete, onSkip }: Props) {
         // Auto-detection logic: if level > 20, consider it "sound detected"
         if (currentLevel > 20 && !hasDetectedSound) {
           setHasDetectedSound(true);
-          // Auto-proceed after a short delay
-          detectionTimerRef.current = setTimeout(() => {
-            onComplete();
-          }, 1500);
         }
         
         animationFrameRef.current = requestAnimationFrame(updateLevel);
       };
       
-      updateLevel();
+  // Auto-proceed when BOTH sound is detected AND content is ready
+  useEffect(() => {
+    if (hasDetectedSound && isReady && !detectionTimerRef.current) {
+      detectionTimerRef.current = setTimeout(() => {
+        onComplete();
+      }, 1000);
+    }
+  }, [hasDetectedSound, isReady, onComplete]);
     } catch (err) {
       console.error("Mic access failed", err);
       setError("無法存取麥克風，請確認瀏覽器權限。");
@@ -104,12 +108,14 @@ export function MicCheckScreen({ onComplete, onSkip }: Props) {
             )}
           </div>
           <h2 className="text-3xl font-bold text-slate-800">
-            {hasDetectedSound ? "連線成功！" : "麥克風檢查"}
+            {!isReady ? "正在準備課程內容..." : (hasDetectedSound ? "連線成功！" : "麥克風檢查")}
           </h2>
           <p className="text-slate-500 text-lg">
-            {hasDetectedSound 
-              ? "太棒了，我們測得您的聲音。即將開始練習..." 
-              : "請對著麥克風說幾句話，確保您的收音正常。"}
+            {!isReady 
+              ? "AI 老師正在為您量身打造單字課，請稍候..." 
+              : (hasDetectedSound 
+                  ? "太棒了，我們測得您的聲音。即將開始練習..." 
+                  : "請對著麥克風說幾句話，確保您的收音正常。")}
           </p>
         </div>
 
@@ -156,15 +162,22 @@ export function MicCheckScreen({ onComplete, onSkip }: Props) {
           
           <button
             onClick={onComplete}
-            disabled={isInitializing && !error}
+            disabled={(isInitializing && !error) || !isReady}
             className={`flex items-center justify-center gap-2 py-4 px-6 rounded-2xl font-bold text-white transition-all shadow-lg ${
-              hasDetectedSound 
-                ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-100' 
-                : 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-100'
+              !isReady
+                ? 'bg-slate-300 shadow-none cursor-not-allowed'
+                : hasDetectedSound 
+                  ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-100' 
+                  : 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-100'
             }`}
           >
-            {hasDetectedSound ? "開始練習" : "點此跳過"}
-            <ArrowRight className="w-5 h-5" />
+            {!isReady ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                準備中
+              </>
+            ) : hasDetectedSound ? "開始練習" : "點此跳過"}
+            {isReady && <ArrowRight className="w-5 h-5" />}
           </button>
         </div>
       </div>
