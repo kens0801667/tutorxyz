@@ -61,7 +61,21 @@
     },
     "units": {
       "word_count": "{{count}} 개",
-      "word_count_max": "최대 {{count}} 개"
+      "word_count_max": "최대 {{count}} 개",
+      "word_count_only": "{{count}} 개의 단어"
+    },
+    "history": {
+      "empty": "현재 학습 기록이 없습니다.",
+      "empty_hint": "'주제별 생성', '사진 촬영 / 업로드' 또는 '직접 입력'을 통해 생성된 단어장이 여기에 표시됩니다.",
+      "delete_confirm": "이 단어장을 삭제하시겠습니까?",
+      "delete_label": "단어 목록 삭제",
+      "edit_label": "단어 목록 편집",
+      "start_test": "테스트 시작",
+      "edit_title": "단어 목록 편집 (한 줄에 한 단어씩)",
+      "edit_ai_hint": "저장 시 AI가 번역, 품사 및 예문을 자동으로 완성합니다.",
+      "save": "저장",
+      "saving": "저장 중...",
+      "back": "뒤로"
     }
   },
   "learning": {

@@ -12,7 +12,7 @@ export function getCustomLists(): CustomList[] {
   }
 }
 
-export function saveCustomList(source: 'topic' | 'image' | 'text', words: Word[], customTitle?: string): CustomList {
+export function saveCustomList(source: 'topic' | 'image' | 'text', words: Word[], customTitle?: string, level?: string, topic?: string): CustomList {
   const lists = getCustomLists();
   const now = new Date();
   const dateStr = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
@@ -21,6 +21,8 @@ export function saveCustomList(source: 'topic' | 'image' | 'text', words: Word[]
     id: Date.now().toString(),
     title: customTitle ? (customTitle.includes('/') || customTitle.includes(':') ? customTitle : `${customTitle} - ${dateStr}`) : dateStr,
     source,
+    level,
+    topic,
     words,
     createdAt: now.getTime(),
   };

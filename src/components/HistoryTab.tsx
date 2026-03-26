@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Trash2, Edit2, Play, ChevronLeft, Save, Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { CustomList, Word } from '../types';
 import { getCustomLists, deleteCustomList, updateCustomList } from '../services/history';
 import { fillWordDetails } from '../services/gemini';
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export function HistoryTab({ onStartTest }: Props) {
+  const { t, i18n } = useTranslation();
   const [lists, setLists] = useState<CustomList[]>([]);
   const [editingList, setEditingList] = useState<CustomList | null>(null);
   const [editText, setEditText] = useState('');
@@ -19,7 +21,7 @@ export function HistoryTab({ onStartTest }: Props) {
   }, []);
 
   const handleDelete = (id: string) => {
-    if (confirm('確定要刪除這個單字表嗎？')) {
+    if (confirm(t('setup.history.delete_confirm'))) {
       deleteCustomList(id);
       setLists(getCustomLists());
     }
@@ -35,7 +37,7 @@ export function HistoryTab({ onStartTest }: Props) {
     
     const newWordsList = editText.split('\n').map(w => w.trim()).filter(w => w);
     if (newWordsList.length === 0) {
-      alert('單字清單不能為空');
+      alert(t('setup.errors.text_no_words'));
       return;
     }
 
@@ -48,7 +50,7 @@ export function HistoryTab({ onStartTest }: Props) {
       setEditingList(null);
     } catch (error) {
       console.error('Failed to save edited list:', error);
-      alert('儲存失敗，請重試。');
+      alert(t('setup.errors.failed'));
     } finally {
       setIsSaving(false);
     }
@@ -68,7 +70,7 @@ export function HistoryTab({ onStartTest }: Props) {
             onClick={() => setEditingList(null)}
             disabled={isSaving}
             className="p-2 hover:bg-slate-100 rounded-full transition-colors disabled:opacity-50"
-            aria-label="返回"
+            aria-label={t('setup.history.back')}
           >
             <ChevronLeft className="w-6 h-6 text-slate-600" />
           </button>
@@ -85,12 +87,12 @@ export function HistoryTab({ onStartTest }: Props) {
             className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50"
           >
             {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            {isSaving ? '儲存中...' : '儲存'}
+            {isSaving ? t('setup.history.saving') : t('setup.history.save')}
           </button>
         </div>
 
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-slate-700">編輯單字清單 (一行一個單字)</label>
+          <label className="block text-sm font-medium text-slate-700">{t('setup.history.edit_title')}</label>
           <textarea
             value={editText}
             onChange={(e) => setEditText(e.target.value)}
@@ -98,7 +100,7 @@ export function HistoryTab({ onStartTest }: Props) {
             className="w-full h-64 text-lg p-4 border-2 border-slate-200 rounded-2xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 outline-none transition-all resize-none bg-white font-mono disabled:opacity-50"
             placeholder="apple&#10;banana&#10;cat"
           />
-          <p className="text-sm text-slate-500">儲存時，AI 會自動為您補齊翻譯、詞性與例句。</p>
+          <p className="text-sm text-slate-500">{t('setup.history.edit_ai_hint')}</p>
         </div>
       </div>
     );
@@ -107,8 +109,8 @@ export function HistoryTab({ onStartTest }: Props) {
   if (lists.length === 0) {
     return (
       <div className="text-center py-12 text-slate-500">
-        <p>目前沒有歷史紀錄。</p>
-        <p className="text-sm mt-2">使用「主題產生」、「拍照 / 上傳」或「手動輸入」產生的單字表會顯示在這裡。</p>
+        <p>{t('setup.history.empty')}</p>
+        <p className="text-sm mt-2">{t('setup.history.empty_hint')}</p>
       </div>
     );
   }
@@ -119,36 +121,41 @@ export function HistoryTab({ onStartTest }: Props) {
         <div key={list.id} className="bg-white border-2 border-slate-100 rounded-2xl p-5 hover:border-indigo-100 transition-colors">
           <div className="flex justify-between items-start mb-4">
             <div>
-              <h3 className="text-lg font-bold text-slate-800">{list.title}</h3>
+              <h3 className="text-lg font-bold text-slate-800">
+                {list.source === 'topic' && list.level && list.topic && 
+                 (list.title === `[${list.level}] ${list.topic}` || list.title.startsWith(`[${list.level}] ${list.topic}`)) 
+                  ? `[${list.level === '國一上學期' || list.level === '중학교 1학년 1學期' || list.level === '중학교 1학년 1학기' || list.level === 'Grade 7 Semester 1' ? t('setup.defaults.level') : list.level}] ${list.topic === '學校生活與文具' || list.topic === 'School Life & Stationery' || list.topic === '學校生活與文具' || list.topic === '학교 생활과 문구류' ? t('setup.defaults.topic') : list.topic}`
+                  : list.title}
+              </h3>
               <p className="text-sm text-slate-500 mt-1">
-                {new Date(list.createdAt).toLocaleString()} · {list.words.length} 個單字
+                {new Date(list.createdAt).toLocaleString(i18n.language === 'zh-Hant' ? 'zh-TW' : i18n.language)} · {t('setup.units.word_count_only', { count: list.words.length })}
               </p>
             </div>
             <div className="flex gap-2">
               <button 
                 onClick={() => handleEdit(list)}
                 className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors"
-                title="編輯"
-                aria-label="編輯單字清單"
+                title={t('setup.history.edit_label')}
+                aria-label={t('setup.history.edit_label')}
               >
                 <Edit2 className="w-5 h-5" />
               </button>
               <button 
                 onClick={() => handleDelete(list.id)}
                 className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
-                title="刪除"
-                aria-label="刪除單字清單"
+                title={t('setup.history.delete_label')}
+                aria-label={t('setup.history.delete_label')}
               >
                 <Trash2 className="w-5 h-5" />
               </button>
             </div>
           </div>
           <button 
-            onClick={() => onStartTest(list.words, list.title, '歷史紀錄')}
+            onClick={() => onStartTest(list.words, list.title, t('setup.history_label'))}
             className="w-full py-3 bg-indigo-50 text-indigo-700 font-bold rounded-xl hover:bg-indigo-100 transition-colors flex items-center justify-center gap-2"
           >
             <Play className="w-4 h-4" />
-            開始測驗
+            {t('setup.history.start_test')}
           </button>
         </div>
       ))}

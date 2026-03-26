@@ -61,7 +61,21 @@
     },
     "units": {
       "word_count": "{{count}} 個",
-      "word_count_max": "最多 {{count}} 個"
+      "word_count_max": "最多 {{count}} 個",
+      "word_count_only": "{{count}} 個單字"
+    },
+    "history": {
+      "empty": "目前沒有歷史紀錄。",
+      "empty_hint": "使用「主題產生」、「拍照 / 上傳」或「手動輸入」產生的單字表會顯示在這裡。",
+      "delete_confirm": "確定要刪除這個單字表嗎？",
+      "delete_label": "刪除單字清單",
+      "edit_label": "編輯單字清單",
+      "start_test": "開始測驗",
+      "edit_title": "編輯單字清單 (一行一個單字)",
+      "edit_ai_hint": "儲存時，AI 會自動為您補齊翻譯、詞性與例句。",
+      "save": "儲存",
+      "saving": "儲存中...",
+      "back": "返回"
     }
   },
   "learning": {

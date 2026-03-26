@@ -143,7 +143,7 @@ export function SetupScreen({ onStart }: Props) {
         localStorage.setItem('last_count', count.toString());
         
         words = await generateVocabulary(topic, level, count, i18n.language);
-        const savedList = saveCustomList('topic', words, `[${level}] ${topic}`.trim());
+        const savedList = saveCustomList('topic', words, `[${level}] ${topic}`.trim(), level, topic);
         finalTopic = savedList.title;
         finalLevel = t('setup.history_label');
       } else if (inputMode === 'image' && selectedImage && imagePreview) {

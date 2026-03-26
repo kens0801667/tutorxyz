@@ -61,7 +61,21 @@
     },
     "units": {
       "word_count": "{{count}} words",
-      "word_count_max": "Max {{count}} words"
+      "word_count_max": "Max {{count}} words",
+      "word_count_only": "{{count}} words"
+    },
+    "history": {
+      "empty": "No history yet.",
+      "empty_hint": "Lists generated via Topic, Image, or Text will appear here.",
+      "delete_confirm": "Are you sure you want to delete this list?",
+      "delete_label": "Delete list",
+      "edit_label": "Edit list",
+      "start_test": "Start Test",
+      "edit_title": "Edit List (one word per line)",
+      "edit_ai_hint": "AI will automatically fill in translations and examples upon saving.",
+      "save": "Save",
+      "saving": "Saving...",
+      "back": "Back"
     }
   },
   "learning": {
