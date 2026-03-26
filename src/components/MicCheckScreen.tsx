@@ -38,7 +38,14 @@ export function MicCheckScreen({ onComplete, onSkip, isReady = true }: Props) {
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
       micStreamRef.current = stream;
       
-      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
+      // Fallback AudioContext initialization
+      let audioCtx: AudioContext;
+      try {
+        audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
+      } catch (e) {
+        console.warn("Failed with 16k sample rate, falling back to default");
+        audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      }
       audioContextRef.current = audioCtx;
       
       if (audioCtx.state === 'suspended') {
@@ -108,13 +115,19 @@ export function MicCheckScreen({ onComplete, onSkip, isReady = true }: Props) {
 
   const handleError = (err: any) => {
     console.error("Mic access failed", err);
+    let message = `無法存取麥克風 (${err.name || 'Error'})`;
+    
     if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-      setError("麥克風權限已被拒絕。請點擊網址列左側的「鎖頭」圖示，並將麥克風設定為「允許」。");
+      message = "麥克風權限已被拒絕。請點擊網址列左側的「鎖頭」圖示，並將麥克風設定為「允許」。";
     } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
-      setError("找不到麥克風設備。請確認您的設備已正確連接。");
+      message = "找不到麥克風設備。請確認您的設備已正確連接。";
+    } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+      message = "麥克風正在被其他程式佔用中，請關閉其他使用音訊的視窗再試。";
     } else {
-      setError(`無法存取麥克風 (${err.name})。請確認設備沒有被其他程式佔用。`);
+      message = `連線初始化失敗 (${err.message || err.name || 'Unknown Error'})。請嘗試點擊重新嘗試。`;
     }
+    
+    setError(message);
     setIsInitializing(false);
   };
 
