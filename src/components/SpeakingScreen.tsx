@@ -223,7 +223,7 @@ export function SpeakingScreen({ words, onComplete, onRestart, teacherStyle }: P
           </button>
           <div className="bg-emerald-100 text-emerald-700 px-4 py-2 rounded-full font-bold text-sm flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-            Live
+            {t('speaking.live_status')}
           </div>
         </div>
       </div>

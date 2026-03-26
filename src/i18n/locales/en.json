@@ -102,7 +102,8 @@
     "mic_wait": "Please wait for the teacher",
     "mic_active": "Please respond now",
     "instruction": "Speak directly into the mic. The teacher will respond in real-time.",
-    "initial_prompt": "Hi teacher, I'm ready for the test. Let's start with the first question!"
+    "initial_prompt": "Hi teacher, I'm ready for the test. Let's start with the first question!",
+    "live_status": "Live"
   },
   "written": {
     "title": "Written Test",

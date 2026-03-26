@@ -76,7 +76,10 @@ export function HistoryTab({ onStartTest }: Props) {
           </button>
           <input 
             type="text"
-            value={editingList.title}
+            value={editingList.source === 'topic' && editingList.level && editingList.topic && 
+                  (editingList.title === `[${editingList.level}] ${editingList.topic}` || editingList.title.startsWith(`[${editingList.level}] ${editingList.topic}`))
+                  ? `[${editingList.level === '國一上學期' || editingList.level === '중학교 1학년 1학기' || editingList.level === 'Grade 7 Semester 1' || editingList.level === '중학교 1학년 1學期' ? t('setup.defaults.level') : editingList.level}] ${editingList.topic === '學校生活與文具' || editingList.topic === 'School Life & Stationery' || editingList.topic === '학교 生活과 文具類' || editingList.topic === '학교 생활과 문구류' ? t('setup.defaults.topic') : editingList.topic}`
+                  : editingList.title}
             onChange={(e) => handleTitleChange(e.target.value)}
             disabled={isSaving}
             className="flex-1 text-xl font-bold bg-transparent border-b-2 border-indigo-200 focus:border-indigo-500 outline-none px-2 py-1 disabled:opacity-50"
@@ -98,7 +101,7 @@ export function HistoryTab({ onStartTest }: Props) {
             onChange={(e) => setEditText(e.target.value)}
             disabled={isSaving}
             className="w-full h-64 text-lg p-4 border-2 border-slate-200 rounded-2xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 outline-none transition-all resize-none bg-white font-mono disabled:opacity-50"
-            placeholder="apple&#10;banana&#10;cat"
+            placeholder={t('setup.text_placeholder')}
           />
           <p className="text-sm text-slate-500">{t('setup.history.edit_ai_hint')}</p>
         </div>
@@ -128,7 +131,7 @@ export function HistoryTab({ onStartTest }: Props) {
                   : list.title}
               </h3>
               <p className="text-sm text-slate-500 mt-1">
-                {new Date(list.createdAt).toLocaleString(i18n.language === 'zh-Hant' ? 'zh-TW' : i18n.language)} · {t('setup.units.word_count_only', { count: list.words.length })}
+                {new Date(list.createdAt).toLocaleString(i18n.language === 'zh-Hant' ? 'zh-TW' : i18n.language, {})} · {t('setup.units.word_count_only', { count: list.words.length })}
               </p>
             </div>
             <div className="flex gap-2">

@@ -102,7 +102,8 @@
     "mic_wait": "請先聽老師說完",
     "mic_active": "請直接說話回應",
     "instruction": "請直接對著麥克風說話，老師會即時回應你。\n測驗包含：",
-    "initial_prompt": "老師你好，我準備好開始測驗了，請直接開始第一題！"
+    "initial_prompt": "老師你好，我準備好開始測驗了，請直接開始第一題！",
+    "live_status": "即時"
   },
   "written": {
     "title": "筆試測驗",
