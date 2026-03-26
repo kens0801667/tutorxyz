@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Key, ExternalLink, Loader2, CheckCircle2, AlertTriangle, Calendar, FileJson, Mic2 } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Key, ExternalLink, Loader2, CheckCircle2, AlertTriangle, Calendar, FileJson, Mic2, Mic, Activity } from 'lucide-react';
 import { TeacherStyle } from '../types';
 
 export interface AppConfig {
@@ -21,6 +21,77 @@ export function ApiKeySetupScreen({ onSave, onCancel, initialConfig }: Props) {
   const [configFileName, setConfigFileName] = useState(initialConfig?.configFileName || 'tutorxyz_config.json');
   const [teacherStyle, setTeacherStyle] = useState<TeacherStyle>(initialConfig?.teacherStyle || 'enthusiastic');
   const [isSaving, setIsSaving] = useState(false);
+  
+  const micStreamRef = useRef<MediaStream | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const animationFrameRef = useRef<number | null>(null);
+  
+  const [isMicTesting, setIsMicTesting] = useState(false);
+  const [micLevel, setMicLevel] = useState(0);
+
+  useEffect(() => {
+    return () => {
+      stopMicTest();
+    };
+  }, []);
+
+  const startMicTest = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      micStreamRef.current = stream;
+      
+      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      audioContextRef.current = audioCtx;
+      
+      const source = audioCtx.createMediaStreamSource(stream);
+      const analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 256;
+      source.connect(analyser);
+      analyserRef.current = analyser;
+      
+      setIsMicTesting(true);
+      
+      const bufferLength = analyser.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+      
+      const updateLevel = () => {
+        if (!analyserRef.current) return;
+        analyserRef.current.getByteFrequencyData(dataArray);
+        
+        let sum = 0;
+        for (let i = 0; i < bufferLength; i++) {
+          sum += dataArray[i];
+        }
+        const average = sum / bufferLength;
+        setMicLevel(Math.min(100, (average / 128) * 100));
+        
+        animationFrameRef.current = requestAnimationFrame(updateLevel);
+      };
+      
+      updateLevel();
+    } catch (err) {
+      console.error("Error accessing microphone:", err);
+      alert("無法存取麥克風，請檢查權限設定。");
+    }
+  };
+
+  const stopMicTest = () => {
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
+    }
+    if (micStreamRef.current) {
+      micStreamRef.current.getTracks().forEach(track => track.stop());
+      micStreamRef.current = null;
+    }
+    if (audioContextRef.current) {
+      audioContextRef.current.close();
+      audioContextRef.current = null;
+    }
+    setIsMicTesting(false);
+    setMicLevel(0);
+  };
 
   const handleSave = async () => {
     if (!apiKey.trim() || !calendarName.trim() || !configFileName.trim()) return;
@@ -146,6 +217,46 @@ export function ApiKeySetupScreen({ onSave, onCancel, initialConfig }: Props) {
                 <p className="text-sm text-slate-500">{style.desc}</p>
               </button>
             ))}
+          </div>
+        </div>
+
+        <div className="space-y-4 bg-indigo-50/30 p-6 rounded-2xl border border-indigo-100/50">
+          <h3 className="font-bold text-slate-700 flex items-center gap-2">
+            <Mic className="w-5 h-5 text-indigo-600" />
+            麥克風測試 (設備檢查)
+          </h3>
+          <div className="pl-7 space-y-4">
+            <div className="flex items-center justify-between">
+              <p className="text-slate-500 text-sm">正式測驗前，請確保您的麥克風收音正常：</p>
+              <button
+                onClick={isMicTesting ? stopMicTest : startMicTest}
+                className={`px-4 py-1.5 rounded-full text-sm font-bold transition-all ${
+                  isMicTesting 
+                    ? 'bg-red-100 text-red-600 hover:bg-red-200' 
+                    : 'bg-indigo-100 text-indigo-600 hover:bg-indigo-200 shadow-sm'
+                }`}
+              >
+                {isMicTesting ? "停止測試" : "開始測試"}
+              </button>
+            </div>
+            
+            <div className="relative h-4 bg-slate-200/50 rounded-full overflow-hidden border border-slate-200">
+              <div 
+                className="absolute inset-y-0 left-0 bg-gradient-to-r from-emerald-400 to-indigo-500 transition-all duration-75 shadow-[0_0_10px_rgba(99,102,241,0.3)]"
+                style={{ width: `${micLevel}%` }}
+              ></div>
+              {isMicTesting && micLevel > 5 && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Activity className="w-3 h-3 text-white animate-pulse" />
+                </div>
+              )}
+            </div>
+            {isMicTesting && (
+              <p className="text-xs text-indigo-600 font-medium animate-pulse flex items-center gap-1 justify-center">
+                <span className="w-1.5 h-1.5 bg-indigo-600 rounded-full animate-ping"></span>
+                正在即時偵測音量...
+              </p>
+            )}
           </div>
         </div>
 
