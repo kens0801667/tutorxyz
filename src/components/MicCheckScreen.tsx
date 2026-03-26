@@ -12,6 +12,8 @@ export function MicCheckScreen({ onComplete, onSkip, isReady = true }: Props) {
   const [hasDetectedSound, setHasDetectedSound] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
+  const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
+  const [selectedDeviceId, setSelectedDeviceId] = useState<string>('');
 
   const micStreamRef = useRef<MediaStream | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -20,16 +22,38 @@ export function MicCheckScreen({ onComplete, onSkip, isReady = true }: Props) {
   const detectionTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    startMic();
+    initDevices();
     return () => {
       stopMic();
       if (detectionTimerRef.current) clearTimeout(detectionTimerRef.current);
     };
   }, []);
 
-  const startMic = async () => {
+  const initDevices = async () => {
     try {
+      // Trigger permission prompt if needed
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach(t => t.stop());
+      
+      const allDevices = await navigator.mediaDevices.enumerateDevices();
+      const audioInputs = allDevices.filter(d => d.kind === 'audioinput');
+      setDevices(audioInputs);
+      if (audioInputs.length > 0) {
+        setSelectedDeviceId(audioInputs[0].deviceId);
+        startMic(audioInputs[0].deviceId);
+      }
+    } catch (err) {
+      handleError(err);
+    }
+  };
+
+  const startMic = async (deviceId?: string) => {
+    stopMic();
+    try {
+      const constraints = { 
+        audio: deviceId ? { deviceId: { exact: deviceId } } : true 
+      };
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
       micStreamRef.current = stream;
       
       const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -79,21 +103,38 @@ export function MicCheckScreen({ onComplete, onSkip, isReady = true }: Props) {
       }, 1000);
     }
   }, [hasDetectedSound, isReady, onComplete]);
-    } catch (err: any) {
-      console.error("Mic access failed", err);
-      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-        setError("麥克風權限已被拒絕。請點擊網址列左側的「鎖頭」圖示，並將麥克風設定為「允許」。");
-      } else {
-        setError("無法存取麥克風。請確認設備已正確連接，且沒有被其他程式佔用。");
-      }
       setIsInitializing(false);
+    } catch (err) {
+      handleError(err);
     }
+  };
+
+  const handleError = (err: any) => {
+    console.error("Mic access failed", err);
+    if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+      setError("麥克風權限已被拒絕。請點擊網址列左側的「鎖頭」圖示，並將麥克風設定為「允許」。");
+    } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+      setError("找不到麥克風設備。請確認您的設備已正確連接。");
+    } else {
+      setError(`無法存取麥克風 (${err.name})。請確認設備沒有被其他程式佔用。`);
+    }
+    setIsInitializing(false);
   };
 
   const handleRetry = () => {
     setError(null);
     setIsInitializing(true);
-    startMic();
+    if (selectedDeviceId) {
+      startMic(selectedDeviceId);
+    } else {
+      initDevices();
+    }
+  };
+
+  const handleDeviceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newId = e.target.value;
+    setSelectedDeviceId(newId);
+    startMic(newId);
   };
 
   const stopMic = () => {
@@ -136,6 +177,9 @@ export function MicCheckScreen({ onComplete, onSkip, isReady = true }: Props) {
               <div className="space-y-2">
                 <p className="text-red-800 font-bold">需要麥克風權限</p>
                 <p className="text-red-700 text-sm leading-relaxed">{error}</p>
+                <p className="text-slate-500 text-xs italic">
+                  提示：如果這是本地開發環境 (localhost)，請確保您使用的是 Chrome 或 Edge 等主流瀏覽器。
+                </p>
               </div>
             </div>
             <button
@@ -148,6 +192,22 @@ export function MicCheckScreen({ onComplete, onSkip, isReady = true }: Props) {
           </div>
         ) : (
           <div className="space-y-6">
+            {devices.length > 1 && (
+              <div className="text-left space-y-2">
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">選擇輸入裝置</label>
+                <select 
+                  value={selectedDeviceId}
+                  onChange={handleDeviceChange}
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 text-sm outline-none focus:ring-2 focus:ring-indigo-100 transition-all"
+                >
+                  {devices.map(device => (
+                    <option key={device.deviceId} value={device.deviceId}>
+                      {device.label || `Microphone ${device.deviceId.slice(0, 5)}...`}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
             <div className="relative h-6 bg-slate-100 rounded-full overflow-hidden border border-slate-200">
               <div 
                 className={`absolute inset-y-0 left-0 transition-all duration-75 shadow-lg ${
