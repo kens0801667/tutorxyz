@@ -4,6 +4,7 @@ import { SetupScreen } from './components/SetupScreen';
 import { LearningScreen } from './components/LearningScreen';
 import { SpeakingScreen } from './components/SpeakingScreen';
 import { WrittenScreen } from './components/WrittenScreen';
+import { MicCheckScreen } from './components/MicCheckScreen';
 import { ReportScreen } from './components/ReportScreen';
 import { ApiKeySetupScreen, AppConfig } from './components/ApiKeySetupScreen';
 import { LoginScreen } from './components/LoginScreen';
@@ -132,6 +133,10 @@ export default function App() {
     setWords(generatedWords);
     setSessionInfo({ topic, level });
     setSessionStartTime(new Date());
+    setMode('micCheck');
+  };
+
+  const handleMicCheckComplete = () => {
     setMode('learning');
   };
 
@@ -205,6 +210,7 @@ export default function App() {
 
   const steps = [
     { id: 'setup', icon: BookOpen, label: '設定' },
+    { id: 'micCheck', icon: Mic, label: '檢測' },
     { id: 'learning', icon: BookOpen, label: '學習' },
     { id: 'speaking', icon: Mic, label: '口說' },
     { id: 'written', icon: PenTool, label: '筆試' },
@@ -306,6 +312,7 @@ export default function App() {
           </div>
         )}
         {mode === 'setup' && <SetupScreen onStart={handleStart} />}
+        {mode === 'micCheck' && <MicCheckScreen onComplete={handleMicCheckComplete} onSkip={handleMicCheckComplete} />}
         {mode === 'learning' && <LearningScreen words={words} onComplete={handleLearningComplete} onRestart={handleRestart} teacherStyle={appConfig?.teacherStyle || 'enthusiastic'} />}
         {mode === 'speaking' && <SpeakingScreen words={words} onComplete={handleSpeakingComplete} onRestart={handleRestart} teacherStyle={appConfig?.teacherStyle || 'enthusiastic'} />}
         {mode === 'written' && <WrittenScreen words={words} onComplete={handleWrittenComplete} onRestart={handleRestart} />}

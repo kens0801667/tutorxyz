@@ -30,7 +30,7 @@ export interface TestResult {
   writtenCorrect?: boolean;
 }
 
-export type AppMode = 'setup' | 'learning' | 'speaking' | 'written' | 'report';
+export type AppMode = 'setup' | 'micCheck' | 'learning' | 'speaking' | 'written' | 'report';
 
 export type TeacherStyle = 'enthusiastic' | 'strict' | 'socratic' | 'humorous';
 
