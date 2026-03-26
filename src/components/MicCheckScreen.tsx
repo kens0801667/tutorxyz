@@ -108,6 +108,8 @@ export function MicCheckScreen({ onComplete, onSkip, isReady = true }: Props) {
         animationFrameRef.current = requestAnimationFrame(updateLevel);
       };
       
+      updateLevel();
+      
       setIsInitializing(false);
       setIsInitializing(false);
     } catch (err) {
