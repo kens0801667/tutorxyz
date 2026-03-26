@@ -79,11 +79,21 @@ export function MicCheckScreen({ onComplete, onSkip, isReady = true }: Props) {
       }, 1000);
     }
   }, [hasDetectedSound, isReady, onComplete]);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Mic access failed", err);
-      setError("無法存取麥克風，請確認瀏覽器權限。");
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        setError("麥克風權限已被拒絕。請點擊網址列左側的「鎖頭」圖示，並將麥克風設定為「允許」。");
+      } else {
+        setError("無法存取麥克風。請確認設備已正確連接，且沒有被其他程式佔用。");
+      }
       setIsInitializing(false);
     }
+  };
+
+  const handleRetry = () => {
+    setError(null);
+    setIsInitializing(true);
+    startMic();
   };
 
   const stopMic = () => {
@@ -120,12 +130,21 @@ export function MicCheckScreen({ onComplete, onSkip, isReady = true }: Props) {
         </div>
 
         {error ? (
-          <div className="bg-red-50 p-4 rounded-2xl flex items-start gap-3 border border-red-100 text-left">
-            <AlertCircle className="w-6 h-6 text-red-600 shrink-0" />
-            <div className="space-y-2">
-              <p className="text-red-800 font-bold">權限問題</p>
-              <p className="text-red-700 text-sm">{error}</p>
+          <div className="bg-red-50 p-6 rounded-2xl flex flex-col items-center gap-4 border border-red-100 text-center">
+            <div className="flex items-start gap-3 text-left w-full">
+              <AlertCircle className="w-6 h-6 text-red-600 shrink-0 mt-0.5" />
+              <div className="space-y-2">
+                <p className="text-red-800 font-bold">需要麥克風權限</p>
+                <p className="text-red-700 text-sm leading-relaxed">{error}</p>
+              </div>
             </div>
+            <button
+              onClick={handleRetry}
+              className="w-full py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold transition-colors shadow-lg shadow-red-100 flex items-center justify-center gap-2"
+            >
+              <Activity className="w-5 h-5" />
+              重新嘗試讀取
+            </button>
           </div>
         ) : (
           <div className="space-y-6">
