@@ -33,7 +33,7 @@ export async function generateVocabulary(topic: string, level: string, count: nu
     const ai = getAI();
     const langName = getLangName(lang);
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: "gemini-1.5-flash-preview",
       contents: `You are a professional English teacher. Please generate ${count} essential vocabulary words based on: level "${level}", topic "${topic}". Please respond in JSON format and set the translation and explanation to ${langName}. Include fields: word (English word), pos (part of speech), meaning (word translation), exampleSentence (English sentence), exampleTranslation (example translation).`,
       config: {
         responseMimeType: "application/json",
@@ -54,8 +54,7 @@ export async function generateVocabulary(topic: string, level: string, count: nu
       }
     });
     
-    const responseText = response.candidates?.[0]?.content?.parts?.[0]?.text || "[]";
-    const rawData = JSON.parse(responseText);
+    const rawData = JSON.parse(response.text || "[]");
     return rawData.map((item: any) => ({
       word: item.word,
       translation: item.meaning,
@@ -63,9 +62,11 @@ export async function generateVocabulary(topic: string, level: string, count: nu
       exampleSentence: item.exampleSentence,
       exampleTranslation: item.exampleTranslation
     }));
-  } catch (error) {
-    logApiError('Gemini', 'generateVocabulary', error, { topic, level, count, lang });
-    throw error;
+  } catch (e) {
+    if ((e as Error).message !== 'UNAUTHORIZED') {
+      logApiError('Gemini', 'generateVocabulary', e, { topic, level, count, lang });
+    }
+    throw e;
   }
 }
 
@@ -73,7 +74,7 @@ export async function extractWordsFromImage(base64Data: string, mimeType: string
   try {
     const langName = getLangName(lang);
     const response = await getAI().models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: "gemini-1.5-flash-preview",
       contents: [
         {
           inlineData: {
@@ -110,8 +111,7 @@ export async function extractWordsFromImage(base64Data: string, mimeType: string
       }
     });
 
-    const responseText = response.candidates?.[0]?.content?.parts?.[0]?.text || "[]";
-    const rawData = JSON.parse(responseText);
+    const rawData = JSON.parse(response.text || "[]");
     return rawData.map((item: any) => ({
       word: item.word,
       translation: item.meaning,
@@ -119,9 +119,11 @@ export async function extractWordsFromImage(base64Data: string, mimeType: string
       exampleSentence: item.exampleSentence,
       exampleTranslation: item.exampleTranslation
     }));
-  } catch (error) {
-    logApiError('Gemini', 'extractWordsFromImage', error, { mimeType, count, lang });
-    throw error;
+  } catch (e) {
+    if ((e as Error).message !== 'UNAUTHORIZED') {
+      logApiError('Gemini', 'extractWordsFromImage', e, { mimeType, count, lang });
+    }
+    throw e;
   }
 }
 
@@ -129,7 +131,7 @@ export async function extractWordsFromText(text: string, count: number, lang: st
   try {
     const langName = getLangName(lang);
     const response = await getAI().models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: "gemini-1.5-flash-preview",
       contents: `請從以下文字中擷取英文單字。請回傳一個 JSON 陣列，包含最多 ${count} 個單字。請使用 ${langName} 進行翻譯。
         每個單字物件必須包含以下欄位：
         - word: 英文單字
@@ -161,8 +163,7 @@ export async function extractWordsFromText(text: string, count: number, lang: st
       }
     });
 
-    const responseText = response.candidates?.[0]?.content?.parts?.[0]?.text || "[]";
-    const rawData = JSON.parse(responseText);
+    const rawData = JSON.parse(response.text || "[]");
     return rawData.map((item: any) => ({
       word: item.word,
       translation: item.meaning,
@@ -170,18 +171,21 @@ export async function extractWordsFromText(text: string, count: number, lang: st
       exampleSentence: item.exampleSentence,
       exampleTranslation: item.exampleTranslation
     }));
-  } catch (error) {
-    logApiError('Gemini', 'extractWordsFromText', error, { textLen: text.length, count, lang });
-    throw error;
+  } catch (e) {
+    if ((e as Error).message !== 'UNAUTHORIZED') {
+      logApiError('Gemini', 'extractWordsFromText', e, { textLen: text.length, count, lang });
+    }
+    throw e;
   }
 }
 
 export async function fillWordDetails(words: string[], lang: string): Promise<Word[]> {
   if (words.length === 0) return [];
+  
   try {
     const langName = getLangName(lang);
     const response = await getAI().models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: "gemini-1.5-flash-preview",
       contents: `請為以下英文單字提供 ${langName} 翻譯、詞性、一個簡單實用的英文例句，以及例句的 ${langName} 翻譯。
         請以 JSON 陣列格式回傳，每個單字物件必須包含以下欄位：
         - word: 英文單字
@@ -211,8 +215,7 @@ export async function fillWordDetails(words: string[], lang: string): Promise<Wo
       }
     });
 
-    const responseText = response.candidates?.[0]?.content?.parts?.[0]?.text || "[]";
-    const rawData = JSON.parse(responseText);
+    const rawData = JSON.parse(response.text || "[]");
     return rawData.map((item: any) => ({
       word: item.word,
       translation: item.meaning,
@@ -220,9 +223,11 @@ export async function fillWordDetails(words: string[], lang: string): Promise<Wo
       exampleSentence: item.exampleSentence,
       exampleTranslation: item.exampleTranslation
     }));
-  } catch (error) {
-    logApiError('Gemini', 'fillWordDetails', error, { wordsCount: words.length, lang });
-    throw error;
+  } catch (e) {
+    if ((e as Error).message !== 'UNAUTHORIZED') {
+      logApiError('Gemini', 'fillWordDetails', e, { wordCount: words.length, lang });
+    }
+    throw e;
   }
 }
 
@@ -240,13 +245,15 @@ export async function generateTeacherScript(word: string, meaning: string, lang:
   try {
     const langName = getLangName(lang);
     const response = await getAI().models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: "gemini-1.5-flash-preview",
       contents: `You are a friendly English tutor. The word to teach now is '${word}' (translation: ${meaning}). Please generate a short teaching script in ${langName} that includes: 1. Pronouncing the word twice, 2. Spelling out the letters, 3. A simple explanation, and 4. Creating a real-life English example sentence with its ${langName} translation. Please reply in plain text only for the TTS system to read.`,
     });
-    return response.candidates?.[0]?.content?.parts?.[0]?.text || "";
-  } catch (error) {
-    logApiError('Gemini', 'generateTeacherScript', error, { word, meaning, lang });
-    throw error;
+    return response.text || "";
+  } catch (e) {
+    if ((e as Error).message !== 'UNAUTHORIZED') {
+      logApiError('Gemini', 'generateTeacherScript', e, { word, meaning, lang });
+    }
+    throw e;
   }
 }
 
@@ -262,7 +269,7 @@ export async function generateAudio(text: string, teacherStyle: TeacherStyle = '
 
   try {
     const response = await getAI().models.generateContent({
-      model: "gemini-2.5-flash-preview-tts",
+      model: "gemini-1.5-flash-preview-tts",
       contents: [{ parts: [{ text: `Please read the following text aloud exactly as written, do not answer it: ${cleanText}` }] }],
       config: {
         responseModalities: [Modality.AUDIO],
@@ -275,8 +282,9 @@ export async function generateAudio(text: string, teacherStyle: TeacherStyle = '
     });
     return response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
   } catch (error: any) {
-    // Log to Sentry as warning level since we have a fallback
-    logApiError('Gemini', 'generateAudio', error, { textLen: cleanText.length, teacherStyle });
+    if ((error as Error).message !== 'UNAUTHORIZED') {
+      logApiError('Gemini', 'generateAudio', error, { textLen: cleanText.length, teacherStyle });
+    }
     console.warn("Gemini TTS API failed (likely quota exceeded), falling back to browser TTS.");
     return undefined;
   }
@@ -295,7 +303,7 @@ export async function evaluateSpeakingDialog(word: string, meaning: string, stud
     6. 純文字回覆，無 Markdown。`;
 
     const chat = getAI().chats.create({
-      model: "gemini-3-flash-preview",
+      model: "gemini-1.5-flash-preview",
       config: {
         systemInstruction,
       },
@@ -303,15 +311,16 @@ export async function evaluateSpeakingDialog(word: string, meaning: string, stud
     });
 
     const response = await chat.sendMessage({ message: studentInput });
-    const responseText = response.candidates?.[0]?.content?.parts?.[0]?.text || "";
-    const text = responseText;
+    const text = response.text || "";
     const isCorrect = text.includes("[CORRECT]");
     const cleanResponse = text.replace("[CORRECT]", "").trim();
 
     return { response: cleanResponse, isCorrect };
-  } catch (error) {
-    logApiError('Gemini', 'evaluateSpeakingDialog', error, { word, meaning, studentInputLen: studentInput.length });
-    throw error;
+  } catch (e) {
+    if ((e as Error).message !== 'UNAUTHORIZED') {
+      logApiError('Gemini', 'evaluateSpeakingDialog', e, { word, meaning, studentInputLen: studentInput.length });
+    }
+    throw e;
   }
 }
 
@@ -386,7 +395,7 @@ JUDGMENT CRITERIA:
 
   try {
     const sessionPromise = getAI().live.connect({
-      model: "gemini-2.5-flash-native-audio-preview-09-2025",
+      model: "gemini-2.0-flash-exp",
       callbacks: {
         onopen: () => {
           console.log("Live session opened");
@@ -467,7 +476,7 @@ export async function evaluatePronunciation(audioBase64: string, mimeType: strin
   try {
     const langName = getLangName(lang);
     const response = await getAI().models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: "gemini-1.5-flash-preview",
       contents: [
         {
           parts: [
@@ -498,11 +507,12 @@ export async function evaluatePronunciation(audioBase64: string, mimeType: strin
         }
       }
     });
-    const responseText = response.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
-    return JSON.parse(responseText || '{"score": 0, "feedback": "Evaluation failed."}');
-  } catch (error) {
-    logApiError('Gemini', 'evaluatePronunciation', error, { word, mimeType, lang });
-    throw error;
+    return JSON.parse(response.text || '{"score": 0, "feedback": "Evaluation failed."}');
+  } catch (e) {
+    if ((e as Error).message !== 'UNAUTHORIZED') {
+      logApiError('Gemini', 'evaluatePronunciation', e, { word, mimeType, lang });
+    }
+    throw e;
   }
 }
 
@@ -512,7 +522,7 @@ export async function generateWrittenTest(words: Word[], lang: string): Promise<
     const halfCount = Math.ceil(words.length / 2);
     const langName = getLangName(lang);
     const response = await getAI().models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: "gemini-1.5-flash-preview",
       contents: `Based on the following word list: [${wordList}], generate a written test with ${halfCount} multiple-choice questions and ${words.length - halfCount} fill-in-the-blank questions. Please use ${langName} for question explanations.
       Please strictly respond in the following JSON format:
       {
@@ -561,17 +571,34 @@ export async function generateWrittenTest(words: Word[], lang: string): Promise<
         }
       }
     });
-    
-    const responseText = response.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
-    const data = JSON.parse(responseText || '{"multiple_choice": [], "fill_in_the_blank": []}');
-    const mcQuestions: MultipleChoiceQuestion[] = (data.multiple_choice || []).map((q: any) => ({ ...q, type: 'multiple_choice' }));
-    const fitbQuestions: FillInTheBlankQuestion[] = (data.fill_in_the_blank || []).map((q: any) => ({ ...q, type: 'fill_in_the_blank' }));
-    
-    // Combine and shuffle
-    const combined = [...mcQuestions, ...fitbQuestions];
-    return combined.sort(() => Math.random() - 0.5);
-  } catch (error) {
-    logApiError('Gemini', 'generateWrittenTest', error, { wordsCount: words.length, lang });
-    return [];
+
+    const rawData = JSON.parse(response.text || '{"multiple_choice": [], "fill_in_the_blank": []}');
+    const questions: TestQuestion[] = [];
+
+    rawData.multiple_choice.forEach((q: any) => {
+      questions.push({
+        type: 'multiple_choice',
+        word: q.word,
+        question: q.question,
+        options: q.options,
+        correctAnswer: q.options[q.correctAnswerIndex]
+      } as MultipleChoiceQuestion);
+    });
+
+    rawData.fill_in_the_blank.forEach((q: any) => {
+      questions.push({
+        type: 'fill_in_the_blank',
+        word: q.word,
+        question: q.question,
+        answer: q.answer
+      } as FillInTheBlankQuestion);
+    });
+
+    return questions;
+  } catch (e) {
+    if ((e as Error).message !== 'UNAUTHORIZED') {
+      logApiError('Gemini', 'generateWrittenTest', e, { wordCount: words.length, lang });
+    }
+    throw e;
   }
 }

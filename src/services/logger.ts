@@ -1,44 +1,52 @@
 import * as Sentry from '@sentry/react';
 
-export interface LogContext {
-  [key: string]: any;
+/**
+ * Sanitizes sensitive data from error objects before sending to Sentry.
+ * Removes common API key patterns, tokens, and PII recursively.
+ */
+function sanitizeError(error: any): any {
+  if (typeof error !== 'object' || error === null) return error;
+
+  const sensitiveKeys = ['apiKey', 'api_key', 'token', 'accessToken', 'access_token', 'password', 'secret', 'client_id', 'client_secret'];
+  const sanitized = { ...error };
+
+  for (const key of Object.keys(sanitized)) {
+    if (sensitiveKeys.some(sk => key.toLowerCase().includes(sk.toLowerCase()))) {
+      sanitized[key] = '[REDACTED]';
+    } else if (typeof sanitized[key] === 'object') {
+      sanitized[key] = sanitizeError(sanitized[key]);
+    }
+  }
+
+  return sanitized;
 }
 
 /**
- * Logs an API error to Sentry with details about the service and method.
- * @param service The name of the service (e.g., 'Gemini', 'Calendar', 'Drive')
- * @param method The name of the function or endpoint being called
- * @param error The original error object
- * @param context Additional non-sensitive context to include
+ * Centralized utility for logging API errors to Sentry.
+ * Adds context about the service and method where the error occurred.
  */
-export function logApiError(
-  service: string,
-  method: string,
-  error: any,
-  context?: LogContext
-) {
-  console.error(`[${service}::${method}] Error:`, error, context);
+export function logApiError(service: string, method: string, error: any, extra?: Record<string, any>) {
+  const sanitizedError = sanitizeError(error);
+  
+  console.error(`[${service}::${method}] API Anomaly:`, sanitizedError, extra);
 
   Sentry.withScope((scope) => {
     scope.setTag('service', service);
     scope.setTag('method', method);
+    scope.setTag('error_type', 'api_anomaly');
     
-    // Add context as extra data, removing any potential sensitive info
-    if (context) {
-      const sanitizedContext = { ...context };
-      // Explicitly remove common sensitive fields just in case
-      delete sanitizedContext.apiKey;
-      delete sanitizedContext.accessToken;
-      delete sanitizedContext.token;
-      
-      scope.setExtra('requestContext', sanitizedContext);
+    if (extra) {
+      scope.setContext('additional_info', sanitizeError(extra));
     }
 
     if (error instanceof Error) {
+      // For real Error objects, capture them directly
       Sentry.captureException(error);
     } else {
-      // Capture non-error objects as messages with details
-      Sentry.captureMessage(`${service} ${method} failed: ${JSON.stringify(error)}`, 'error');
+      // For JSON error responses, capture as message with details
+      Sentry.captureMessage(`API Error in ${service}.${method}: ${typeof error === 'string' ? error : JSON.stringify(sanitizedError)}`, {
+        level: 'error',
+      });
     }
   });
 }

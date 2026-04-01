@@ -1,104 +1,74 @@
-import i18n from '../i18n/config';
+import * as Sentry from '@sentry/react';
 import { logApiError } from './logger';
 
-export async function getOrCreateCalendar(accessToken: string, calendarName: string): Promise<string> {
+export async function getOrCreateCalendar(accessToken: string, calendarName: string): Promise<string | null> {
   try {
-    // 1. List calendars
-    const listRes = await fetch('https://www.googleapis.com/calendar/v3/users/me/calendarList', {
-      headers: { Authorization: `Bearer ${accessToken}` }
+    // 1. Check if calendar exists
+    const listResponse = await fetch('https://www.googleapis.com/calendar/v3/users/me/calendarList', {
+      headers: { Authorization: `Bearer ${accessToken}` },
     });
     
-    if (listRes.status === 401) {
-      throw new Error('UNAUTHORIZED');
-    }
-    if (!listRes.ok) {
-      throw new Error('Failed to list calendars');
-    }
-    
-    const listData = await listRes.json();
+    if (listResponse.status === 401) throw new Error('UNAUTHORIZED');
+    if (!listResponse.ok) return null;
+
+    const listData = await listResponse.json();
     const existing = listData.items?.find((c: any) => c.summary === calendarName);
     
-    if (existing) {
-      return existing.id;
-    }
+    if (existing) return existing.id;
 
-    // 2. Create calendar
-    const createRes = await fetch('https://www.googleapis.com/calendar/v3/calendars', {
+    // 2. Create if not exists
+    const createResponse = await fetch('https://www.googleapis.com/calendar/v3/calendars', {
       method: 'POST',
-      headers: { 
+      headers: {
         Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ summary: calendarName })
+      body: JSON.stringify({ summary: calendarName }),
     });
-    
-    if (createRes.status === 401) {
-      throw new Error('UNAUTHORIZED');
+
+    if (createResponse.status === 401) throw new Error('UNAUTHORIZED');
+    if (!createResponse.ok) return null;
+
+    const newCalendar = await createResponse.json();
+    return newCalendar.id;
+  } catch (e) {
+    if ((e as Error).message !== 'UNAUTHORIZED') {
+      logApiError('Calendar', 'getOrCreateCalendar', e, { calendarName });
     }
-    if (!createRes.ok) {
-      throw new Error('Failed to create calendar');
-    }
-    
-    const createData = await createRes.json();
-    return createData.id;
-  } catch (error) {
-    if ((error as Error).message !== 'UNAUTHORIZED') {
-      logApiError('Calendar', 'getOrCreateCalendar', error, { calendarName });
-    }
-    throw error;
+    throw e;
   }
 }
 
-export async function addTestResultToCalendar(
-  accessToken: string, 
-  calendarId: string, 
-  topic: string,
-  score: number, 
-  mistakes: string[],
-  totalWords: number,
-  startTime: Date,
-  endTime: Date
-) {
+export async function addLearningRecord(accessToken: string, calendarId: string, wordCount: number, topic: string) {
   try {
-    const durationMs = endTime.getTime() - startTime.getTime();
-    const durationMins = Math.floor(durationMs / 60000);
-    const durationSecs = Math.floor((durationMs % 60000) / 1000);
+    const now = new Date();
+    const end = new Date(now.getTime() + 30 * 60000); // 30 mins later
     
-    let durationText = "";
-    if (durationMins > 0) {
-      durationText = `${durationMins} ${i18n.t('calendar.duration_min')} ${durationSecs} ${i18n.t('calendar.duration_sec')}`;
-    } else {
-      durationText = `${durationSecs} ${i18n.t('calendar.duration_sec')}`;
-    }
-    
-    const description = `${i18n.t('calendar.topic_label')}: ${topic}\n${i18n.t('calendar.total_words_label')}: ${totalWords}\n${i18n.t('calendar.score_label')}: ${score}${i18n.t('calendar.score_unit')}\n${i18n.t('calendar.duration_label')}: ${durationText}\n\n${i18n.t('calendar.mistakes_label')}:\n${mistakes.length > 0 ? mistakes.join('\n') : i18n.t('calendar.no_mistakes')}`;
-
-    const event = {
-      summary: i18n.t('calendar.event_title', { topic, score }),
-      description: description,
-      start: { dateTime: startTime.toISOString() },
-      end: { dateTime: endTime.toISOString() },
-    };
-
-    const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`, {
+    const response = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`, {
       method: 'POST',
-      headers: { 
+      headers: {
         Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify(event)
+      body: JSON.stringify({
+        summary: `TutorXYZ 學習記錄: ${topic}`,
+        description: `本次學習了 ${wordCount} 個單字。`,
+        start: { dateTime: now.toISOString() },
+        end: { dateTime: end.toISOString() },
+      }),
     });
 
-    if (res.status === 401) {
-      throw new Error('UNAUTHORIZED');
+    if (response.status === 401) throw new Error('UNAUTHORIZED');
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Failed to add calendar event: ${errorText}`);
     }
-    if (!res.ok) {
-      throw new Error('Failed to add event to calendar');
+    
+    return await response.json();
+  } catch (e) {
+    if ((e as Error).message !== 'UNAUTHORIZED') {
+      logApiError('Calendar', 'addLearningRecord', e, { wordCount, topic });
     }
-  } catch (error) {
-    if ((error as Error).message !== 'UNAUTHORIZED') {
-      logApiError('Calendar', 'addTestResultToCalendar', error, { topic, score, mistakesCount: mistakes.length });
-    }
-    throw error;
+    throw e;
   }
 }
