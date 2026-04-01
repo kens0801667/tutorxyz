@@ -1,4 +1,5 @@
 import { AppConfig } from '../components/ApiKeySetupScreen';
+import { logApiError } from './logger';
 
 export function getConfigFileName(): string {
   return localStorage.getItem('tutorxyz_config_filename') || 'tutorxyz_config.json';
@@ -47,8 +48,11 @@ export async function getConfigFromDrive(accessToken: string): Promise<AppConfig
       teacherStyle: config.teacherStyle || 'enthusiastic'
     };
   } catch (e) {
+    if ((e as Error).message !== 'UNAUTHORIZED') {
+      logApiError('Drive', 'getConfigFromDrive', e);
+    }
     console.error("Error reading from Drive", e);
-    return null;
+    throw e;
   }
 }
 
@@ -120,7 +124,10 @@ export async function saveConfigToDrive(accessToken: string, config: AppConfig):
     
     return true;
   } catch (e) {
+    if ((e as Error).message !== 'UNAUTHORIZED') {
+      logApiError('Drive', 'saveConfigToDrive', e);
+    }
     console.error("Error saving to Drive", e);
-    return false;
+    throw e;
   }
 }
