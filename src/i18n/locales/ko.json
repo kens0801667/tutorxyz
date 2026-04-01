@@ -57,7 +57,9 @@
     },
     "defaults": {
       "level": "중학교 1학년 1학기",
-      "topic": "학교 생활과 문구류"
+      "topic": "학교 생활과 문구류",
+      "reset_to_default": "기본값으로 재설정",
+      "reset_all": "모두 기본값으로 재설정"
     },
     "units": {
       "word_count": "{{count}} 개",
@@ -190,6 +192,8 @@
     "calendar_title": "캘린더 이름 설정",
     "calendar_desc": "테스트 결과는 이 이름의 Google 캘린더에 자동으로 기록됩니다:",
     "calendar_placeholder": "예: tutorxyz 학습 기록",
+    "calendar_default_name": "tutorxyz 학습 기록",
+    "reset_to_default": "기본값으로 재설정",
     "config_file_title": "설정 파일 이름",
     "config_file_desc": "Google Drive에 저장될 파일 이름:",
     "style_title": "선생님 교육 스타일",

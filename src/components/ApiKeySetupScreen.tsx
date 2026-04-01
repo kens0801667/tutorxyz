@@ -26,9 +26,13 @@ export function ApiKeySetupScreen({ onSave, onCancel, initialConfig }: Props) {
 
   useEffect(() => {
     if (!calendarName && !initialConfig?.calendarName) {
-      setCalendarName(t('settings.calendar_placeholder'));
+      setCalendarName(t('settings.calendar_default_name'));
     }
   }, [t, calendarName, initialConfig]);
+
+  const handleResetCalendarName = () => {
+    setCalendarName(t('settings.calendar_default_name'));
+  };
 
   const handleSave = async () => {
     if (!apiKey.trim() || !calendarName.trim() || !configFileName.trim()) return;
@@ -107,13 +111,22 @@ export function ApiKeySetupScreen({ onSave, onCancel, initialConfig }: Props) {
           </h3>
           <div className="pl-7">
             <p className="text-slate-500 text-sm mb-2">{t('settings.calendar_desc')}</p>
-            <input
-              type="text"
-              value={calendarName}
-              onChange={(e) => setCalendarName(e.target.value)}
-              placeholder={t('settings.calendar_placeholder')}
-              className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all outline-none"
-            />
+            <div className="relative">
+              <input
+                type="text"
+                value={calendarName}
+                onChange={(e) => setCalendarName(e.target.value)}
+                placeholder={t('settings.calendar_placeholder')}
+                className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all outline-none pr-32"
+              />
+              <button
+                type="button"
+                onClick={handleResetCalendarName}
+                className="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1.5 text-xs font-medium text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors border border-indigo-100"
+              >
+                {t('settings.reset_to_default')}
+              </button>
+            </div>
           </div>
         </div>
 

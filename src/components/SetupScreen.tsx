@@ -57,6 +57,13 @@ export function SetupScreen({ onStart }: Props) {
     }
   }, [i18n.language, t]);
 
+  const handleResetAll = () => {
+    setLevel(t('setup.defaults.level'));
+    setTopic(t('setup.defaults.topic'));
+    localStorage.removeItem('last_level');
+    localStorage.removeItem('last_topic');
+  };
+
   useEffect(() => {
     return () => {
       stopCamera();
@@ -217,6 +224,17 @@ export function SetupScreen({ onStart }: Props) {
             <HistoryTab onStartTest={(words, topic, level) => onStart(words, topic, level)} />
           ) : inputMode === 'topic' ? (
             <>
+              <div className="flex justify-end -mb-2">
+                <button
+                  type="button"
+                  onClick={handleResetAll}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors border border-indigo-100"
+                >
+                  <History className="w-4 h-4" />
+                  {t('setup.defaults.reset_all')}
+                </button>
+              </div>
+
               <div>
                 <label className="block text-lg font-medium text-slate-700 mb-2">{t('setup.level_label')}</label>
                 <input 

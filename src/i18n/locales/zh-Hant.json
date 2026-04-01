@@ -57,7 +57,9 @@
     },
     "defaults": {
       "level": "國一上學期",
-      "topic": "學校生活與文具"
+      "topic": "學校生活與文具",
+      "reset_to_default": "重設為預設值",
+      "reset_all": "重設全部為預設"
     },
     "units": {
       "word_count": "{{count}} 個",
@@ -190,6 +192,8 @@
     "calendar_title": "日曆名稱設定",
     "calendar_desc": "測驗成績將會自動記錄到這個名稱的 Google 日曆中：",
     "calendar_placeholder": "例如：tutorxyz學習紀錄",
+    "calendar_default_name": "tutorxyz學習紀錄",
+    "reset_to_default": "重設為預設值",
     "config_file_title": "設定檔名稱",
     "config_file_desc": "儲存在 Google Drive 中的檔名：",
     "style_title": "老師教學風格",

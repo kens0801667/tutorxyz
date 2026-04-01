@@ -9,22 +9,44 @@ interface Props {
 export function LoginScreen({ onLogin }: Props) {
   const { t, i18n } = useTranslation();
 
-  const toggleLanguage = () => {
-    const nextLang = i18n.language.startsWith('zh') ? 'ko' : 'zh-Hant';
-    i18n.changeLanguage(nextLang);
+  const languages = [
+    { code: 'zh-Hant', name: '繁體中文' },
+    { code: 'zh-Hans', name: '简体中文' },
+    { code: 'en', name: 'English' },
+    { code: 'ko', name: '한국어' },
+    { code: 'ja', name: '日本語' },
+    { code: 'es', name: 'Español' },
+    { code: 'fr', name: 'Français' },
+    { code: 'de', name: 'Deutsch' },
+  ];
+
+  const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    i18n.changeLanguage(e.target.value);
   };
 
   return (
     <div className="flex flex-col items-center justify-between min-h-screen bg-slate-100 p-4 sm:p-8">
       {/* Language Switcher */}
       <div className="w-full max-w-2xl flex justify-end mb-4">
-        <button 
-          onClick={toggleLanguage}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors text-sm font-medium"
-        >
-          <Globe className="w-4 h-4" />
-          {i18n.language.startsWith('zh') ? '한국어' : '繁體中文'}
-        </button>
+        <div className="relative inline-flex items-center gap-2 px-3 py-1.5 bg-white rounded-full shadow-sm border border-slate-200 text-slate-600 hover:border-indigo-300 transition-all text-sm font-medium group">
+          <Globe className="w-4 h-4 text-slate-400 group-hover:text-indigo-500 transition-colors" />
+          <select
+            value={i18n.language}
+            onChange={handleLanguageChange}
+            className="bg-transparent border-none outline-none cursor-pointer pr-1 py-0.5 appearance-none min-w-[100px]"
+          >
+            {languages.map((lang) => (
+              <option key={lang.code} value={lang.code}>
+                {lang.name}
+              </option>
+            ))}
+          </select>
+          <div className="pointer-events-none absolute right-3 flex items-center">
+            <svg className="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </div>
       </div>
 
       <div className="flex-1 flex flex-col items-center justify-center w-full max-w-2xl">

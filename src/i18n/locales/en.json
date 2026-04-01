@@ -57,7 +57,9 @@
     },
     "defaults": {
       "level": "Grade 7 Semester 1",
-      "topic": "School Life & Stationery"
+      "topic": "School Life & Stationery",
+      "reset_to_default": "Reset to default",
+      "reset_all": "Reset all to defaults"
     },
     "units": {
       "word_count": "{{count}} words",
@@ -190,6 +192,8 @@
     "calendar_title": "Calendar Name",
     "calendar_desc": "Results will be recorded in this Google Calendar:",
     "calendar_placeholder": "e.g., tutorxyz learning log",
+    "calendar_default_name": "tutorxyz learning log",
+    "reset_to_default": "Reset to default",
     "config_file_title": "Config Filename",
     "config_file_desc": "Filename in Google Drive:",
     "style_title": "Teacher Style",

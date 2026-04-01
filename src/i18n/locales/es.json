@@ -1,0 +1,226 @@
+{
+  "login": {
+    "title": "tutorxyz",
+    "subtitle": "Tutor de Vocabulario con IA",
+    "description": "Combinando la tecnología de Gemini AI, proporcionamos un entorno de aprendizaje de vocabulario inmersivo para niños. A través de práctica de diálogo en tiempo real, corrección de pronunciación y pruebas personalizadas, el aprendizaje de idiomas se vuelve natural y divertido.",
+    "why_google_title": "¿Por qué iniciar sesión con Google?",
+    "calendar_title": "Conexión con Google Calendar: Registro automático",
+    "calendar_desc": "Solicitamos acceso a su calendario para registrar los resultados de cada prueba (puntuación, palabras erróneas, tiempo de la prueba) en un calendario exclusivo, permitiendo seguir la curva de aprendizaje a largo plazo.",
+    "drive_title": "Acceso a Google Drive: Protección de su privacidad",
+    "drive_desc": "Usamos la carpeta App Data de Google Drive para guardar su clave de AI (API Key) y sus preferencias personales. Esto asegura que la información sensible solo se guarde en su espacio personal en la nube.",
+    "cta_button": "Comenzar con Google",
+    "agreement": "Al iniciar sesión, acepta nuestros Términos de Servicio y Política de Privacidad.",
+    "privacy": "Política de Privacidad",
+    "terms": "Términos de Servicio",
+    "contact": "Contactar Soporte",
+    "copyright": "© 2026 tutorxyz. Todos los derechos reservados."
+  },
+  "setup": {
+    "title": "Tutor de Vocabulario con IA",
+    "subtitle": "Lecciones de vocabulario personalizadas para niños",
+    "tabs": {
+      "topic": "Por Tema",
+      "image": "Foto / Subir",
+      "text": "Entrada Manual",
+      "history": "Historial"
+    },
+    "level_label": "Grado, Nivel o Rango",
+    "level_placeholder": "Ej: 1er Grado, Nivel A2, Lección 3...",
+    "topic_label": "Tema de Aprendizaje",
+    "topic_placeholder": "Ej: Vida escolar, Animales, Frutas...",
+    "image_label": "Subir foto de lista de palabras",
+    "text_label": "Ingresar lista de palabras",
+    "text_placeholder": "Ingrese o pegue la lista de palabras...\nEj:\napple manzana\nbanana banana\ncat gato",
+    "count_label": "Número de palabras",
+    "count_max_label": "Máximo de palabras",
+    "start_button": "Comenzar",
+    "loading": {
+      "topic": "Generando palabras...",
+      "image": "Reconociendo palabras...",
+      "text": "Procesando palabras..."
+    },
+    "errors": {
+      "camera_denied": "No se pudo abrir la cámara. Verifique los permisos.",
+      "image_no_words": "No se reconocieron palabras. Intente con una foto más clara.",
+      "text_no_words": "No se reconocieron palabras. Intente de nuevo.",
+      "failed": "Fallo al generar palabras. Reintente."
+    },
+    "history_label": "Historial",
+    "custom_list_label": "Lista personalizada",
+    "camera": {
+      "cancel": "Cancelar",
+      "capture": "Tomar foto",
+      "live": "Cámara en vivo",
+      "upload": "Subir foto",
+      "clear": "Limpiar imagen",
+      "selected": "Foto seleccionada"
+    },
+    "defaults": {
+      "level": "1er Grado de Primaria",
+      "topic": "Vida escolar y útiles",
+      "reset_to_default": "Restablecer",
+      "reset_all": "Restablecer todo"
+    },
+    "units": {
+      "word_count": "{{count}} palabras",
+      "word_count_max": "Máx {{count}} palabras",
+      "word_count_only": "{{count}} palabras"
+    },
+    "history": {
+      "empty": "No hay historial.",
+      "empty_hint": "Las listas generadas aparecerán aquí.",
+      "delete_confirm": "¿Eliminar esta lista?",
+      "delete_label": "Eliminar lista",
+      "edit_label": "Editar lista",
+      "start_test": "Comenzar prueba",
+      "edit_title": "Editar lista (una palabra por línea)",
+      "edit_ai_hint": "La IA completará traducciones y ejemplos al guardar.",
+      "save": "Guardar",
+      "saving": "Guardando...",
+      "back": "Volver"
+    }
+  },
+  "learning": {
+    "title": "Aprendizaje de Palabras",
+    "cancel": "Cancelar",
+    "skip": "Saltar",
+    "pronounce": "Pronunciar",
+    "explanation": "Explicación",
+    "example": "Ejemplo",
+    "complete": "Completado",
+    "next": "Siguiente",
+    "prev": "Anterior"
+  },
+  "speaking": {
+    "title": "Prueba de Voz en Tiempo Real",
+    "cancel": "Cancelar",
+    "connecting": "Conectando con Teacher Gemini...",
+    "finished_title": "¡Prueba terminada!",
+    "score_unit": "pts",
+    "next_button": "Prueba escrita",
+    "ai_speaking": "El profesor está hablando...",
+    "ai_listening": "El profesor está escuchando...",
+    "mic_label": "Tu micrófono",
+    "mic_wait": "Espera a que el profesor termine",
+    "mic_active": "Habla ahora",
+    "instruction": "Habla directamente al micrófono. El profesor responderá en tiempo real.\nIncluye:",
+    "initial_prompt": "Hola profesor, estoy listo. ¡Comencemos!",
+    "live_status": "En vivo"
+  },
+  "written": {
+    "title": "Prueba Escrita",
+    "cancel": "Cancelar",
+    "loading": "La IA está creando tu examen...",
+    "load_failed": "Error al generar prueba",
+    "placeholder": "Escribe tu respuesta...",
+    "submit": "Enviar",
+    "next": "Siguiente",
+    "view_report": "Ver reporte",
+    "correct": "¡Correcto!",
+    "wrong": "Incorrecto",
+    "correct_is": "La respuesta correcta es:"
+  },
+  "report": {
+    "title": "Reporte de Aprendizaje",
+    "avg_speaking": "Promedio de Oral",
+    "written_accuracy": "Precisión Escrita",
+    "questions_unit": "preg",
+    "table": {
+      "word": "Palabra",
+      "written": "Escrita",
+      "speaking": "Nota Oral",
+      "ai_feedback": "Sugerencia IA"
+    },
+    "restart": "Nueva lección",
+    "calendar_link": "Ver en Google Calendar"
+  },
+  "app": {
+    "steps": {
+      "setup": "Inicio",
+      "learning": "Estudiar",
+      "speaking": "Oral",
+      "written": "Escrito",
+      "report": "Reporte"
+    },
+    "nav": {
+      "settings": "Ajustes",
+      "logout": "Salir"
+    },
+    "loading": {
+      "checking_config": "Verificando ajustes...",
+      "saving_calendar": "Guardando en Google Calendar..."
+    },
+    "alerts": {
+      "auth_error": "Error de autenticación. Reintente.",
+      "login_failed": "Fallo al iniciar sesión.",
+      "drive_auth_confirm": "Se requiere acceso a Drive. ¿Autorizar ahora?",
+      "save_config_failed": "Error al guardar ajustes.",
+      "login_expired": "Sesión expirada. Inicie sesión de nuevo.",
+      "calendar_auth_confirm": "Se requiere acceso a Calendar. ¿Autorizar ahora?",
+      "save_calendar_success": "¡Guardado en Google Calendar!",
+      "save_calendar_failed": "Error al guardar en el calendario."
+    },
+    "footer": {
+      "privacy": "Privacidad",
+      "terms": "Términos"
+    }
+  },
+  "calendar": {
+    "event_title": "Prueba de Inglés: {{topic}} - Nota: {{score}} pts",
+    "topic_label": "Tema de prueba",
+    "total_words_label": "Palabras totales",
+    "score_label": "Nota",
+    "score_unit": "pts",
+    "duration_label": "Duración total",
+    "duration_min": "min",
+    "duration_sec": "seg",
+    "mistakes_label": "Palabras a reforzar",
+    "no_mistakes": "¡Todo perfecto!"
+  },
+  "settings": {
+    "title": "Ajustes del Sistema",
+    "subtitle": "Configure su Gemini API Key y preferencias.",
+    "description": "Sus ajustes se guardan de forma segura en Google Drive.",
+    "api_key_title": "Gemini API Key",
+    "api_key_placeholder": "Ingrese su clave AIzaSy...",
+    "cost_alert": {
+      "title": "Aviso de costos",
+      "content": "El uso de la API puede generar cargos. Mantenga su clave en secreto."
+    },
+    "no_key": "¿No tiene una clave?",
+    "get_key": "Obtener en Google AI Studio",
+    "calendar_title": "Ajuste de Calendario",
+    "calendar_desc": "Los resultados se guardarán en este calendario:",
+    "calendar_placeholder": "Ej: Registro tutorxyz",
+    "calendar_default_name": "Registro tutorxyz",
+    "reset_to_default": "Restablecer",
+    "config_file_title": "Nombre de archivo",
+    "config_file_desc": "Archivo guardado en Google Drive:",
+    "style_title": "Estilo del profesor (Voz)",
+    "styles": {
+      "enthusiastic": {
+        "name": "Entusiasta",
+        "desc": "Kore (Brillante)",
+        "icon": "🌟"
+      },
+      "strict": {
+        "name": "Estricto",
+        "desc": "Fenrir (Bajo)",
+        "icon": "🧐"
+      },
+      "socratic": {
+        "name": "Socrático",
+        "desc": "Charon (Sabio)",
+        "icon": "🤔"
+      },
+      "humorous": {
+        "name": "Humorístico",
+        "desc": "Puck (Alegre)",
+        "icon": "😂"
+      }
+    },
+    "save": "Guardar y empezar",
+    "saving": "Guardando...",
+    "cancel": "Cancelar"
+  }
+}
