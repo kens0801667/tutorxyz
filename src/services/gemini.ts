@@ -16,25 +16,12 @@ function getAI() {
   return new GoogleGenAI({ apiKey: key });
 }
 
-function getLangName(lang: string) {
-  const code = lang.toLowerCase();
-  if (code.startsWith('ko')) return "한국어 (Korean)";
-  if (code.startsWith('ja')) return "日本語 (Japanese)";
-  if (code.startsWith('zh-cn') || code.startsWith('zh-hans')) return "简体中文 (Simplified Chinese)";
-  if (code.startsWith('zh')) return "繁體中文 (Traditional Chinese)";
-  if (code.startsWith('es')) return "Español (Spanish)";
-  if (code.startsWith('fr')) return "Français (French)";
-  if (code.startsWith('de')) return "Deutsch (German)";
-  return "English";
-}
-
-export async function generateVocabulary(topic: string, level: string, count: number, lang: string): Promise<Word[]> {
+export async function generateVocabulary(topic: string, level: string, count: number): Promise<Word[]> {
   try {
     const ai = getAI();
-    const langName = getLangName(lang);
     const response = await ai.models.generateContent({
       model: "gemini-1.5-flash-preview",
-      contents: `You are a professional English teacher. Please generate ${count} essential vocabulary words based on: level "${level}", topic "${topic}". Please respond in JSON format and set the translation and explanation to ${langName}. Include fields: word (English word), pos (part of speech), meaning (word translation), exampleSentence (English sentence), exampleTranslation (example translation).`,
+      contents: `你是一位專業的英語老師。請根據『${level}，主題：${topic}』，產生 ${count} 個必背單字。請以 JSON 格式回覆，包含欄位：word (英文單字), pos (詞性), meaning (繁體中文解釋), exampleSentence (英文例句), exampleTranslation (例句中文翻譯)。`,
       config: {
         responseMimeType: "application/json",
         responseSchema: {
@@ -43,10 +30,10 @@ export async function generateVocabulary(topic: string, level: string, count: nu
             type: Type.OBJECT,
             properties: {
               word: { type: Type.STRING },
-              meaning: { type: Type.STRING },
+              meaning: { type: Type.STRING, description: "Traditional Chinese translation" },
               pos: { type: Type.STRING },
               exampleSentence: { type: Type.STRING },
-              exampleTranslation: { type: Type.STRING }
+              exampleTranslation: { type: Type.STRING, description: "Traditional Chinese translation of the example sentence" }
             },
             required: ["word", "meaning", "pos", "exampleSentence", "exampleTranslation"]
           }
@@ -64,15 +51,14 @@ export async function generateVocabulary(topic: string, level: string, count: nu
     }));
   } catch (e) {
     if ((e as Error).message !== 'UNAUTHORIZED') {
-      logApiError('Gemini', 'generateVocabulary', e, { topic, level, count, lang });
+      logApiError('Gemini', 'generateVocabulary', e, { topic, level, count });
     }
     throw e;
   }
 }
 
-export async function extractWordsFromImage(base64Data: string, mimeType: string, count: number, lang: string): Promise<Word[]> {
+export async function extractWordsFromImage(base64Data: string, mimeType: string, count: number): Promise<Word[]> {
   try {
-    const langName = getLangName(lang);
     const response = await getAI().models.generateContent({
       model: "gemini-1.5-flash-preview",
       contents: [
@@ -82,15 +68,15 @@ export async function extractWordsFromImage(base64Data: string, mimeType: string
             mimeType: mimeType
           }
         },
-        `Please extract English vocabulary words from this image. Return a JSON array with a maximum of ${count} words. Use ${langName} for translations and explanations. 
-        Each word object must include: 
-        - word: English word
-        - meaning: translation in ${langName}
-        - pos: part of speech (e.g., n., v., adj.)
-        - exampleSentence: a simple English example sentence
-        - exampleTranslation: translation of the example sentence in ${langName}
+        `請從這張圖片中擷取英文單字。請回傳一個 JSON 陣列，包含最多 ${count} 個單字。
+        每個單字物件必須包含以下欄位：
+        - word: 英文單字
+        - meaning: 繁體中文翻譯
+        - pos: 詞性 (例如 n., v., adj.)
+        - exampleSentence: 一句簡單的英文例句
+        - exampleTranslation: 例句的繁體中文翻譯
         
-        If there are not enough words in the image, extract as many as possible. If no words are found, return an empty array [].`
+        如果圖片中沒有足夠的單字，請盡可能擷取。如果圖片中沒有任何單字，請回傳空陣列 []。`
       ],
       config: {
         responseMimeType: "application/json",
@@ -100,10 +86,10 @@ export async function extractWordsFromImage(base64Data: string, mimeType: string
             type: Type.OBJECT,
             properties: {
               word: { type: Type.STRING },
-              meaning: { type: Type.STRING },
+              meaning: { type: Type.STRING, description: "Traditional Chinese translation" },
               pos: { type: Type.STRING },
               exampleSentence: { type: Type.STRING },
-              exampleTranslation: { type: Type.STRING }
+              exampleTranslation: { type: Type.STRING, description: "Traditional Chinese translation of the example sentence" }
             },
             required: ["word", "meaning", "pos", "exampleSentence", "exampleTranslation"]
           }
@@ -121,24 +107,23 @@ export async function extractWordsFromImage(base64Data: string, mimeType: string
     }));
   } catch (e) {
     if ((e as Error).message !== 'UNAUTHORIZED') {
-      logApiError('Gemini', 'extractWordsFromImage', e, { mimeType, count, lang });
+      logApiError('Gemini', 'extractWordsFromImage', e, { mimeType, count });
     }
     throw e;
   }
 }
 
-export async function extractWordsFromText(text: string, count: number, lang: string): Promise<Word[]> {
+export async function extractWordsFromText(text: string, count: number): Promise<Word[]> {
   try {
-    const langName = getLangName(lang);
     const response = await getAI().models.generateContent({
       model: "gemini-1.5-flash-preview",
-      contents: `請從以下文字中擷取英文單字。請回傳一個 JSON 陣列，包含最多 ${count} 個單字。請使用 ${langName} 進行翻譯。
+      contents: `請從以下文字中擷取英文單字。請回傳一個 JSON 陣列，包含最多 ${count} 個單字。請使用繁體中文進行翻譯。
         每個單字物件必須包含以下欄位：
         - word: 英文單字
-        - meaning: 單字翻譯
+        - meaning: 繁體中文翻譯
         - pos: 詞性 (例如 n., v., adj.)
         - exampleSentence: 一句簡單的英文例句
-        - exampleTranslation: 例句翻譯
+        - exampleTranslation: 例句的繁體中文翻譯
         
         如果文字中沒有提供翻譯，請自動補充。如果文字中沒有足夠的單字，請盡可能擷取。如果沒有任何單字，請回傳空陣列 []。
         
@@ -152,10 +137,10 @@ export async function extractWordsFromText(text: string, count: number, lang: st
             type: Type.OBJECT,
             properties: {
               word: { type: Type.STRING },
-              meaning: { type: Type.STRING },
+              meaning: { type: Type.STRING, description: "Traditional Chinese translation" },
               pos: { type: Type.STRING },
               exampleSentence: { type: Type.STRING },
-              exampleTranslation: { type: Type.STRING }
+              exampleTranslation: { type: Type.STRING, description: "Traditional Chinese translation of the example sentence" }
             },
             required: ["word", "meaning", "pos", "exampleSentence", "exampleTranslation"]
           }
@@ -173,26 +158,25 @@ export async function extractWordsFromText(text: string, count: number, lang: st
     }));
   } catch (e) {
     if ((e as Error).message !== 'UNAUTHORIZED') {
-      logApiError('Gemini', 'extractWordsFromText', e, { textLen: text.length, count, lang });
+      logApiError('Gemini', 'extractWordsFromText', e, { textLen: text.length, count });
     }
     throw e;
   }
 }
 
-export async function fillWordDetails(words: string[], lang: string): Promise<Word[]> {
+export async function fillWordDetails(words: string[]): Promise<Word[]> {
   if (words.length === 0) return [];
   
   try {
-    const langName = getLangName(lang);
     const response = await getAI().models.generateContent({
       model: "gemini-1.5-flash-preview",
-      contents: `請為以下英文單字提供 ${langName} 翻譯、詞性、一個簡單實用的英文例句，以及例句的 ${langName} 翻譯。
+      contents: `請為以下英文單字提供繁體中文翻譯、詞性、一個簡單實用的英文例句，以及例句的繁體中文翻譯。
         請以 JSON 陣列格式回傳，每個單字物件必須包含以下欄位：
         - word: 英文單字
-        - meaning: 單字翻譯
+        - meaning: 繁體中文翻譯
         - pos: 詞性 (例如 n., v., adj.)
         - exampleSentence: 一句簡單的英文例句
-        - exampleTranslation: 例句翻譯
+        - exampleTranslation: 例句的繁體中文翻譯
         
         單字列表：
         ${words.join('\n')}`,
@@ -204,10 +188,10 @@ export async function fillWordDetails(words: string[], lang: string): Promise<Wo
             type: Type.OBJECT,
             properties: {
               word: { type: Type.STRING },
-              meaning: { type: Type.STRING },
+              meaning: { type: Type.STRING, description: "Traditional Chinese translation" },
               pos: { type: Type.STRING },
               exampleSentence: { type: Type.STRING },
-              exampleTranslation: { type: Type.STRING }
+              exampleTranslation: { type: Type.STRING, description: "Traditional Chinese translation of the example sentence" }
             },
             required: ["word", "meaning", "pos", "exampleSentence", "exampleTranslation"]
           }
@@ -225,7 +209,7 @@ export async function fillWordDetails(words: string[], lang: string): Promise<Wo
     }));
   } catch (e) {
     if ((e as Error).message !== 'UNAUTHORIZED') {
-      logApiError('Gemini', 'fillWordDetails', e, { wordCount: words.length, lang });
+      logApiError('Gemini', 'fillWordDetails', e, { wordCount: words.length });
     }
     throw e;
   }
@@ -241,17 +225,16 @@ export function getVoiceConfig(style: TeacherStyle) {
   }
 }
 
-export async function generateTeacherScript(word: string, meaning: string, lang: string): Promise<string> {
+export async function generateTeacherScript(word: string, meaning: string): Promise<string> {
   try {
-    const langName = getLangName(lang);
     const response = await getAI().models.generateContent({
       model: "gemini-1.5-flash-preview",
-      contents: `You are a friendly English tutor. The word to teach now is '${word}' (translation: ${meaning}). Please generate a short teaching script in ${langName} that includes: 1. Pronouncing the word twice, 2. Spelling out the letters, 3. A simple explanation, and 4. Creating a real-life English example sentence with its ${langName} translation. Please reply in plain text only for the TTS system to read.`,
+      contents: `你是一位親切的英文家教。現在要教的單字是 '${word}' (中文解釋：${meaning})。請產生一段簡短的教學口白，必須包含：1. 唸出單字兩次、2. 唸出拼字、3. 簡單解釋、4. 造一個生活化的英文例句並附上中文翻譯。請以純文字回覆，方便語音系統朗讀。`,
     });
     return response.text || "";
   } catch (e) {
     if ((e as Error).message !== 'UNAUTHORIZED') {
-      logApiError('Gemini', 'generateTeacherScript', e, { word, meaning, lang });
+      logApiError('Gemini', 'generateTeacherScript', e, { word, meaning });
     }
     throw e;
   }
@@ -327,13 +310,11 @@ export async function evaluateSpeakingDialog(word: string, meaning: string, stud
 export async function startLiveSpeakingSession(
   words: {word: string, translation: string}[],
   teacherStyle: TeacherStyle,
-  lang: string,
   onAudioData: (base64: string) => void,
   onInterrupted: () => void,
   onTestFinished: (score: number, feedback: string) => void
 ) {
   const wordListStr = words.map(w => `${w.word} (${w.translation})`).join(', ');
-  const langName = getLangName(lang);
   
   let stylePrompt = "";
   switch (teacherStyle) {
@@ -359,19 +340,19 @@ Emphasis: "Be a humorous, joke-loving friend-type tutor. Speak with a relaxed, t
       break;
   }
 
-  const systemInstruction = `You are "Teacher Gemini", a professional English tutor for students who speak ${langName}. 
+  const systemInstruction = `You are "Teacher Gemini", a professional English tutor for students who speak Traditional Chinese. 
 
 CORE OBJECTIVE: Conduct a "Live Voice Vocabulary Test" to assess the student's English pronunciation and spelling.
 
 LANGUAGE ROLES:
 - TARGET LANGUAGE: English (The language the student is learning).
-- SUPPORT LANGUAGE: ${langName} (The student's native language, used for your explanations and clues).
+- SUPPORT LANGUAGE: Traditional Chinese (The student's native language, used for your explanations and clues).
 
 ${stylePrompt}
 
 YOUR TASK:
 1. You MUST test ALL words provided in the "Word List to be Tested" one by one.
-2. For each word, you provide its definition or a clue ONLY in ${langName}.
+2. For each word, you provide its definition or a clue ONLY in Traditional Chinese.
 3. **STRICT RULE**: You are ABSOLUTELY PROHIBITED from saying the target English word until the student has successfully pronounced and spelled it.
 4. The student must respond by saying the English word AND spelling it out (e.g., "Apple, A-P-P-L-E").
 
@@ -383,7 +364,7 @@ INTERACTION RULES:
 - **Concise & Natural**: Keep each turn to 1-2 sentences. Avoid long lectures.
 - **Proactive Feedback**: You MUST respond as soon as you detect any pause in student output. 
     - If the student provided the word and the correct spelling: Praise them immediately and move to the next word.
-    - If they are only halfway through or seem to have stopped: Provide the next letter as a hint or ask them to continue in ${langName}.
+    - If they are only halfway through or seem to have stopped: Provide the next letter as a hint or ask them to continue in Traditional Chinese.
 - **Never Stay Silent**: If there is more than 1.5 seconds of silence after a student attempt, you MUST speak to keep the session alive.
 - **Acknowledge Partial Success**: If they get the pronunciation right but struggle with spelling, praise the pronunciation first and then guide the spelling.
 
@@ -391,7 +372,7 @@ JUDGMENT CRITERIA:
 - The student should provide the English pronunciation and the spelling. 
 - Once the LAST word in the list is completed or attempted, you MUST call the "finishTest" tool to provide the final summary score and feedback for the entire session.
 
-【Session Start】 Greet the student in ${langName}, introduce yourself, and start by explaining the first word's meaning in ${langName}. Do NOT call finishTest until you have gone through all ${words.length} words.`
+【Session Start】 Greet the student in Traditional Chinese, introduce yourself, and start by explaining the first word's meaning. Do NOT call finishTest until you have gone through all ${words.length} words.`
 
   try {
     const sessionPromise = getAI().live.connect({
@@ -472,9 +453,8 @@ JUDGMENT CRITERIA:
 }
 
 
-export async function evaluatePronunciation(audioBase64: string, mimeType: string, word: string, lang: string): Promise<{score: number, feedback: string}> {
+export async function evaluatePronunciation(audioBase64: string, mimeType: string, word: string): Promise<{score: number, feedback: string}> {
   try {
-    const langName = getLangName(lang);
     const response = await getAI().models.generateContent({
       model: "gemini-1.5-flash-preview",
       contents: [
@@ -490,7 +470,7 @@ export async function evaluatePronunciation(audioBase64: string, mimeType: strin
               text: `Evaluate the pronunciation of the English word "${word}" in the provided audio. 
               Return a JSON object with two fields: 
               "score" (number from 0 to 100), 
-              "feedback" (short string in ${langName} explaining what was good or what needs improvement).`
+              "feedback" (short string in Traditional Chinese explaining what was good or what needs improvement).`
             }
           ]
         }
@@ -510,27 +490,26 @@ export async function evaluatePronunciation(audioBase64: string, mimeType: strin
     return JSON.parse(response.text || '{"score": 0, "feedback": "Evaluation failed."}');
   } catch (e) {
     if ((e as Error).message !== 'UNAUTHORIZED') {
-      logApiError('Gemini', 'evaluatePronunciation', e, { word, mimeType, lang });
+      logApiError('Gemini', 'evaluatePronunciation', e, { word, mimeType });
     }
     throw e;
   }
 }
 
-export async function generateWrittenTest(words: Word[], lang: string): Promise<TestQuestion[]> {
+export async function generateWrittenTest(words: Word[]): Promise<TestQuestion[]> {
   try {
     const wordList = words.map(w => w.word).join(", ");
     const halfCount = Math.ceil(words.length / 2);
-    const langName = getLangName(lang);
     const response = await getAI().models.generateContent({
       model: "gemini-1.5-flash-preview",
-      contents: `Based on the following word list: [${wordList}], generate a written test with ${halfCount} multiple-choice questions and ${words.length - halfCount} fill-in-the-blank questions. Please use ${langName} for question explanations.
-      Please strictly respond in the following JSON format:
+      contents: `基於以下單字表：[${wordList}]，產生一份包含 ${halfCount} 題單選題與 ${words.length - halfCount} 題填空題的測驗。請使用繁體中文進行解析。
+      請嚴格按照以下 JSON 格式回覆：
       {
         "multiple_choice": [
           {"word": "apple", "question": "...", "options": ["A", "B", "C", "D"], "correctAnswerIndex": 0}
         ],
         "fill_in_the_blank": [
-          {"word": "apple", "question": "This is an ___ (explanation).", "answer": "apple"}
+          {"word": "apple", "question": "這是一顆 ___ (翻譯)。", "answer": "apple"}
         ]
       }`,
       config: {
@@ -581,7 +560,7 @@ export async function generateWrittenTest(words: Word[], lang: string): Promise<
         word: q.word,
         question: q.question,
         options: q.options,
-        correctAnswer: q.options[q.correctAnswerIndex]
+        correctAnswerIndex: q.correctAnswerIndex
       } as MultipleChoiceQuestion);
     });
 
@@ -597,7 +576,7 @@ export async function generateWrittenTest(words: Word[], lang: string): Promise<
     return questions;
   } catch (e) {
     if ((e as Error).message !== 'UNAUTHORIZED') {
-      logApiError('Gemini', 'generateWrittenTest', e, { wordCount: words.length, lang });
+      logApiError('Gemini', 'generateWrittenTest', e, { wordCount: words.length });
     }
     throw e;
   }

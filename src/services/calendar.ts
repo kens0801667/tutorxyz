@@ -39,7 +39,7 @@ export async function getOrCreateCalendar(accessToken: string, calendarName: str
   }
 }
 
-export async function addLearningRecord(accessToken: string, calendarId: string, wordCount: number, topic: string) {
+export async function addTestResultToCalendar(accessToken: string, calendarId: string, wordCount: number, topic: string) {
   try {
     const now = new Date();
     const end = new Date(now.getTime() + 30 * 60000); // 30 mins later
