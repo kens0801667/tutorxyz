@@ -8,7 +8,7 @@ export function setGeminiApiKey(key: string) {
 }
 
 function getAI() {
-  const key = userApiKey || process.env.GEMINI_API_KEY;
+  const key = userApiKey || (typeof (import.meta as any).env !== 'undefined' ? (import.meta as any).env.VITE_GEMINI_API_KEY : (globalThis as any).process?.env?.VITE_GEMINI_API_KEY);
   if (!key) {
     throw new Error("Gemini API Key is missing. Please set it up first.");
   }
