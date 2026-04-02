@@ -2,9 +2,68 @@ import { GoogleGenAI, Type, Modality, LiveServerMessage } from "@google/genai";
 import { Word, TestQuestion, MultipleChoiceQuestion, FillInTheBlankQuestion, TeacherStyle } from "../types";
 
 let userApiKey: string | null = null;
+let userModel: string = "gemini-3-flash-preview"; // Default standard model
+let userLiveModel: string = "gemini-2.5-flash-native-audio-preview-09-2025"; // Default live model
 
 export function setGeminiApiKey(key: string) {
   userApiKey = key;
+}
+
+export function setGeminiModel(model: string) {
+  userModel = model;
+}
+
+export function setGeminiLiveModel(model: string) {
+  userLiveModel = model;
+}
+
+export function getSelectedModel() {
+  return userModel;
+}
+
+export function getSelectedLiveModel() {
+  return userLiveModel;
+}
+
+export async function listAvailableModels(apiKey?: string): Promise<{ standard: string[], live: string[] }> {
+  const key = apiKey || userApiKey || (typeof (import.meta as any).env !== 'undefined' ? (import.meta as any).env.VITE_GEMINI_API_KEY : (globalThis as any).process?.env?.VITE_GEMINI_API_KEY);
+  
+  const fallbacks = {
+    standard: ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.0-flash-lite-preview-02-05"],
+    live: ["gemini-2.0-flash-exp", "gemini-2.4-flash-exp", "gemini-2.5-flash-native-audio-preview-09-2025"]
+  };
+
+  if (!key) return fallbacks;
+
+  try {
+    const ai = new GoogleGenAI({ apiKey: key });
+    const response = await ai.models.list();
+    
+    const allModels = response.page;
+    
+    // Filter out embedding models
+    const filteredModels = allModels.filter(m => !m.name.toLowerCase().includes('embedding'));
+    
+    const standard = filteredModels
+      .filter(m => m.supportedActions?.includes('generateContent'))
+      .map(m => m.name.replace('models/', ''));
+      
+    // Live models usually support 'bidiContent' or are 2.0+ flash models with audio in name
+    const live = filteredModels
+      .filter(m => 
+        (m.supportedActions?.includes('bidiContent')) || 
+        (m.name.includes('flash') && (m.name.includes('2.0') || m.name.includes('2.4') || m.name.includes('2.5')))
+      )
+      .map(m => m.name.replace('models/', ''));
+    
+    return {
+      standard: standard.length > 0 ? standard : fallbacks.standard,
+      live: live.length > 0 ? live : fallbacks.live
+    };
+  } catch (error) {
+    console.error("Failed to list models:", error);
+    return fallbacks;
+  }
 }
 
 function getAI() {
@@ -18,7 +77,7 @@ function getAI() {
 export async function generateVocabulary(topic: string, level: string, count: number): Promise<Word[]> {
   const ai = getAI();
   const response = await ai.models.generateContent({
-    model: "gemini-3-flash-preview",
+    model: userModel,
     contents: `你是一位專業的英語老師。請根據『${level}，主題：${topic}』，產生 ${count} 個必背單字。請以 JSON 格式回覆，包含欄位：word (英文單字), pos (詞性), meaning (繁體中文解釋), exampleSentence (英文例句), exampleTranslation (例句中文翻譯)。`,
     config: {
       responseMimeType: "application/json",
@@ -52,7 +111,7 @@ export async function generateVocabulary(topic: string, level: string, count: nu
 
 export async function extractWordsFromImage(base64Data: string, mimeType: string, count: number): Promise<Word[]> {
   const response = await getAI().models.generateContent({
-    model: "gemini-3-flash-preview",
+    model: userModel,
     contents: [
       {
         inlineData: {
@@ -101,7 +160,7 @@ export async function extractWordsFromImage(base64Data: string, mimeType: string
 
 export async function extractWordsFromText(text: string, count: number): Promise<Word[]> {
   const response = await getAI().models.generateContent({
-    model: "gemini-3-flash-preview",
+    model: userModel,
     contents: `請從以下文字中擷取英文單字。請回傳一個 JSON 陣列，包含最多 ${count} 個單字。
       每個單字物件必須包含以下欄位：
       - word: 英文單字
@@ -147,7 +206,7 @@ export async function fillWordDetails(words: string[]): Promise<Word[]> {
   if (words.length === 0) return [];
   
   const response = await getAI().models.generateContent({
-    model: "gemini-3-flash-preview",
+    model: userModel,
     contents: `請為以下英文單字提供繁體中文翻譯、詞性、一個簡單實用的英文例句，以及例句的繁體中文翻譯。
       請以 JSON 陣列格式回傳，每個單字物件必須包含以下欄位：
       - word: 英文單字
@@ -199,7 +258,7 @@ export function getVoiceConfig(style: TeacherStyle) {
 
 export async function generateTeacherScript(word: string, meaning: string): Promise<string> {
   const response = await getAI().models.generateContent({
-    model: "gemini-3-flash-preview",
+    model: userModel,
     contents: `你是一位親切的英文家教。現在要教的單字是 '${word}' (${meaning})。請產生一段簡短的教學口白，必須包含：1. 唸出單字兩次、2. 唸出拼字、3. 簡單解釋、4. 造一個生活化的英文例句並附上中文翻譯。請以純文字回覆，方便語音系統朗讀。`,
   });
   return response.text || "";
@@ -248,7 +307,7 @@ export async function evaluateSpeakingDialog(word: string, meaning: string, stud
   6. 純文字回覆，無 Markdown。`;
 
   const chat = getAI().chats.create({
-    model: "gemini-3-flash-preview",
+    model: userModel,
     config: {
       systemInstruction,
     },
@@ -327,7 +386,7 @@ ${stylePrompt}
 【對話開場】 請主動打招呼，介紹自己，並直接開始測驗第一個單字（記得只說中文解釋）。`;
 
   const sessionPromise = getAI().live.connect({
-    model: "gemini-2.5-flash-native-audio-preview-09-2025",
+    model: userLiveModel,
     callbacks: {
       onopen: () => {
         console.log("Live session opened");
@@ -401,7 +460,7 @@ ${stylePrompt}
 
 export async function evaluatePronunciation(audioBase64: string, mimeType: string, word: string): Promise<{score: number, feedback: string}> {
   const response = await getAI().models.generateContent({
-    model: "gemini-3-flash-preview",
+    model: userModel,
     contents: [
       {
         parts: [
@@ -439,7 +498,7 @@ export async function generateWrittenTest(words: Word[]): Promise<TestQuestion[]
   const wordList = words.map(w => w.word).join(", ");
   const halfCount = Math.ceil(words.length / 2);
   const response = await getAI().models.generateContent({
-    model: "gemini-3-flash-preview",
+    model: userModel,
     contents: `請根據以下單字清單：[${wordList}]，產生一份測驗卷，包含 ${halfCount} 題單選題與 ${words.length - halfCount} 題填空題。
     請嚴格使用以下 JSON 格式回覆：
     {

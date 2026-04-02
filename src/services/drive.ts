@@ -44,7 +44,9 @@ export async function getConfigFromDrive(accessToken: string): Promise<AppConfig
       geminiApiKey: config.geminiApiKey || '',
       calendarName: config.calendarName || 'tutorxyz學習紀錄',
       configFileName: fileName,
-      teacherStyle: config.teacherStyle || 'enthusiastic'
+      teacherStyle: config.teacherStyle || 'enthusiastic',
+      geminiModel: config.geminiModel || 'gemini-3-flash-preview',
+      geminiLiveModel: config.geminiLiveModel || 'gemini-2.5-flash-native-audio-preview-09-2025'
     };
   } catch (e) {
     console.error("Error reading from Drive", e);
@@ -70,7 +72,9 @@ export async function saveConfigToDrive(accessToken: string, config: AppConfig):
     const fileContent = JSON.stringify({ 
       geminiApiKey: config.geminiApiKey,
       calendarName: config.calendarName,
-      teacherStyle: config.teacherStyle
+      teacherStyle: config.teacherStyle,
+      geminiModel: config.geminiModel,
+      geminiLiveModel: config.geminiLiveModel
     });
     
     let fileId = '';

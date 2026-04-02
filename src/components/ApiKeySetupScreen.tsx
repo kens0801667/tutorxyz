@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Key, ExternalLink, Loader2, CheckCircle2, AlertTriangle, Calendar, FileJson, Mic2 } from 'lucide-react';
 import { TeacherStyle } from '../types';
+import { listAvailableModels } from '../services/gemini';
 
 export interface AppConfig {
   geminiApiKey: string;
   calendarName: string;
   configFileName: string;
   teacherStyle: TeacherStyle;
+  geminiModel?: string;
+  geminiLiveModel?: string;
 }
 
 interface Props {
@@ -20,7 +23,31 @@ export function ApiKeySetupScreen({ onSave, onCancel, initialConfig }: Props) {
   const [calendarName, setCalendarName] = useState(initialConfig?.calendarName || 'tutorxyz學習紀錄');
   const [configFileName, setConfigFileName] = useState(initialConfig?.configFileName || 'tutorxyz_config.json');
   const [teacherStyle, setTeacherStyle] = useState<TeacherStyle>(initialConfig?.teacherStyle || 'enthusiastic');
+  
+  const [geminiModel, setGeminiModel] = useState(initialConfig?.geminiModel || 'gemini-3-flash-preview');
+  const [geminiLiveModel, setGeminiLiveModel] = useState(initialConfig?.geminiLiveModel || 'gemini-2.5-flash-native-audio-preview-09-2025');
+  
+  const [availableModels, setAvailableModels] = useState<string[]>([]);
+  const [availableLiveModels, setAvailableLiveModels] = useState<string[]>([]);
+  const [isLoadingModels, setIsLoadingModels] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    const fetchModels = async () => {
+      if (apiKey.length > 20) {
+        setIsLoadingModels(true);
+        try {
+          const models = await listAvailableModels(apiKey);
+          setAvailableModels(models.standard);
+          setAvailableLiveModels(models.live);
+        } catch (error) {
+          console.error("Error fetching models:", error);
+        }
+        setIsLoadingModels(false);
+      }
+    };
+    fetchModels();
+  }, [apiKey]);
 
   const handleSave = async () => {
     if (!apiKey.trim() || !calendarName.trim() || !configFileName.trim()) return;
@@ -29,7 +56,9 @@ export function ApiKeySetupScreen({ onSave, onCancel, initialConfig }: Props) {
       geminiApiKey: apiKey.trim(),
       calendarName: calendarName.trim(),
       configFileName: configFileName.trim(),
-      teacherStyle
+      teacherStyle,
+      geminiModel,
+      geminiLiveModel
     });
     setIsSaving(false);
   };
@@ -84,6 +113,57 @@ export function ApiKeySetupScreen({ onSave, onCancel, initialConfig }: Props) {
 
         <div className="space-y-4 bg-slate-50 p-6 rounded-2xl border border-slate-100">
           <h3 className="font-bold text-slate-700 flex items-center gap-2">
+            <Mic2 className="w-5 h-5 text-indigo-600" />
+            Gemini 模型設定
+          </h3>
+          <div className="pl-7 space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-600">單字輔助模型 (文字/圖片處理)</label>
+              <div className="relative">
+                <select
+                  value={geminiModel}
+                  onChange={(e) => setGeminiModel(e.target.value)}
+                  disabled={isLoadingModels}
+                  className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all outline-none appearance-none bg-white disabled:bg-slate-100"
+                >
+                  {availableModels.length > 0 ? (
+                    availableModels.map(m => (
+                      <option key={m} value={m}>{m}</option>
+                    ))
+                  ) : (
+                    <option value={geminiModel}>{geminiModel}</option>
+                  )}
+                </select>
+                {isLoadingModels && (
+                  <div className="absolute right-10 top-1/2 -translate-y-1/2">
+                    <Loader2 className="w-4 h-4 animate-spin text-indigo-500" />
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-600">即時口說模型 (Gemini Live)</label>
+              <select
+                value={geminiLiveModel}
+                onChange={(e) => setGeminiLiveModel(e.target.value)}
+                disabled={isLoadingModels}
+                className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all outline-none appearance-none bg-white disabled:bg-slate-100"
+              >
+                {availableLiveModels.length > 0 ? (
+                  availableLiveModels.map(m => (
+                    <option key={m} value={m}>{m}</option>
+                  ))
+                ) : (
+                  <option value={geminiLiveModel}>{geminiLiveModel}</option>
+                )}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-4 bg-slate-50 p-6 rounded-2xl border border-slate-100">
+          <h3 className="font-bold text-slate-700 flex items-center gap-2">
             <Calendar className="w-5 h-5 text-indigo-600" />
             日曆名稱設定
           </h3>
@@ -95,23 +175,6 @@ export function ApiKeySetupScreen({ onSave, onCancel, initialConfig }: Props) {
               onChange={(e) => setCalendarName(e.target.value)}
               placeholder="例如：tutorxyz學習紀錄"
               className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all outline-none"
-            />
-          </div>
-        </div>
-
-        <div className="space-y-4 bg-slate-50 p-6 rounded-2xl border border-slate-100">
-          <h3 className="font-bold text-slate-700 flex items-center gap-2">
-            <FileJson className="w-5 h-5 text-indigo-600" />
-            設定檔儲存位置
-          </h3>
-          <div className="pl-7">
-            <p className="text-slate-500 text-sm mb-2">儲存在 Google Drive appDataFolder 中的檔案名稱：</p>
-            <input
-              type="text"
-              value={configFileName}
-              onChange={(e) => setConfigFileName(e.target.value)}
-              placeholder="例如：tutorxyz_config.json"
-              className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all outline-none font-mono"
             />
           </div>
         </div>

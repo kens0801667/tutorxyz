@@ -11,7 +11,7 @@ import { BookOpen, Mic, PenTool, BarChart, LogIn, LogOut, Loader2, Settings } fr
 import { useGoogleLogin, googleLogout } from '@react-oauth/google';
 import { getOrCreateCalendar, addTestResultToCalendar } from './services/calendar';
 import { getConfigFromDrive, saveConfigToDrive } from './services/drive';
-import { setGeminiApiKey } from './services/gemini';
+import { setGeminiApiKey, setGeminiModel, setGeminiLiveModel } from './services/gemini';
 
 export default function App() {
   const [mode, setMode] = useState<AppMode>('setup');
@@ -35,6 +35,8 @@ export default function App() {
       const config = await getConfigFromDrive(token);
       if (config && config.geminiApiKey) {
         setGeminiApiKey(config.geminiApiKey);
+        if (config.geminiModel) setGeminiModel(config.geminiModel);
+        if (config.geminiLiveModel) setGeminiLiveModel(config.geminiLiveModel);
         setAppConfig(config);
         setShowApiKeySetup(false);
       } else {
@@ -113,6 +115,8 @@ export default function App() {
       const success = await saveConfigToDrive(accessToken, config);
       if (success) {
         setGeminiApiKey(config.geminiApiKey);
+        if (config.geminiModel) setGeminiModel(config.geminiModel);
+        if (config.geminiLiveModel) setGeminiLiveModel(config.geminiLiveModel);
         setAppConfig(config);
         setShowApiKeySetup(false);
       } else {
