@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AppMode, Word, TestResult, TeacherStyle } from './types';
 import { SetupScreen } from './components/SetupScreen';
 import { LearningScreen } from './components/LearningScreen';
@@ -8,7 +9,7 @@ import { MicCheckScreen } from './components/MicCheckScreen';
 import { ReportScreen } from './components/ReportScreen';
 import { ApiKeySetupScreen, AppConfig } from './components/ApiKeySetupScreen';
 import { LoginScreen } from './components/LoginScreen';
-import { BookOpen, Mic, PenTool, BarChart, LogIn, LogOut, Loader2, Settings } from 'lucide-react';
+import { BookOpen, Mic, PenTool, BarChart, LogOut, Loader2, Settings } from 'lucide-react';
 import { useGoogleLogin, googleLogout } from '@react-oauth/google';
 import { getOrCreateCalendar, addTestResultToCalendar } from './services/calendar';
 import { getConfigFromDrive, saveConfigToDrive } from './services/drive';
@@ -16,6 +17,7 @@ import { setGeminiApiKey, setGeminiModel, setGeminiLiveModel, generateVocabulary
 import { saveCustomList } from './services/history';
 
 export default function App() {
+  const { t, i18n } = useTranslation();
   const [mode, setMode] = useState<AppMode>('setup');
   const [words, setWords] = useState<Word[]>([]);
   const [speakingResults, setSpeakingResults] = useState<Partial<TestResult>[]>([]);
@@ -47,7 +49,6 @@ export default function App() {
         setAppConfig(config);
         setShowApiKeySetup(false);
       } else {
-        // Even if config is null or key is missing, preserve the local volume setting
         const partialConfig: Partial<AppConfig> = config || {};
         partialConfig.volume = volume;
         setAppConfig(partialConfig as AppConfig);
@@ -66,18 +67,16 @@ export default function App() {
 
   const checkScope = (requiredScope: string) => {
     if (!grantedScopes) return false;
-    // Google returns scopes as a space-separated string
     const scopesList = grantedScopes.split(' ');
     return scopesList.includes(requiredScope);
   };
 
   const login = useGoogleLogin({
     onSuccess: (response) => {
-      // Validate state to prevent CSRF
       const savedState = sessionStorage.getItem('oauth_state');
       if (response.state && response.state !== savedState) {
         console.error("OAuth state mismatch! CSRF suspected.");
-        alert("驗證錯誤，請重試。");
+        alert(t('app.alerts.auth_error'));
         sessionStorage.removeItem('oauth_state');
         return;
       }
@@ -85,19 +84,18 @@ export default function App() {
 
       setAccessToken(response.access_token);
       localStorage.setItem('google_access_token', response.access_token);
-      setGrantedScopes(response.scope || ''); // Keep original scope setting
-      checkApiKey(response.access_token); // Keep original API key check
+      setGrantedScopes(response.scope || ''); 
+      checkApiKey(response.access_token);
     },
     onError: () => {
       sessionStorage.removeItem('oauth_state');
-      alert("登入失敗，請重試。");
+      alert(t('app.alerts.login_failed'));
     },
     onNonOAuthError: () => {
       sessionStorage.removeItem('oauth_state');
     },
     scope: 'https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/drive.appdata',
     include_granted_scopes: true,
-    // Use state parameter for security
     state: (() => {
       const state = Math.random().toString(36).substring(2, 15);
       sessionStorage.setItem('oauth_state', state);
@@ -117,7 +115,7 @@ export default function App() {
     if (!accessToken) return;
     
     if (!checkScope('https://www.googleapis.com/auth/drive.appdata')) {
-      const confirm = window.confirm('儲存金鑰需要您的 Google Drive 授權。是否現在進行授權？');
+      const confirm = window.confirm(t('app.alerts.drive_auth_confirm'));
       if (confirm) login();
       return;
     }
@@ -134,14 +132,14 @@ export default function App() {
         setAppConfig(config);
         setShowApiKeySetup(false);
       } else {
-        alert("儲存設定失敗，請重試。");
+        alert(t('app.alerts.save_config_failed'));
       }
     } catch (error: any) {
       if (error.message === 'UNAUTHORIZED') {
-        alert('登入已過期，請重新登入。');
+        alert(t('app.alerts.login_expired'));
         handleLogout();
       } else {
-        alert("儲存設定失敗，請重試。");
+        alert(t('app.alerts.save_config_failed'));
       }
     }
   };
@@ -154,27 +152,26 @@ export default function App() {
       let generatedWords: Word[] = [];
       let finalTopic = config.topic;
       let finalLevel = config.level;
+      const lang = i18n.language;
 
       if (config.inputMode === 'topic') {
-        generatedWords = await generateVocabulary(config.topic, config.level, config.count);
-        const savedList = saveCustomList('topic', generatedWords, `[${config.level}] ${config.topic}`.trim());
+        generatedWords = await generateVocabulary(config.topic, config.level, config.count, lang);
+        const savedList = saveCustomList('topic', generatedWords, `[${config.level}] ${config.topic}`.trim(), config.level, config.topic);
         finalTopic = savedList.title;
-        finalLevel = '歷史紀錄';
+        finalLevel = t('setup.history_label');
       } else if (config.inputMode === 'image' && config.selectedImage && config.imagePreview) {
         const base64Data = config.imagePreview.split(',')[1];
-        generatedWords = await extractWordsFromImage(base64Data, config.selectedImage.type, config.count);
+        generatedWords = await extractWordsFromImage(base64Data, config.selectedImage.type, config.count, lang);
         if (generatedWords.length === 0) throw new Error('NO_WORDS_DETECTED');
-        const savedList = saveCustomList('image', generatedWords);
+        const savedList = saveCustomList('image', generatedWords, t('setup.custom_list_label'));
         finalTopic = savedList.title;
-        finalLevel = '自訂單字表';
+        finalLevel = t('setup.custom_list_label');
       } else if (config.inputMode === 'text' && config.customText.trim()) {
-        generatedWords = await extractWordsFromText(config.customText, config.count);
+        generatedWords = await extractWordsFromText(config.customText, config.count, lang);
         if (generatedWords.length === 0) throw new Error('NO_WORDS_DETECTED');
-        const savedList = saveCustomList('text', generatedWords);
+        const savedList = saveCustomList('text', generatedWords, t('setup.custom_list_label'));
         finalTopic = savedList.title;
-        finalLevel = '自訂單字表';
-      } else if (config.inputMode === 'history') {
-        // history cases are handled by handleHistoricalStart
+        finalLevel = t('setup.custom_list_label');
       }
 
       setWords(generatedWords);
@@ -183,9 +180,9 @@ export default function App() {
     } catch (error: any) {
       console.error(error);
       if (error.message === 'NO_WORDS_DETECTED') {
-        alert('無法辨識出任何英文單字，請重試。');
+        alert(t('setup.errors.image_no_words'));
       } else {
-        alert('產生單字失敗，請重試。');
+        alert(t('setup.errors.failed'));
       }
       setMode('setup');
     } finally {
@@ -218,7 +215,6 @@ export default function App() {
     setWrittenResults(results);
     setMode('report');
     
-    // Save session to Google Calendar if logged in
     if (accessToken && sessionInfo && appConfig) {
       setIsSavingToCalendar(true);
       try {
@@ -238,10 +234,10 @@ export default function App() {
           .map(r => r.word);
 
         const endTime = new Date();
-        const startTime = sessionStartTime || new Date(endTime.getTime() - 30 * 60000); // Fallback to 30 mins if null
+        const startTime = sessionStartTime || new Date(endTime.getTime() - 30 * 60000); 
 
         if (!checkScope('https://www.googleapis.com/auth/calendar')) {
-          const confirm = window.confirm('儲存至日曆功能需要您的授權。是否現在進行授權？');
+          const confirm = window.confirm(t('app.alerts.calendar_auth_confirm'));
           if (confirm) login();
           return;
         }
@@ -249,14 +245,14 @@ export default function App() {
         const calendarId = await getOrCreateCalendar(accessToken, appConfig.calendarName);
         await addTestResultToCalendar(accessToken, calendarId, sessionInfo.topic, finalScore, mistakes, words.length, startTime, endTime);
         
-        alert('測驗成績已成功儲存至您的 Google 日曆！');
+        alert(t('app.alerts.save_calendar_success'));
       } catch (error: any) {
         console.error("Error saving to calendar:", error);
         if (error.message === 'UNAUTHORIZED') {
-          alert('登入已過期，請重新登入。');
+          alert(t('app.alerts.login_expired'));
           handleLogout();
         } else {
-          alert('儲存至日曆失敗，請檢查權限設定。');
+          alert(t('app.alerts.save_calendar_failed'));
         }
       } finally {
         setIsSavingToCalendar(false);
@@ -274,12 +270,11 @@ export default function App() {
   };
 
   const steps = [
-    { id: 'setup', icon: BookOpen, label: '設定' },
-    { id: 'micCheck', icon: Mic, label: '檢測' },
-    { id: 'learning', icon: BookOpen, label: '學習' },
-    { id: 'speaking', icon: Mic, label: '口說' },
-    { id: 'written', icon: PenTool, label: '筆試' },
-    { id: 'report', icon: BarChart, label: '報告' },
+    { id: 'setup', icon: BookOpen, label: t('app.steps.setup') },
+    { id: 'learning', icon: BookOpen, label: t('app.steps.learning') },
+    { id: 'speaking', icon: Mic, label: t('app.steps.speaking') },
+    { id: 'written', icon: PenTool, label: t('app.steps.written') },
+    { id: 'report', icon: BarChart, label: t('app.steps.report') },
   ];
 
   if (!accessToken) {
@@ -291,7 +286,7 @@ export default function App() {
       <div className="min-h-screen bg-slate-100 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="w-12 h-12 text-indigo-600 animate-spin" />
-          <p className="text-lg font-bold text-slate-700">正在檢查系統設定...</p>
+          <p className="text-lg font-bold text-slate-700">{t('app.loading.checking_config')}</p>
         </div>
       </div>
     );
@@ -311,12 +306,12 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-100 font-sans flex flex-col">
-      {/* Header / Progress Bar */}
       <header className="bg-white shadow-sm px-4 py-3 md:px-8 md:py-4 flex justify-between items-center overflow-x-auto">
         <div className="flex items-center gap-2 md:gap-12 min-w-max pr-4">
           {steps.map((step, index) => {
-            const isActive = mode === step.id;
-            const isPast = steps.findIndex(s => s.id === mode) > index;
+            const isActive = mode === step.id || (mode === 'micCheck' && step.id === 'setup');
+            const currentIndex = steps.findIndex(s => s.id === (mode === 'micCheck' ? 'setup' : mode));
+            const isPast = currentIndex > index;
             const Icon = step.icon;
             
             return (
@@ -348,31 +343,30 @@ export default function App() {
             <button
               onClick={() => setShowApiKeySetup(true)}
               className="flex items-center gap-2 px-3 py-2 md:px-4 md:py-2 text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
-              title="設定"
-              aria-label="開啟設定"
+              title={t('app.nav.settings')}
+              aria-label={t('app.nav.settings')}
             >
               <Settings className="w-5 h-5" />
-              <span className="hidden sm:block">設定</span>
+              <span className="hidden sm:block">{t('app.nav.settings')}</span>
             </button>
             <button 
               onClick={handleLogout}
               className="flex items-center gap-2 px-3 py-2 md:px-4 md:py-2 text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
-              aria-label="登出帳號"
+              aria-label={t('app.nav.logout')}
             >
               <LogOut className="w-5 h-5" />
-              <span className="hidden sm:block">登出</span>
+              <span className="hidden sm:block">{t('app.nav.logout')}</span>
             </button>
           </div>
         </div>
       </header>
 
-      {/* Main Content Area */}
       <main className="flex-1 overflow-hidden relative">
         {isSavingToCalendar && (
           <div className="absolute inset-0 z-50 bg-white/50 backdrop-blur-sm flex items-center justify-center">
             <div className="bg-white p-6 rounded-2xl shadow-xl flex flex-col items-center gap-4">
               <Loader2 className="w-10 h-10 text-indigo-600 animate-spin" />
-              <p className="text-lg font-bold text-slate-700">正在儲存成績至 Google 日曆...</p>
+              <p className="text-lg font-bold text-slate-700">{t('app.loading.saving_calendar')}</p>
             </div>
           </div>
         )}
@@ -397,11 +391,10 @@ export default function App() {
         )}
       </main>
 
-      {/* Persistent Footer for logged-in users */}
       <footer className="bg-white border-t border-slate-200 py-3 px-4 text-center">
         <div className="flex justify-center gap-4 text-xs font-medium">
-          <a href="/privacy.html" className="text-slate-500 hover:text-indigo-600 transition-colors">隱私權政策</a>
-          <a href="/terms.html" className="text-slate-500 hover:text-indigo-600 transition-colors">服務條款</a>
+          <a href="/privacy.html" className="text-slate-500 hover:text-indigo-600 transition-colors">{t('app.footer.privacy')}</a>
+          <a href="/terms.html" className="text-slate-500 hover:text-indigo-600 transition-colors">{t('app.footer.terms')}</a>
           <span className="text-slate-300">|</span>
           <span className="text-slate-400">© 2026 tutorxyz</span>
         </div>
@@ -409,4 +402,3 @@ export default function App() {
     </div>
   );
 }
-

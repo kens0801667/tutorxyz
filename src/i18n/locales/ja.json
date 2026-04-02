@@ -1,0 +1,253 @@
+{
+  "login": {
+    "title": "tutorxyz",
+    "subtitle": "AI 英語学習チューター",
+    "description": "Gemini AI技術を組み合わせ、お子様に没入型の英単語学習環境を提供します。リアルタイムの対話練習、ネイティブの発音矯正、カスタマイズされたテストを通じて、自然で楽しい言語学習を実現します。",
+    "why_google_title": "なぜ Google アカウントでのログインが必要なのですか？",
+    "calendar_title": "Google カレンダー連携：学習履歴を自動記録",
+    "calendar_desc": "カレンダーへのアクセス権限をリクエストするのは、各テストの結果（スコア、間違えた単語、テスト時間）を専用のカレンダーに記録するためです。保護者とお子様が長期的な学習曲線を明確に追跡できるようになります。",
+    "drive_title": "Google ドライブへのアクセス：プライバシー設定の保護",
+    "drive_desc": "Google Drive の App Data フォルダを使用して、AI キー (API Key) と個人の設定を保存します。これにより、機密情報は個人のクラウド空間にのみ保存され、tutorxyz のサーバーには保存されません。",
+    "cta_button": "Google アカウントで学習を開始",
+    "agreement": "ログインすることで、利用規約とプライバシーポリシーに同意したものとみなされます。",
+    "privacy": "プライバシーポリシー",
+    "terms": "利用規約",
+    "contact": "サポートにお問い合わせ",
+    "copyright": "© 2026 tutorxyz. All rights reserved."
+  },
+  "setup": {
+    "title": "AI 英単語チューター",
+    "subtitle": "お子様に合わせたオーダーメイドの英単語レッスン",
+    "tabs": {
+      "topic": "トピックで生成",
+      "image": "写真 / アップロード",
+      "text": "テキスト入力",
+      "history": "履歴"
+    },
+    "level_label": "学年、レベル、または範囲",
+    "level_placeholder": "例：中学1年生1学期、英検5級、教科書第3章...",
+    "topic_label": "学習トピック",
+    "topic_placeholder": "例：学校生活と文房具、動物、フルーツ...",
+    "image_label": "単語リストの写真をアップロード",
+    "text_label": "単語リストを入力",
+    "text_placeholder": "単語リストを入力または貼り付けてください...\n例：\napple りんご\nbanana バナナ\ncat 猫",
+    "count_label": "単語数",
+    "count_max_label": "取得する最大単語数",
+    "start_button": "学習を開始",
+    "loading": {
+      "topic": "単語を生成中...",
+      "image": "単語を認識中...",
+      "text": "単語を処理中..."
+    },
+    "errors": {
+      "camera_denied": "カメラを起動できません。カメラの権限が許可されているか確認してください。",
+      "image_no_words": "画像から英単語を認識できませんでした。より鮮明な写真を撮影またはアップロードしてください。",
+      "text_no_words": "テキストから英単語を認識できませんでした。もう一度入力してください。",
+      "failed": "単語の生成に失敗しました。もう一度お試しください。"
+    },
+    "history_label": "履歴",
+    "custom_list_label": "カスタム単語リスト",
+    "camera": {
+      "cancel": "キャンセル",
+      "capture": "写真を撮影",
+      "live": "カメラで撮影",
+      "upload": "写真をアップロード",
+      "clear": "画像をクリア",
+      "selected": "選択された写真"
+    },
+    "defaults": {
+      "level": "中学1年生1学期",
+      "topic": "学校生活と文房具",
+      "reset_to_default": "デフォルトにリセット",
+      "reset_all": "すべてデフォルトにリセット"
+    },
+    "units": {
+      "word_count": "{{count}} 個",
+      "word_count_max": "最大 {{count}} 個",
+      "word_count_only": "{{count}} 単語"
+    },
+    "history": {
+      "empty": "履歴がありません。",
+      "empty_hint": "「トピックで生成」、「写真 / アップロード」、「テキスト入力」で生成した単語リストがここに表示されます。",
+      "delete_confirm": "この単語リストを削除してもよろしいですか？",
+      "delete_label": "リストを削除",
+      "edit_label": "リストを編集",
+      "start_test": "テストを開始",
+      "edit_title": "単語リストを編集 (1行1単語)",
+      "edit_ai_hint": "保存時に AI が自動的に翻訳、品詞、例文を補完します。",
+      "save": "保存",
+      "saving": "保存中...",
+      "back": "戻る"
+    }
+  },
+  "learning": {
+    "title": "単語学習",
+    "cancel": "学習をキャンセル",
+    "skip": "学習をスキップ",
+    "pronounce": "発音を聞く",
+    "explanation": "先生の解説",
+    "example": "例文 Example",
+    "complete": "学習を完了",
+    "next": "次へ",
+    "prev": "前へ"
+  },
+  "speaking": {
+    "title": "リアルタイム音声テスト",
+    "cancel": "テストをキャンセル",
+    "connecting": "Teacher Gemini に接続中...",
+    "finished_title": "テスト完了！",
+    "score_unit": "点",
+    "next_button": "筆記テストへ",
+    "ai_speaking": "先生がお話し中です...",
+    "ai_listening": "先生が聞いています...",
+    "mic_label": "あなたのマイク",
+    "mic_wait": "先生の話が終わるまでお待ちください",
+    "mic_active": "マイクに向かってお話しください",
+    "instruction": "マイクに向かって直接話しかけてください。先生がリアルタイムで答えます。\nテスト内容：",
+    "initial_prompt": "先生こんにちは、テストの準備ができました。第1問をお願いします！",
+    "live_status": "ライブ"
+  },
+  "written": {
+    "title": "筆記テスト",
+    "cancel": "テストをキャンセル",
+    "loading": "AI が専用のテストを作成中...",
+    "load_failed": "テストの生成に失敗しました",
+    "placeholder": "答えを入力...",
+    "submit": "答えを送信",
+    "next": "次の問題",
+    "view_report": "レポートを見る",
+    "correct": "正解です！",
+    "wrong": "不正解です",
+    "correct_is": "正解は："
+  },
+  "report": {
+    "title": "学習成果レポート",
+    "avg_speaking": "スピーキング平均点",
+    "written_accuracy": "筆記正解率",
+    "questions_unit": "問",
+    "table": {
+      "word": "単語",
+      "written": "筆記",
+      "speaking": "スピーキング点数",
+      "ai_feedback": "AI フィードバック"
+    },
+    "restart": "新しいレッスンを開始",
+    "calendar_link": "Google カレンダーで学習記録を見る"
+  },
+  "app": {
+    "steps": {
+      "setup": "設定",
+      "learning": "学習",
+      "speaking": "スピーキング",
+      "written": "筆記",
+      "report": "レポート"
+    },
+    "nav": {
+      "settings": "設定",
+      "logout": "ログアウト"
+    },
+    "loading": {
+      "checking_config": "システム設定を確認中...",
+      "saving_calendar": "Google カレンダーに保存中..."
+    },
+    "alerts": {
+      "auth_error": "認証エラーが発生しました。もう一度お試しください。",
+      "login_failed": "ログインに失敗しました。もう一度お試しください。",
+      "drive_auth_confirm": "設定の保存には Google ドライブの権限が必要です。今すぐ認証しますか？",
+      "save_config_failed": "設定の保存に失敗しました。",
+      "login_expired": "セッションが期限切れです。再度ログインしてください。",
+      "calendar_auth_confirm": "カレンダーへの保存には権限が必要です。今すぐ認証しますか？",
+      "save_calendar_success": "テスト結果が Google カレンダーに保存されました！",
+      "save_calendar_failed": "カレンダーへの保存に失敗しました。権限設定を確認してください。"
+    },
+    "footer": {
+      "privacy": "プライバシーポリシー",
+      "terms": "利用規約"
+    }
+  },
+  "calendar": {
+    "event_title": "単語テスト: {{topic}} - スコア: {{score}}点",
+    "topic_label": "テストトピック",
+    "total_words_label": "単語数",
+    "score_label": "スコア",
+    "score_unit": "点",
+    "duration_label": "学習・テストにかかった時間",
+    "duration_min": "分",
+    "duration_sec": "秒",
+    "mistakes_label": "間違えた単語",
+    "no_mistakes": "全問正解！素晴らしい！"
+  },
+  "settings": {
+    "title": "システム設定",
+    "subtitle": "Gemini API キーとシステム設定を行ってください。",
+    "description": "設定は Google ドライブの App Data フォルダに安全に保存されます。",
+    "api_key_title": "Gemini API キー",
+    "api_key_placeholder": "AIzaSy で始まるキーを入力",
+    "cost_alert": {
+      "title": "料金に関する注意",
+      "content": "Gemini API の使用には料金が発生する場合があります。キーは厳重に管理してください。"
+    },
+    "no_key": "キーをお持ちでないですか？",
+    "get_key": "Google AI Studio で取得する",
+    "calendar_title": "カレンダー設定",
+    "calendar_desc": "テスト結果はこの名前の Google カレンダーに自動記録されます：",
+    "calendar_placeholder": "例：tutorxyz 学習履歴",
+    "calendar_default_name": "tutorxyz 学習履歴",
+    "reset_to_default": "デフォルトにリセット",
+    "config_file_title": "設定ファイル名",
+    "config_file_desc": "Google ドライブに保存されるファイル名：",
+    "style_title": "先生のスタイル(ボイス)",
+    "styles": {
+      "enthusiastic": {
+        "name": "熱血・励まし型",
+        "desc": "Kore (明るく元気)",
+        "icon": "🌟"
+      },
+      "strict": {
+        "name": "厳格・正確型",
+        "desc": "Fenrir (落ち着いた低音)",
+        "icon": "🧐"
+      },
+      "socratic": {
+        "name": "対話・誘発型",
+        "desc": "Charon (穏やかな智者)",
+        "icon": "🤔"
+      },
+      "humorous": {
+        "name": "ユーモア・面白型",
+        "desc": "Puck (軽快で活発)",
+        "icon": "😂"
+      }
+    },
+    "save": "保存して開始",
+    "saving": "設定を保存中...",
+    "cancel": "キャンセル",
+    "model_config": {
+      "title": "Gemini モデル設定",
+      "standard_label": "単語補助モデル (テキスト/画像処理)",
+      "live_label": "リアルタイム会話モデル (Gemini Live)",
+      "volume_label": "音声音量",
+      "volume_adjust_hint": "音量の強弱を調整 (Adjust Voice Level Intensity)"
+    }
+  },
+  "mic_check": {
+    "title": "マイクチェック",
+    "preparing_content": "レッスン内容を準備しています...",
+    "success": "接続成功！",
+    "preparing_teacher": "AI先生があなたに合わせたレッスンを作成中です。少々お待ちください...",
+    "sound_detected_desc": "素晴らしい！音声が検知されました。まもなく練習を開始します...",
+    "instruction": "マイクが正常に動作しているか確認するため、何か話しかけてみてください。",
+    "error_permissions_title": "マイクの権限が必要です",
+    "error_generic": "マイクにアクセスできません",
+    "error_denied": "マイクの権限が拒否されました。ブラウザのツールバーにある「鍵」アイコンをクリックし、マイクを「許可」に設定してください。",
+    "error_not_found": "マイクデバイスが見つかりません。デバイスが正しく接続されているか確認してください。",
+    "error_occupied": "マイクが他のプログラムで使用されています。オーディオを使用している他のウィンドウを閉じてから、もう一度お試しください。",
+    "error_dev_tip": "ヒント: ローカル開発環境 (localhost) の場合は、ChromeやEdgeなどの最新ブラウザを使用してください。",
+    "retry": "再試行",
+    "select_device": "入力デバイスを選択",
+    "waiting_sound": "音声入力待ち...",
+    "start_practice": "練習を開始",
+    "skip": "スキップして開始",
+    "skip_note": "声を出せない環境の場合は、スキップを選択してください。"
+  }
+}

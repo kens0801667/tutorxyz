@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Award, RotateCcw, CheckCircle2, XCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { TestResult, Word } from '../types';
 
 interface Props {
@@ -11,7 +12,7 @@ interface Props {
 }
 
 export function ReportScreen({ words, speakingResults, writtenResults, onRestart }: Props) {
-  // Calculate scores
+  const { t } = useTranslation();
   const totalWords = words.length;
   const writtenCorrectCount = writtenResults.filter(r => r.writtenCorrect).length;
   const writtenScore = Math.round((writtenCorrectCount / totalWords) * 100) || 0;
@@ -27,18 +28,18 @@ export function ReportScreen({ words, speakingResults, writtenResults, onRestart
         <div className="inline-flex items-center justify-center w-16 h-16 sm:w-24 sm:h-24 bg-indigo-100 rounded-full mb-3 sm:mb-4">
           <Award className="w-8 h-8 sm:w-12 sm:h-12 text-indigo-600" />
         </div>
-        <h1 className="text-2xl sm:text-4xl font-bold text-slate-800">學習成果報告</h1>
+        <h1 className="text-2xl sm:text-4xl font-bold text-slate-800">{t('report.title')}</h1>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8 mb-6 sm:mb-10">
         <div className="bg-white rounded-2xl sm:rounded-3xl shadow-lg p-6 sm:p-8 text-center border-t-8 border-emerald-500">
-          <h3 className="text-lg sm:text-2xl font-bold text-slate-500 mb-2">口說平均分數</h3>
+          <h3 className="text-lg sm:text-2xl font-bold text-slate-500 mb-2">{t('report.avg_speaking')}</h3>
           <div className="text-5xl sm:text-7xl font-black text-emerald-500">{avgSpeakingScore}</div>
         </div>
         <div className="bg-white rounded-2xl sm:rounded-3xl shadow-lg p-6 sm:p-8 text-center border-t-8 border-blue-500">
-          <h3 className="text-lg sm:text-2xl font-bold text-slate-500 mb-2">筆試正確率</h3>
+          <h3 className="text-lg sm:text-2xl font-bold text-slate-500 mb-2">{t('report.written_accuracy')}</h3>
           <div className="text-5xl sm:text-7xl font-black text-blue-500">{writtenScore}%</div>
-          <p className="text-sm sm:text-lg text-slate-400 mt-2">{writtenCorrectCount} / {totalWords} 題</p>
+          <p className="text-sm sm:text-lg text-slate-400 mt-2">{writtenCorrectCount} / {totalWords} {t('report.questions_unit')}</p>
         </div>
       </div>
 
@@ -47,10 +48,10 @@ export function ReportScreen({ words, speakingResults, writtenResults, onRestart
           <table className="w-full text-left border-collapse min-w-[600px]">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-100">
-                <th className="p-4 sm:p-6 text-base sm:text-xl font-bold text-slate-600">單字</th>
-                <th className="p-4 sm:p-6 text-base sm:text-xl font-bold text-slate-600 text-center">筆試</th>
-                <th className="p-4 sm:p-6 text-base sm:text-xl font-bold text-slate-600 text-center">口說分數</th>
-                <th className="p-4 sm:p-6 text-base sm:text-xl font-bold text-slate-600">AI 口說建議</th>
+                <th className="p-4 sm:p-6 text-base sm:text-xl font-bold text-slate-600">{t('report.table.word')}</th>
+                <th className="p-4 sm:p-6 text-base sm:text-xl font-bold text-slate-600 text-center">{t('report.table.written')}</th>
+                <th className="p-4 sm:p-6 text-base sm:text-xl font-bold text-slate-600 text-center">{t('report.table.speaking')}</th>
+                <th className="p-4 sm:p-6 text-base sm:text-xl font-bold text-slate-600">{t('report.table.ai_feedback')}</th>
               </tr>
             </thead>
             <tbody>
@@ -96,7 +97,7 @@ export function ReportScreen({ words, speakingResults, writtenResults, onRestart
           className="px-8 py-4 sm:px-10 sm:py-5 bg-slate-900 text-white text-xl sm:text-2xl font-bold rounded-full hover:bg-slate-800 transition-colors flex items-center gap-2 sm:gap-3 shadow-xl"
         >
           <RotateCcw className="w-6 h-6 sm:w-8 sm:h-8" />
-          開始新課程
+          {t('report.restart')}
         </button>
         <a 
           href="https://calendar.google.com/" 
@@ -104,7 +105,7 @@ export function ReportScreen({ words, speakingResults, writtenResults, onRestart
           rel="noopener noreferrer"
           className="text-indigo-600 hover:text-indigo-800 underline font-medium text-sm sm:text-base"
         >
-          前往 Google 日曆查看學習紀錄
+          {t('report.calendar_link')}
         </a>
       </div>
     </div>

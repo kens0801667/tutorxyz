@@ -1,0 +1,253 @@
+{
+  "login": {
+    "title": "tutorxyz",
+    "subtitle": "KI-Vokabeltrainer",
+    "description": "Mit Gemini AI-Technologie bieten wir Kindern eine immersive Lernumgebung. Durch Echtzeit-Dialogübungen, Aussprachekorrektur und maßgeschneiderte Tests wird Sprachenlernen natürlich und unterhaltsam.",
+    "why_google_title": "Warum mit Google anmelden?",
+    "calendar_title": "Google Kalender-Anbindung: Automatisches Protokoll",
+    "calendar_desc": "Wir bitten um Zugriff auf Ihren Kalender, um Testergebnisse (Punktzahl, Fehler, Zeit) in einem eigenen Kalender zu speichern, damit Lernkurven verfolgt werden können.",
+    "drive_title": "Google Drive Zugriff: Schutz Ihrer Privatsphäre",
+    "drive_desc": "Wir nutzen den Google Drive App Data Ordner für Ihren AI Key (API Key) und Einstellungen. So bleiben Ihre Daten in Ihrem persönlichen Cloud-Speicher.",
+    "cta_button": "Mit Google starten",
+    "agreement": "Mit der Anmeldung stimmen Sie den Nutzungsbedingungen und der Datenschutzerklärung zu.",
+    "privacy": "Datenschutz",
+    "terms": "Bedingungen",
+    "contact": "Support",
+    "copyright": "© 2026 tutorxyz. Alle Rechte vorbehalten."
+  },
+  "setup": {
+    "title": "KI-Vokabeltrainer",
+    "subtitle": "Maßgeschneiderte Lektionen für Kinder",
+    "tabs": {
+      "topic": "Nach Thema",
+      "image": "Foto / Upload",
+      "text": "Manuell",
+      "history": "Verlauf"
+    },
+    "level_label": "Klasse oder Niveau",
+    "level_placeholder": "Z.B. 5. Klasse, Niveau A2, Lektion 3...",
+    "topic_label": "Lern-Thema",
+    "topic_placeholder": "Z.B. Schulleben, Tiere, Früchte...",
+    "image_label": "Foto der Wortliste hochladen",
+    "text_label": "Wortliste eingeben",
+    "text_placeholder": "Liste eingeben oder einfügen...\nZ.B.\napple Apfel\nbanana Banane\ncat Katze",
+    "count_label": "Wortanzahl",
+    "count_max_label": "Max. Wortanzahl",
+    "start_button": "Starten",
+    "loading": {
+      "topic": "Erzeuge Wörter...",
+      "image": "Erkenne Wörter...",
+      "text": "Verarbeite Wörter..."
+    },
+    "errors": {
+      "camera_denied": "Kamera konnte nicht geöffnet werden. Berechtigungen prüfen.",
+      "image_no_words": "Keine Wörter im Bild erkannt. Klareres Foto nutzen.",
+      "text_no_words": "Keine Wörter erkannt. Bitte erneut versuchen.",
+      "failed": "Erzeugung fehlgeschlagen. Erneut versuchen."
+    },
+    "history_label": "Verlauf",
+    "custom_list_label": "Eigene Liste",
+    "camera": {
+      "cancel": "Abbrechen",
+      "capture": "Foto machen",
+      "live": "Live-Kamera",
+      "upload": "Hochladen",
+      "clear": "Löschen",
+      "selected": "Foto ausgewählt"
+    },
+    "defaults": {
+      "level": "5. Klasse Gymnasium",
+      "topic": "Schullalltag und Schreibwaren",
+      "reset_to_default": "Zurücksetzen",
+      "reset_all": "Alle zurücksetzen"
+    },
+    "units": {
+      "word_count": "{{count}} Wörter",
+      "word_count_max": "Max {{count}} Wörter",
+      "word_count_only": "{{count}} Wörter"
+    },
+    "history": {
+      "empty": "Kein Verlauf.",
+      "empty_hint": "Generierte Listen erscheinen hier.",
+      "delete_confirm": "Liste löschen?",
+      "delete_label": "Liste löschen",
+      "edit_label": "Liste bearbeiten",
+      "start_test": "Test starten",
+      "edit_title": "Liste bearbeiten (ein Wort pro Zeile)",
+      "edit_ai_hint": "KI ergänzt Übersetzungen und Beispiele beim Speichern.",
+      "save": "Speichern",
+      "saving": "Speichert...",
+      "back": "Zurück"
+    }
+  },
+  "learning": {
+    "title": "Vokabeln lernen",
+    "cancel": "Abbrechen",
+    "skip": "Überspringen",
+    "pronounce": "Aussprache",
+    "explanation": "Erklärung",
+    "example": "Beispiel",
+    "complete": "Abgeschlossen",
+    "next": "Weiter",
+    "prev": "Zurück"
+  },
+  "speaking": {
+    "title": "Echtzeit-Sprachtest",
+    "cancel": "Abbrechen",
+    "connecting": "Verbinde mit Teacher Gemini...",
+    "finished_title": "Test beendet!",
+    "score_unit": "Pkt",
+    "next_button": "Schriftlicher Test",
+    "ai_speaking": "Lehrer spricht...",
+    "ai_listening": "Lehrer hört zu...",
+    "mic_label": "Dein Mikrofon",
+    "mic_wait": "Warte auf den Lehrer",
+    "mic_active": "Jetzt sprechen",
+    "instruction": "Sprich direkt ins Mikrofon. Der Lehrer antwortet in Echtzeit.\nInhalt:",
+    "initial_prompt": "Hallo Lehrer, ich bin bereit. Bitte starten!",
+    "live_status": "Live"
+  },
+  "written": {
+    "title": "Schriftlicher Test",
+    "cancel": "Abbrechen",
+    "loading": "KI erstellt deinen Test...",
+    "load_failed": "Erzeugung fehlgeschlagen",
+    "placeholder": "Antwort eingeben...",
+    "submit": "Abschicken",
+    "next": "Nächste Frage",
+    "view_report": "Bericht sehen",
+    "correct": "Richtig!",
+    "wrong": "Falsch",
+    "correct_is": "Die richtige Antwort ist:"
+  },
+  "report": {
+    "title": "Lernbericht",
+    "avg_speaking": "Sprechen Schnitt",
+    "written_accuracy": "Schriftliche Genauigkeit",
+    "questions_unit": "Fr",
+    "table": {
+      "word": "Wort",
+      "written": "Schriftlich",
+      "speaking": "Sprechen Pkt",
+      "ai_feedback": "KI-Feedback"
+    },
+    "restart": "Neue Lektion",
+    "calendar_link": "Im Google Kalender ansehen"
+  },
+  "app": {
+    "steps": {
+      "setup": "Setup",
+      "learning": "Lernen",
+      "speaking": "Sprechen",
+      "written": "Schreiben",
+      "report": "Bericht"
+    },
+    "nav": {
+      "settings": "Einstellungen",
+      "logout": "Logout"
+    },
+    "loading": {
+      "checking_config": "Prüfe Einstellungen...",
+      "saving_calendar": "Speichere in Kalender..."
+    },
+    "alerts": {
+      "auth_error": "Authentifizierungsfehler.",
+      "login_failed": "Login fehlgeschlagen.",
+      "drive_auth_confirm": "Drive-Zugriff nötig. Jetzt autorisieren?",
+      "save_config_failed": "Speichern fehlgeschlagen.",
+      "login_expired": "Sitzung abgelaufen. Erneut anmelden.",
+      "calendar_auth_confirm": "Kalender-Zugriff nötig. Jetzt autorisieren?",
+      "save_calendar_success": "In Google Kalender gespeichert!",
+      "save_calendar_failed": "Speichern fehlgeschlagen. Rechte prüfen."
+    },
+    "footer": {
+      "privacy": "Datenschutz",
+      "terms": "Bedingungen"
+    }
+  },
+  "calendar": {
+    "event_title": "Englisch-Test: {{topic}} - Punktzahl: {{score}} Pkt",
+    "topic_label": "Test-Thema",
+    "total_words_label": "Wortanzahl",
+    "score_label": "Punktzahl",
+    "score_unit": "Pkt",
+    "duration_label": "Gesamtdauer",
+    "duration_min": "Min",
+    "duration_sec": "Sek",
+    "mistakes_label": "Fehler-Wörter",
+    "no_mistakes": "Perfekt!"
+  },
+  "settings": {
+    "title": "Systemeinstellungen",
+    "subtitle": "Gemini API Key konfigurieren.",
+    "description": "Einstellungen werden in Google Drive gespeichert.",
+    "api_key_title": "Gemini API Key",
+    "api_key_placeholder": "Key eingeben (AIzaSy...)",
+    "cost_alert": {
+      "title": "Kostenhinweis",
+      "content": "API-Nutzung kann Kosten verursachen. Key geheim halten."
+    },
+    "no_key": "Kein Key?",
+    "get_key": "Bei Google AI Studio holen",
+    "calendar_title": "Kalender-Einstellung",
+    "calendar_desc": "Ergebnisse werden hier gespeichert:",
+    "calendar_placeholder": "Z.B. tutorxyz Protokoll",
+    "calendar_default_name": "tutorxyz Protokoll",
+    "reset_to_default": "Zurücksetzen",
+    "config_file_title": "Dateiname",
+    "config_file_desc": "Datei in Google Drive:",
+    "style_title": "Lehrstil (Stimme)",
+    "styles": {
+      "enthusiastic": {
+        "name": "Begeistert",
+        "desc": "Kore (Hell)",
+        "icon": "🌟"
+      },
+      "strict": {
+        "name": "Streng",
+        "desc": "Fenrir (Tief)",
+        "icon": "🧐"
+      },
+      "socratic": {
+        "name": "Sokratisch",
+        "desc": "Charon (Weise)",
+        "icon": "🤔"
+      },
+      "humorous": {
+        "name": "Humorvoll",
+        "desc": "Puck (Locker)",
+        "icon": "😂"
+      }
+    },
+    "save": "Speichern und starten",
+    "saving": "Speichern...",
+    "cancel": "Abbrechen",
+    "model_config": {
+      "title": "Gemini-Konfiguration",
+      "standard_label": "Hilfsmodell (Text/Bilder)",
+      "live_label": "Konversationsmodell (Gemini Live)",
+      "volume_label": "Sprachlautstärke",
+      "volume_adjust_hint": "Adjust Voice Level Intensity (Intensität anpassen)"
+    }
+  },
+  "mic_check": {
+    "title": "Mikrofon-Check",
+    "preparing_content": "Inhalte werden vorbereitet...",
+    "success": "Verbindung erfolgreich!",
+    "preparing_teacher": "Der KI-Lehrer erstellt deine personalisierte Lektion, bitte warten...",
+    "sound_detected_desc": "Super! Wir haben deine Stimme erkannt. Die Übung beginnt in Kürze...",
+    "instruction": "Sprich ein paar Worte in das Mikrofon, um sicherzustellen, dass es funktioniert.",
+    "error_permissions_title": "Mikrofonzugriff erforderlich",
+    "error_generic": "Zugriff auf das Mikrofon nicht möglich",
+    "error_denied": "Der Zugriff auf das Mikrofon wurde verweigert. Klicke auf das Schloss links in der Adressleiste und wähle 'Zulassen'.",
+    "error_not_found": "Kein Mikrofon gefunden. Bitte überprüfe die Verbindung.",
+    "error_occupied": "Das Mikrofon wird von einem anderen Programm verwendet. Schließe andere Audio-Apps und versuche es erneut.",
+    "error_dev_tip": "Tipp: Verwende in einer lokalen Entwicklungsumgebung einen modernen Browser wie Chrome oder Edge.",
+    "retry": "Erneut versuchen",
+    "select_device": "Eingabegerät auswählen",
+    "waiting_sound": "Warten auf Toneingabe...",
+    "start_practice": "Übung starten",
+    "skip": "Überspringen und starten",
+    "skip_note": "Wenn du gerade nicht sprechen kannst, kannst du diesen Test überspringen."
+  }
+}

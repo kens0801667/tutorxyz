@@ -1,0 +1,253 @@
+{
+  "login": {
+    "title": "tutorxyz",
+    "subtitle": "AI 智能单词家教",
+    "description": "结合 Gemini AI 技术，为孩子提供沉浸式的单词学习环境。通过实时对话练习、美式发音纠正与定制化测验，让学习语言变得自然又有趣。",
+    "why_google_title": "为什么需要登录 Google 账号？",
+    "calendar_title": "串联 Google 日历：自动记录学习历程",
+    "calendar_desc": "我们申请访问您的日历权限，是为了将每次的测验成绩（分数、错误单词、测验时间）记录于专属日历中，让家长与孩子能清晰追踪长期的学习曲线。",
+    "drive_title": "访问 Google 云端硬盘：保护您的隐私设置",
+    "drive_desc": "我们使用 Google Drive App Data 文件夹来存储您的 AI 密钥 (API Key) 及个人偏好设置。这确保了敏感信息仅存储在您个人的云端空间，tutorxyz 服务器不会保存您的私有密钥。",
+    "cta_button": "使用 Google 账号开始学习",
+    "agreement": "登录即表示您同意我们的服务条款与隐私权政策。",
+    "privacy": "隐私权政策",
+    "terms": "服务条款",
+    "contact": "联系支持",
+    "copyright": "© 2026 tutorxyz. 版权所有。"
+  },
+  "setup": {
+    "title": "AI 单词家教",
+    "subtitle": "为孩子量身打造的专属单词课",
+    "tabs": {
+      "topic": "依主题生成",
+      "image": "拍照 / 上传",
+      "text": "手动输入",
+      "history": "历史记录"
+    },
+    "level_label": "年级、能力或课文范围",
+    "level_placeholder": "例如：初一上学期、A2 初级、课本第三课...",
+    "topic_label": "学习主题",
+    "topic_placeholder": "例如：学校生活与文具、动物、水果...",
+    "image_label": "上传单词表照片",
+    "text_label": "输入单词清单",
+    "text_placeholder": "请输入或粘贴单词清单...\n例如：\napple 苹果\nbanana 香蕉\ncat 猫",
+    "count_label": "单词数量",
+    "count_max_label": "最多获取单词数",
+    "start_button": "开始学习",
+    "loading": {
+      "topic": "正在生成单词...",
+      "image": "正在识别单词...",
+      "text": "正在处理单词..."
+    },
+    "errors": {
+      "camera_denied": "无法开启相机，请确认是否已授权相机权限。",
+      "image_no_words": "无法从图片中识别出任何英文单词，请重新拍摄或上传更清晰的照片。",
+      "text_no_words": "无法从文字中识别出任何英文单词，请重新输入。",
+      "failed": "生成单词失败，请重试。"
+    },
+    "history_label": "历史记录",
+    "custom_list_label": "自定义单词表",
+    "camera": {
+      "cancel": "取消",
+      "capture": "拍摄照片",
+      "live": "实时拍摄",
+      "upload": "上传照片",
+      "clear": "清除图片",
+      "selected": "已选择照片"
+    },
+    "defaults": {
+      "level": "初一上学期",
+      "topic": "学校生活与文具",
+      "reset_to_default": "重置为默认值",
+      "reset_all": "重置全部为默认"
+    },
+    "units": {
+      "word_count": "{{count}} 个",
+      "word_count_max": "最多 {{count}} 个",
+      "word_count_only": "{{count}} 个单词"
+    },
+    "history": {
+      "empty": "目前没有历史记录。",
+      "empty_hint": "使用「主题生成」、「拍照 / 上传」或「手动输入」生成的单词表会显示在这里。",
+      "delete_confirm": "确定要删除这个单词表吗？",
+      "delete_label": "删除单词清单",
+      "edit_label": "编辑单词清单",
+      "start_test": "开始测验",
+      "edit_title": "编辑单词清单 (一行一个单词)",
+      "edit_ai_hint": "保存时，AI 会自动为您补齐翻译、词性与例句。",
+      "save": "保存",
+      "saving": "保存中...",
+      "back": "返回"
+    }
+  },
+  "learning": {
+    "title": "单词学习",
+    "cancel": "取消学习",
+    "skip": "略过学习",
+    "pronounce": "听发音",
+    "explanation": "老师讲解",
+    "example": "例句 Example",
+    "complete": "完成学习",
+    "next": "下一个",
+    "prev": "上一个"
+  },
+  "speaking": {
+    "title": "实时语音口说测验",
+    "cancel": "取消测验",
+    "connecting": "正在连接至 Teacher Gemini...",
+    "finished_title": "测验完成！",
+    "score_unit": "分",
+    "next_button": "接续笔试",
+    "ai_speaking": "老师正在说话...",
+    "ai_listening": "老师正在听你说...",
+    "mic_label": "你的麦克风",
+    "mic_wait": "请先听老师说完",
+    "mic_active": "请直接说话回应",
+    "instruction": "请直接对着麦克风说话，老师会实时回应你。\n测验包含：",
+    "initial_prompt": "老师你好，我准备好开始测验了，请直接开始第一题！",
+    "live_status": "实时"
+  },
+  "written": {
+    "title": "笔试测验",
+    "cancel": "取消测验",
+    "loading": "AI 正在为您生成专属试卷...",
+    "load_failed": "生成测验失败",
+    "placeholder": "请输入答案...",
+    "submit": "提交答案",
+    "next": "下一题",
+    "view_report": "查看成绩单",
+    "correct": "答对了！",
+    "wrong": "答错了",
+    "correct_is": "正确答案是："
+  },
+  "report": {
+    "title": "学习成果报告",
+    "avg_speaking": "口说平均分数",
+    "written_accuracy": "笔试正确率",
+    "questions_unit": "题",
+    "table": {
+      "word": "单词",
+      "written": "笔试",
+      "speaking": "口说分数",
+      "ai_feedback": "AI 口说建议"
+    },
+    "restart": "开始新课程",
+    "calendar_link": "前往 Google 日历查看学习记录"
+  },
+  "app": {
+    "steps": {
+      "setup": "设定",
+      "learning": "学习",
+      "speaking": "口说",
+      "written": "笔试",
+      "report": "报告"
+    },
+    "nav": {
+      "settings": "设置",
+      "logout": "登出"
+    },
+    "loading": {
+      "checking_config": "正在检查系统设定...",
+      "saving_calendar": "正在保存成绩至 Google 日历..."
+    },
+    "alerts": {
+      "auth_error": "验证错误，请重试。",
+      "login_failed": "登录失败，请重试。",
+      "drive_auth_confirm": "保存密钥需要您的 Google Drive 授权。是否现在进行授权？",
+      "save_config_failed": "保存设置失败，请重试。",
+      "login_expired": "登录已过期，请重新登录。",
+      "calendar_auth_confirm": "保存至日历功能需要您的授权。是否现在进行授权？",
+      "save_calendar_success": "测验成绩已成功保存至您的 Google 日历！",
+      "save_calendar_failed": "保存至日历失败，请检查权限设置。"
+    },
+    "footer": {
+      "privacy": "隐私权政策",
+      "terms": "服务条款"
+    }
+  },
+  "calendar": {
+    "event_title": "单词测验: {{topic}} - 成绩: {{score}}分",
+    "topic_label": "测验主题",
+    "total_words_label": "本次测验单词数",
+    "score_label": "分数",
+    "score_unit": "分",
+    "duration_label": "学习与测验总花费时间",
+    "duration_min": "分",
+    "duration_sec": "秒",
+    "mistakes_label": "需要加强的单词",
+    "no_mistakes": "全对！太棒了！"
+  },
+  "settings": {
+    "title": "系统设置",
+    "subtitle": "请设置您的 Gemini API Key 与系统偏好。",
+    "description": "您的设置将会安全地存储在您个人的 Google Drive 应用程序文件夹中。",
+    "api_key_title": "Gemini API Key",
+    "api_key_placeholder": "输入 AIzaSy... 开头的密钥",
+    "cost_alert": {
+      "title": "费用提醒",
+      "content": "使用 Gemini API 可能会产生费用，具体取决于您的使用量与 Google Cloud 账单设置。请妥善保管您的密钥，避免外泄。"
+    },
+    "no_key": "还没有密钥？",
+    "get_key": "前往 Google AI Studio 申请",
+    "calendar_title": "日历名称设置",
+    "calendar_desc": "测验成绩将会自动记录到这个名称的 Google 日历中：",
+    "calendar_placeholder": "例如：tutorxyz 学习记录",
+    "calendar_default_name": "tutorxyz 学习记录",
+    "reset_to_default": "重置为默认值",
+    "config_file_title": "配置文件名称",
+    "config_file_desc": "存储在 Google Drive 中的文件名：",
+    "style_title": "老师教学风格",
+    "styles": {
+      "enthusiastic": {
+        "name": "热情鼓励型",
+        "desc": "Kore (明亮活力)",
+        "icon": "🌟"
+      },
+      "strict": {
+        "name": "严格精准型",
+        "desc": "Fenrir (低沉稳重)",
+        "icon": "🧐"
+      },
+      "socratic": {
+        "name": "引导启发型",
+        "desc": "Charon (温和智者)",
+        "icon": "🤔"
+      },
+      "humorous": {
+        "name": "幽默搞笑型",
+        "desc": "Puck (轻松活泼)",
+        "icon": "😂"
+      }
+    },
+    "save": "保存并开始",
+    "saving": "正在保存设置...",
+    "cancel": "取消",
+    "model_config": {
+      "title": "Gemini 模型设置",
+      "standard_label": "单词辅助模型 (文字/图片处理)",
+      "live_label": "实时口说模型 (Gemini Live)",
+      "volume_label": "提示音量",
+      "volume_adjust_hint": "Adjust Voice Level Intensity"
+    }
+  },
+  "mic_check": {
+    "title": "麦克风检查",
+    "preparing_content": "正在准备课程内容...",
+    "success": "连接成功！",
+    "preparing_teacher": "AI 老师正在为您量身打造单词课，请稍候...",
+    "sound_detected_desc": "太好了，我们测得您的声音。即将开始练习...",
+    "instruction": "请对着麦克风说几句话，确保您的收音正常。",
+    "error_permissions_title": "需要麦克风权限",
+    "error_generic": "无法访问麦克风",
+    "error_denied": "麦克风权限已被拒绝。请点击地址栏左侧的“锁头”图标，并将麦克风设置为“允许”。",
+    "error_not_found": "找不到麦克风设备。请确认您的设备已正确连接。",
+    "error_occupied": "麦克风正在被其他程序占用中，请关闭其他使用音频的窗口再试。",
+    "error_dev_tip": "提示：如果这是本地开发环境 (localhost)，请确保您使用的是 Chrome 或 Edge 等主流浏览器。",
+    "retry": "重新尝试读取",
+    "select_device": "选择输入设备",
+    "waiting_sound": "等待声音输入中...",
+    "start_practice": "开始练习",
+    "skip": "跳过检测直接开始",
+    "skip_note": "如果您不方便发声，可以选择直接略过。"
+  }
+}

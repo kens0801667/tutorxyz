@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
 import { Mic, Loader2, CheckCircle2, Volume2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Word, TestResult, TeacherStyle } from '../types';
 import { startLiveSpeakingSession } from '../services/gemini';
 
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export function SpeakingScreen({ words, onComplete, onRestart, teacherStyle, volume }: Props) {
+  const { t, i18n } = useTranslation();
   const [isConnecting, setIsConnecting] = useState(true);
   const [isConnected, setIsConnected] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -84,6 +86,7 @@ export function SpeakingScreen({ words, onComplete, onRestart, teacherStyle, vol
         const sessionPromise = startLiveSpeakingSession(
           words,
           teacherStyle,
+          i18n.language,
           (base64Audio) => {
             if (!isActive) return;
             playAudioChunk(base64Audio);
@@ -116,7 +119,6 @@ export function SpeakingScreen({ words, onComplete, onRestart, teacherStyle, vol
         };
 
         source.connect(workletNode);
-        // Connect to a GainNode with gain 0 to avoid feedback loop but keep processing
         const gainNode = audioCtx.createGain();
         gainNode.gain.value = 0;
         workletNode.connect(gainNode);
@@ -131,9 +133,8 @@ export function SpeakingScreen({ words, onComplete, onRestart, teacherStyle, vol
         setIsConnected(true);
         setIsConnecting(false);
 
-        // Trigger the AI to start speaking immediately
         session.sendClientContent({
-          turns: [{ role: "user", parts: [{ text: "老師你好，我準備好開始測驗了，請直接開始第一題！" }] }],
+          turns: [{ role: "user", parts: [{ text: t('speaking.initial_prompt') }] }],
           turnComplete: true
         });
 
@@ -230,19 +231,19 @@ export function SpeakingScreen({ words, onComplete, onRestart, teacherStyle, vol
   };
 
   return (
-    <div className="flex flex-col h-full max-w-4xl mx-auto p-6">
-      <div className="flex justify-between items-center mb-8">
-        <h2 className="text-2xl font-bold text-slate-700">即時語音口說測驗</h2>
-        <div className="flex items-center gap-3">
+    <div className="flex flex-col h-full max-w-4xl mx-auto p-4 sm:p-6">
+      <div className="flex justify-between items-center mb-6 sm:mb-8">
+        <h2 className="text-xl sm:text-2xl font-bold text-slate-700">{t('speaking.title')}</h2>
+        <div className="flex items-center gap-2 sm:gap-3">
           <button
             onClick={onRestart}
-            className="px-4 py-2 text-sm font-bold text-slate-500 hover:text-slate-700 hover:bg-slate-200 bg-slate-100 rounded-full transition-colors"
+            className="px-3 py-2 sm:px-4 sm:py-2 text-xs sm:text-sm font-bold text-slate-500 hover:text-slate-700 hover:bg-slate-200 bg-slate-100 rounded-full transition-colors"
           >
-            取消測驗
+            {t('speaking.cancel')}
           </button>
-          <div className="bg-emerald-100 text-emerald-700 px-4 py-2 rounded-full font-bold text-sm flex items-center gap-2">
+          <div className="bg-emerald-100 text-emerald-700 px-3 py-2 sm:px-4 sm:py-2 rounded-full font-bold text-xs sm:text-sm flex items-center gap-1 sm:gap-2">
             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-            Live
+            {t('speaking.live_status')}
           </div>
         </div>
       </div>
@@ -250,32 +251,33 @@ export function SpeakingScreen({ words, onComplete, onRestart, teacherStyle, vol
       <div className="flex-1 flex flex-col items-center justify-center">
         {isConnecting ? (
           <div className="flex flex-col items-center gap-4 text-slate-500">
-            <Loader2 className="w-12 h-12 animate-spin text-indigo-500" />
-            <p className="text-lg">正在連線至 Teacher Gemini...</p>
+            <div className="relative">
+              <Loader2 className="w-12 h-12 animate-spin text-indigo-500" />
+            </div>
+            <p className="text-lg">{t('speaking.connecting')}</p>
           </div>
         ) : testFinished ? (
           <motion.div 
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 text-center max-w-md w-full"
+            className="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-100 text-center max-w-md w-full"
           >
-            <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <CheckCircle2 className="w-10 h-10 text-emerald-600" />
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <CheckCircle2 className="w-8 h-8 sm:w-10 sm:h-10 text-emerald-600" />
             </div>
-            <h3 className="text-2xl font-bold text-slate-800 mb-2">測驗完成！</h3>
-            <p className="text-slate-600 mb-6">{finalFeedback}</p>
-            <div className="text-4xl font-black text-indigo-600 mb-8">{finalScore} 分</div>
+            <h3 className="text-xl sm:text-2xl font-bold text-slate-800 mb-2">{t('speaking.finished_title')}</h3>
+            <p className="text-sm sm:text-base text-slate-600 mb-6">{finalFeedback}</p>
+            <div className="text-3xl sm:text-4xl font-black text-indigo-600 mb-8">{finalScore} {t('speaking.score_unit')}</div>
             
             <button
               onClick={handleFinish}
-              className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold text-lg hover:bg-indigo-700 transition-colors"
+              className="w-full py-3 sm:py-4 bg-indigo-600 text-white rounded-2xl font-bold text-base sm:text-lg hover:bg-indigo-700 transition-colors"
             >
-              接續筆試
+              {t('speaking.next_button')}
             </button>
           </motion.div>
         ) : (
-          <div className="flex flex-col items-center gap-12 w-full max-w-md">
-            {/* AI Avatar */}
+          <div className="flex flex-col items-center gap-8 sm:gap-12 w-full max-w-md">
             <div className="relative">
               <motion.div 
                 animate={{ 
@@ -283,12 +285,11 @@ export function SpeakingScreen({ words, onComplete, onRestart, teacherStyle, vol
                   boxShadow: isSpeaking ? "0 0 40px rgba(99, 102, 241, 0.4)" : "0 0 0px rgba(99, 102, 241, 0)"
                 }}
                 transition={{ repeat: Infinity, duration: 1.5 }}
-                className="w-40 h-40 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-full flex items-center justify-center shadow-xl z-10 relative"
+                className="w-32 h-32 sm:w-40 sm:h-40 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-full flex items-center justify-center shadow-xl z-10 relative"
               >
-                <Volume2 className={`w-16 h-16 text-white ${isSpeaking ? 'animate-pulse' : ''}`} />
+                <Volume2 className={`w-12 h-12 sm:w-16 sm:h-16 text-white ${isSpeaking ? 'animate-pulse' : ''}`} />
               </motion.div>
               
-              {/* Ripple effects when speaking */}
               {isSpeaking && (
                 <>
                   <motion.div 
@@ -306,40 +307,39 @@ export function SpeakingScreen({ words, onComplete, onRestart, teacherStyle, vol
             </div>
 
             <div className="text-center">
-              <h3 className="text-2xl font-bold text-slate-800 mb-2">Teacher Gemini</h3>
-              <p className="text-slate-500">
-                {isSpeaking ? "老師正在說話..." : "老師正在聽你說..."}
+              <h3 className="text-xl sm:text-2xl font-bold text-slate-800 mb-2">Teacher Gemini</h3>
+              <p className="text-sm sm:text-base text-slate-500">
+                {isSpeaking ? t('speaking.ai_speaking') : t('speaking.ai_listening')}
               </p>
             </div>
 
-            {/* User Mic Indicator */}
-            <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 w-full flex items-center gap-4">
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center ${isSpeaking ? 'bg-slate-100 text-slate-400' : 'bg-emerald-100 text-emerald-600'}`}>
-                <Mic className="w-6 h-6" />
+            <div className="bg-white p-4 sm:p-6 rounded-3xl shadow-sm border border-slate-100 w-full flex items-center gap-4">
+              <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center ${isSpeaking ? 'bg-slate-100 text-slate-400' : 'bg-emerald-100 text-emerald-600'}`}>
+                <Mic className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
               <div className="flex-1">
-                <p className="font-medium text-slate-700">你的麥克風</p>
-                <p className="text-sm text-slate-500">
-                  {isSpeaking ? "請先聽老師說完" : "請直接說話回應"}
+                <p className="text-sm sm:text-base font-medium text-slate-700">{t('speaking.mic_label')}</p>
+                <p className="text-xs sm:text-sm text-slate-500">
+                  {isSpeaking ? t('speaking.mic_wait') : t('speaking.mic_active')}
                 </p>
               </div>
               {!isSpeaking && (
-                <div className="flex gap-1 h-6 items-center">
+                <div className="flex gap-0.5 sm:gap-1 h-5 sm:h-6 items-center">
                   {[1, 2, 3, 4, 5].map((i) => (
                     <motion.div
                       key={i}
                       animate={{ height: ["20%", "100%", "20%"] }}
                       transition={{ repeat: Infinity, duration: 0.5 + i * 0.1 }}
-                      className="w-1.5 bg-emerald-500 rounded-full"
+                      className="w-1 sm:w-1.5 bg-emerald-500 rounded-full"
                     />
                   ))}
                 </div>
               )}
             </div>
             
-            <p className="text-sm text-slate-400 text-center mt-4">
-              請直接對著麥克風說話，老師會即時回應你。<br/>
-              測驗包含：{words.map(w => w.translation).join(', ')}
+            <p className="text-xs sm:text-sm text-slate-400 text-center mt-2 sm:mt-4 whitespace-pre-line">
+              {t('speaking.instruction')}
+              {words.map(w => w.translation).join(', ')}
             </p>
           </div>
         )}

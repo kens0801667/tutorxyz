@@ -38,6 +38,8 @@ export interface CustomList {
   id: string;
   title: string;
   source: 'topic' | 'image' | 'text';
+  level?: string;
+  topic?: string;
   words: Word[];
   createdAt: number;
 }

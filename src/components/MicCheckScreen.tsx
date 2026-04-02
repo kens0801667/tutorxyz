@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Mic, Activity, CheckCircle2, ArrowRight, SkipForward, AlertCircle, Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   onComplete: () => void;
@@ -8,9 +9,10 @@ interface Props {
 }
 
 export function MicCheckScreen({ onComplete, onSkip, isReady = true }: Props) {
+  const { t } = useTranslation();
   const [micLevel, setMicLevel] = useState(0);
   const [hasDetectedSound, setHasDetectedSound] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [errorKey, setErrorKey] = useState<string | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
   const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
   const [selectedDeviceId, setSelectedDeviceId] = useState<string>('');
@@ -29,7 +31,6 @@ export function MicCheckScreen({ onComplete, onSkip, isReady = true }: Props) {
     };
   }, []);
 
-  // Auto-proceed when BOTH sound is detected AND content is ready
   useEffect(() => {
     if (hasDetectedSound && isReady && !detectionTimerRef.current) {
       detectionTimerRef.current = setTimeout(() => {
@@ -47,12 +48,10 @@ export function MicCheckScreen({ onComplete, onSkip, isReady = true }: Props) {
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
       micStreamRef.current = stream;
       
-      // Fallback AudioContext initialization
       let audioCtx: AudioContext;
       try {
         audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
       } catch (e) {
-        console.warn("Failed with 16k sample rate, falling back to default");
         audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
       }
       audioContextRef.current = audioCtx;
@@ -68,7 +67,6 @@ export function MicCheckScreen({ onComplete, onSkip, isReady = true }: Props) {
       source.connect(analyser);
       analyserRef.current = analyser;
 
-      // Populate devices list if not already done
       if (devices.length === 0) {
         navigator.mediaDevices.enumerateDevices().then(allDevices => {
           const audioInputs = allDevices.filter(d => d.kind === 'audioinput');
@@ -94,13 +92,11 @@ export function MicCheckScreen({ onComplete, onSkip, isReady = true }: Props) {
         }
         const average = sum / bufferLength;
         
-        // Boosted sensitivity logic
         const normalized = average / 255;
         const sensitvityBoost = Math.sqrt(normalized) * 100;
         const currentLevel = Math.min(100, sensitvityBoost * 1.5);
         setMicLevel(currentLevel);
 
-        // Auto-detection logic: if level > 20, consider it "sound detected"
         if (currentLevel > 20 && !hasDetectedSound) {
           setHasDetectedSound(true);
         }
@@ -109,8 +105,6 @@ export function MicCheckScreen({ onComplete, onSkip, isReady = true }: Props) {
       };
       
       updateLevel();
-      
-      setIsInitializing(false);
       setIsInitializing(false);
     } catch (err) {
       handleError(err);
@@ -119,24 +113,22 @@ export function MicCheckScreen({ onComplete, onSkip, isReady = true }: Props) {
 
   const handleError = (err: any) => {
     console.error("Mic access failed", err);
-    let message = `無法存取麥克風 (${err.name || 'Error'})`;
+    let key = 'error_generic';
     
     if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-      message = "麥克風權限已被拒絕。請點擊網址列左側的「鎖頭」圖示，並將麥克風設定為「允許」。";
+      key = "error_denied";
     } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
-      message = "找不到麥克風設備。請確認您的設備已正確連接。";
+      key = "error_not_found";
     } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
-      message = "麥克風正在被其他程式佔用中，請關閉其他使用音訊的視窗再試。";
-    } else {
-      message = `連線初始化失敗 (${err.message || err.name || 'Unknown Error'})。請嘗試點擊重新嘗試。`;
+      key = "error_occupied";
     }
     
-    setError(message);
+    setErrorKey(key);
     setIsInitializing(false);
   };
 
   const handleRetry = () => {
-    setError(null);
+    setErrorKey(null);
     setIsInitializing(true);
     startMic(selectedDeviceId || undefined);
   };
@@ -169,26 +161,26 @@ export function MicCheckScreen({ onComplete, onSkip, isReady = true }: Props) {
             )}
           </div>
           <h2 className="text-3xl font-bold text-slate-800">
-            {!isReady ? "正在準備課程內容..." : (hasDetectedSound ? "連線成功！" : "麥克風檢查")}
+            {!isReady ? t('mic_check.preparing_content') : (hasDetectedSound ? t('mic_check.success') : t('mic_check.title'))}
           </h2>
           <p className="text-slate-500 text-lg">
             {!isReady 
-              ? "AI 老師正在為您量身打造單字課，請稍候..." 
+              ? t('mic_check.preparing_teacher')
               : (hasDetectedSound 
-                  ? "太棒了，我們測得您的聲音。即將開始練習..." 
-                  : "請對著麥克風說幾句話，確保您的收音正常。")}
+                  ? t('mic_check.sound_detected_desc') 
+                  : t('mic_check.instruction'))}
           </p>
         </div>
 
-        {error ? (
+        {errorKey ? (
           <div className="bg-red-50 p-6 rounded-2xl flex flex-col items-center gap-4 border border-red-100 text-center">
             <div className="flex items-start gap-3 text-left w-full">
               <AlertCircle className="w-6 h-6 text-red-600 shrink-0 mt-0.5" />
               <div className="space-y-2">
-                <p className="text-red-800 font-bold">需要麥克風權限</p>
-                <p className="text-red-700 text-sm leading-relaxed">{error}</p>
+                <p className="text-red-800 font-bold">{t('mic_check.error_permissions_title')}</p>
+                <p className="text-red-700 text-sm leading-relaxed">{t(`mic_check.${errorKey}`)}</p>
                 <p className="text-slate-500 text-xs italic">
-                  提示：如果這是本地開發環境 (localhost)，請確保您使用的是 Chrome 或 Edge 等主流瀏覽器。
+                  {t('mic_check.error_dev_tip')}
                 </p>
               </div>
             </div>
@@ -197,14 +189,14 @@ export function MicCheckScreen({ onComplete, onSkip, isReady = true }: Props) {
               className="w-full py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold transition-colors shadow-lg shadow-red-100 flex items-center justify-center gap-2"
             >
               <Activity className="w-5 h-5" />
-              重新嘗試讀取
+              {t('mic_check.retry')}
             </button>
           </div>
         ) : (
           <div className="space-y-6">
             {devices.length > 1 && (
               <div className="text-left space-y-2">
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">選擇輸入裝置</label>
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">{t('mic_check.select_device')}</label>
                 <select 
                   value={selectedDeviceId}
                   onChange={handleDeviceChange}
@@ -234,7 +226,7 @@ export function MicCheckScreen({ onComplete, onSkip, isReady = true }: Props) {
             
             {!hasDetectedSound && (
               <p className="text-sm text-slate-400 animate-pulse">
-                等待聲音輸入中...
+                {t('mic_check.waiting_sound')}
               </p>
             )}
           </div>
@@ -243,7 +235,7 @@ export function MicCheckScreen({ onComplete, onSkip, isReady = true }: Props) {
         <div className="pt-4">
           <button
             onClick={onComplete}
-            disabled={(isInitializing && !error) || !isReady}
+            disabled={(isInitializing && !errorKey) || !isReady}
             className={`w-full flex items-center justify-center gap-2 py-5 px-6 rounded-2xl font-bold text-white transition-all shadow-lg text-xl ${
               !isReady
                 ? 'bg-slate-300 shadow-none cursor-not-allowed'
@@ -255,17 +247,17 @@ export function MicCheckScreen({ onComplete, onSkip, isReady = true }: Props) {
             {!isReady ? (
               <>
                 <Loader2 className="w-6 h-6 animate-spin" />
-                正在準備課程...
+                {t('mic_check.preparing_content')}
               </>
             ) : hasDetectedSound ? (
               <>
                 <CheckCircle2 className="w-6 h-6" />
-                開始練習
+                {t('mic_check.start_practice')}
               </>
             ) : (
               <>
                 <SkipForward className="w-6 h-6" />
-                跳過檢測直接開始
+                {t('mic_check.skip')}
               </>
             )}
             {isReady && !hasDetectedSound && <ArrowRight className="w-5 h-5 ml-1 opacity-50" />}
@@ -274,7 +266,7 @@ export function MicCheckScreen({ onComplete, onSkip, isReady = true }: Props) {
       </div>
       
       <p className="mt-8 text-slate-400 text-sm">
-        如果您不方便發聲，可以選擇直接略過。
+        {t('mic_check.skip_note')}
       </p>
     </div>
   );
