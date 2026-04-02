@@ -4,6 +4,7 @@ import { SetupScreen } from './components/SetupScreen';
 import { LearningScreen } from './components/LearningScreen';
 import { SpeakingScreen } from './components/SpeakingScreen';
 import { WrittenScreen } from './components/WrittenScreen';
+import { MicCheckScreen } from './components/MicCheckScreen';
 import { ReportScreen } from './components/ReportScreen';
 import { ApiKeySetupScreen, AppConfig } from './components/ApiKeySetupScreen';
 import { LoginScreen } from './components/LoginScreen';
@@ -11,7 +12,8 @@ import { BookOpen, Mic, PenTool, BarChart, LogIn, LogOut, Loader2, Settings } fr
 import { useGoogleLogin, googleLogout } from '@react-oauth/google';
 import { getOrCreateCalendar, addTestResultToCalendar } from './services/calendar';
 import { getConfigFromDrive, saveConfigToDrive } from './services/drive';
-import { setGeminiApiKey, setGeminiModel, setGeminiLiveModel } from './services/gemini';
+import { setGeminiApiKey, setGeminiModel, setGeminiLiveModel, generateVocabulary, extractWordsFromImage, extractWordsFromText } from './services/gemini';
+import { saveCustomList } from './services/history';
 
 export default function App() {
   const [mode, setMode] = useState<AppMode>('setup');
@@ -28,6 +30,7 @@ export default function App() {
   const [isCheckingKey, setIsCheckingKey] = useState(false);
   const [showApiKeySetup, setShowApiKeySetup] = useState(false);
   const [appConfig, setAppConfig] = useState<AppConfig | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const checkApiKey = async (token: string) => {
     setIsCheckingKey(true);
@@ -143,10 +146,62 @@ export default function App() {
     }
   };
 
-  const handleStart = (generatedWords: Word[], topic: string, level: string) => {
-    setWords(generatedWords);
+  const handleStart = async (config: any) => {
+    setMode('micCheck');
+    setIsGenerating(true);
+    
+    try {
+      let generatedWords: Word[] = [];
+      let finalTopic = config.topic;
+      let finalLevel = config.level;
+
+      if (config.inputMode === 'topic') {
+        generatedWords = await generateVocabulary(config.topic, config.level, config.count);
+        const savedList = saveCustomList('topic', generatedWords, `[${config.level}] ${config.topic}`.trim());
+        finalTopic = savedList.title;
+        finalLevel = '歷史紀錄';
+      } else if (config.inputMode === 'image' && config.selectedImage && config.imagePreview) {
+        const base64Data = config.imagePreview.split(',')[1];
+        generatedWords = await extractWordsFromImage(base64Data, config.selectedImage.type, config.count);
+        if (generatedWords.length === 0) throw new Error('NO_WORDS_DETECTED');
+        const savedList = saveCustomList('image', generatedWords);
+        finalTopic = savedList.title;
+        finalLevel = '自訂單字表';
+      } else if (config.inputMode === 'text' && config.customText.trim()) {
+        generatedWords = await extractWordsFromText(config.customText, config.count);
+        if (generatedWords.length === 0) throw new Error('NO_WORDS_DETECTED');
+        const savedList = saveCustomList('text', generatedWords);
+        finalTopic = savedList.title;
+        finalLevel = '自訂單字表';
+      } else if (config.inputMode === 'history') {
+        // history cases are handled by handleHistoricalStart
+      }
+
+      setWords(generatedWords);
+      setSessionInfo({ topic: finalTopic, level: finalLevel });
+      setSessionStartTime(new Date());
+    } catch (error: any) {
+      console.error(error);
+      if (error.message === 'NO_WORDS_DETECTED') {
+        alert('無法辨識出任何英文單字，請重試。');
+      } else {
+        alert('產生單字失敗，請重試。');
+      }
+      setMode('setup');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleHistoricalStart = (historicalWords: Word[], topic: string, level: string) => {
+    setWords(historicalWords);
     setSessionInfo({ topic, level });
     setSessionStartTime(new Date());
+    setMode('micCheck');
+    setIsGenerating(false);
+  };
+
+  const handleMicCheckComplete = () => {
     setMode('learning');
   };
 
@@ -220,6 +275,7 @@ export default function App() {
 
   const steps = [
     { id: 'setup', icon: BookOpen, label: '設定' },
+    { id: 'micCheck', icon: Mic, label: '檢測' },
     { id: 'learning', icon: BookOpen, label: '學習' },
     { id: 'speaking', icon: Mic, label: '口說' },
     { id: 'written', icon: PenTool, label: '筆試' },
@@ -320,7 +376,14 @@ export default function App() {
             </div>
           </div>
         )}
-        {mode === 'setup' && <SetupScreen onStart={handleStart} />}
+        {mode === 'setup' && <SetupScreen onStart={handleStart} onHistoryStart={handleHistoricalStart} />}
+        {mode === 'micCheck' && (
+          <MicCheckScreen 
+            onComplete={handleMicCheckComplete} 
+            onSkip={handleMicCheckComplete} 
+            isReady={!isGenerating}
+          />
+        )}
         {mode === 'learning' && <LearningScreen words={words} onComplete={handleLearningComplete} onRestart={handleRestart} teacherStyle={appConfig?.teacherStyle || 'enthusiastic'} volume={appConfig?.volume ?? 100} />}
         {mode === 'speaking' && <SpeakingScreen words={words} onComplete={handleSpeakingComplete} onRestart={handleRestart} teacherStyle={appConfig?.teacherStyle || 'enthusiastic'} volume={appConfig?.volume ?? 100} />}
         {mode === 'written' && <WrittenScreen words={words} onComplete={handleWrittenComplete} onRestart={handleRestart} />}

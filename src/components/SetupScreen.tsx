@@ -1,15 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { BookOpen, Loader2, Camera, Upload, Image as ImageIcon, X, History, UserCircle2 } from 'lucide-react';
+import { BookOpen, Loader2, Camera, Upload, Image as ImageIcon, X, History } from 'lucide-react';
 import { Word, TeacherStyle } from '../types';
 import { generateVocabulary, extractWordsFromImage, extractWordsFromText } from '../services/gemini';
 import { saveCustomList } from '../services/history';
 import { HistoryTab } from './HistoryTab';
 
 interface Props {
-  onStart: (words: Word[], topic: string, level: string) => void;
+  onStart: (config: any) => void;
+  onHistoryStart: (words: Word[], topic: string, level: string) => void;
 }
 
-export function SetupScreen({ onStart }: Props) {
+export function SetupScreen({ onStart, onHistoryStart }: Props) {
   const [inputMode, setInputMode] = useState<'topic' | 'image' | 'text' | 'history'>('topic');
   const [topic, setTopic] = useState(() => {
     const saved = localStorage.getItem('last_topic');
@@ -108,56 +109,23 @@ export function SetupScreen({ onStart }: Props) {
     }
   };
 
-  const handleStart = async () => {
-    setIsLoading(true);
-    try {
-      let words: Word[] = [];
-      let finalTopic = topic;
-      let finalLevel = level;
-
-      if (inputMode === 'topic') {
-        localStorage.setItem('last_topic', topic);
-        localStorage.setItem('last_level', level);
-        localStorage.setItem('last_count', count.toString());
-        
-        words = await generateVocabulary(topic, level, count);
-        const savedList = saveCustomList('topic', words, `[${level}] ${topic}`.trim());
-        finalTopic = savedList.title;
-        finalLevel = '歷史紀錄';
-      } else if (inputMode === 'image' && selectedImage && imagePreview) {
-        const base64Data = imagePreview.split(',')[1];
-        words = await extractWordsFromImage(base64Data, selectedImage.type, count);
-        
-        if (words.length === 0) {
-          alert('無法從圖片中辨識出任何英文單字，請重新拍攝或上傳更清晰的照片。');
-          setIsLoading(false);
-          return;
-        }
-        
-        const savedList = saveCustomList('image', words);
-        finalTopic = savedList.title;
-        finalLevel = '自訂單字表';
-      } else if (inputMode === 'text' && customText.trim()) {
-        words = await extractWordsFromText(customText, count);
-        
-        if (words.length === 0) {
-          alert('無法從文字中辨識出任何英文單字，請重新輸入。');
-          setIsLoading(false);
-          return;
-        }
-        
-        const savedList = saveCustomList('text', words);
-        finalTopic = savedList.title;
-        finalLevel = '自訂單字表';
-      }
-
-      onStart(words, finalTopic, finalLevel);
-    } catch (error) {
-      console.error(error);
-      alert('產生單字失敗，請重試。');
-    } finally {
-      setIsLoading(false);
+  const handleStart = () => {
+    // Save preferences locally
+    if (inputMode === 'topic') {
+      localStorage.setItem('last_topic', topic);
+      localStorage.setItem('last_level', level);
+      localStorage.setItem('last_count', count.toString());
     }
+
+    onStart({
+      inputMode,
+      topic,
+      level,
+      count,
+      selectedImage,
+      imagePreview,
+      customText
+    });
   };
 
   return (
@@ -219,7 +187,7 @@ export function SetupScreen({ onStart }: Props) {
 
         <div className="space-y-6">
           {inputMode === 'history' ? (
-            <HistoryTab onStartTest={(words, topic, level) => onStart(words, topic, level)} />
+            <HistoryTab onStartTest={(words, topic, level) => onHistoryStart(words, topic, level)} />
           ) : inputMode === 'topic' ? (
             <>
               <div>
