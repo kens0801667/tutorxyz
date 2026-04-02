@@ -9,9 +9,10 @@ interface Props {
   onComplete: (results: Partial<TestResult>[]) => void;
   onRestart: () => void;
   teacherStyle: TeacherStyle;
+  volume: number;
 }
 
-export function SpeakingScreen({ words, onComplete, onRestart, teacherStyle }: Props) {
+export function SpeakingScreen({ words, onComplete, onRestart, teacherStyle, volume }: Props) {
   const [isConnecting, setIsConnecting] = useState(true);
   const [isConnected, setIsConnected] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -26,6 +27,13 @@ export function SpeakingScreen({ words, onComplete, onRestart, teacherStyle }: P
   
   const nextPlayTimeRef = useRef<number>(0);
   const sourceNodesRef = useRef<AudioBufferSourceNode[]>([]);
+  const gainNodeRef = useRef<GainNode | null>(null);
+
+  useEffect(() => {
+    if (gainNodeRef.current) {
+      gainNodeRef.current.gain.value = volume / 100;
+    }
+  }, [volume]);
 
   useEffect(() => {
     let isActive = true;
@@ -37,6 +45,13 @@ export function SpeakingScreen({ words, onComplete, onRestart, teacherStyle }: P
 
         audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
         const audioCtx = audioContextRef.current;
+        
+        // Setup GainNode for volume control
+        const mainGainNode = audioCtx.createGain();
+        mainGainNode.gain.value = volume / 100;
+        mainGainNode.connect(audioCtx.destination);
+        gainNodeRef.current = mainGainNode;
+
         if (audioCtx.state === 'suspended') {
           await audioCtx.resume();
         }
@@ -171,7 +186,12 @@ export function SpeakingScreen({ words, onComplete, onRestart, teacherStyle }: P
 
     const source = audioCtx.createBufferSource();
     source.buffer = audioBuffer;
-    source.connect(audioCtx.destination);
+    
+    if (gainNodeRef.current) {
+      source.connect(gainNodeRef.current);
+    } else {
+      source.connect(audioCtx.destination);
+    }
 
     const currentTime = audioCtx.currentTime;
     const startTime = Math.max(currentTime, nextPlayTimeRef.current);

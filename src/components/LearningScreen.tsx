@@ -9,15 +9,23 @@ interface Props {
   onComplete: () => void;
   onRestart: () => void;
   teacherStyle: TeacherStyle;
+  volume: number;
 }
 
-export function LearningScreen({ words, onComplete, onRestart, teacherStyle }: Props) {
+export function LearningScreen({ words, onComplete, onRestart, teacherStyle, volume }: Props) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoadingAudio, setIsLoadingAudio] = useState(false);
   const audioSourceRef = useRef<AudioBufferSourceNode | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
+  const gainNodeRef = useRef<GainNode | null>(null);
   const playIdRef = useRef<number>(0);
+
+  useEffect(() => {
+    if (gainNodeRef.current) {
+      gainNodeRef.current.gain.value = volume / 100;
+    }
+  }, [volume]);
 
   const word = words[currentIndex];
 
@@ -63,6 +71,7 @@ export function LearningScreen({ words, onComplete, onRestart, teacherStyle }: P
         utterance.lang = voiceConfig.lang;
         utterance.pitch = voiceConfig.pitch;
         utterance.rate = voiceConfig.rate;
+        utterance.volume = volume / 100;
         
         utterance.onstart = () => {
           if (playIdRef.current === currentPlayId) setIsPlaying(true);
@@ -89,6 +98,10 @@ export function LearningScreen({ words, onComplete, onRestart, teacherStyle }: P
         
         if (!audioContextRef.current) {
           audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+          const mainGainNode = audioContextRef.current.createGain();
+          mainGainNode.gain.value = volume / 100;
+          mainGainNode.connect(audioContextRef.current.destination);
+          gainNodeRef.current = mainGainNode;
         }
         const audioContext = audioContextRef.current;
         if (audioContext.state === 'suspended') {
@@ -116,7 +129,12 @@ export function LearningScreen({ words, onComplete, onRestart, teacherStyle }: P
 
         const source = audioContext.createBufferSource();
         source.buffer = audioBuffer;
-        source.connect(audioContext.destination);
+        
+        if (gainNodeRef.current) {
+          source.connect(gainNodeRef.current);
+        } else {
+          source.connect(audioContext.destination);
+        }
         
         source.onended = () => {
           if (playIdRef.current === currentPlayId) {

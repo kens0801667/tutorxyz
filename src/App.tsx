@@ -33,13 +33,21 @@ export default function App() {
     setIsCheckingKey(true);
     try {
       const config = await getConfigFromDrive(token);
+      const localVolume = localStorage.getItem('tutorxyz_volume');
+      const volume = localVolume ? parseInt(localVolume) : 100;
+      
       if (config && config.geminiApiKey) {
+        config.volume = volume;
         setGeminiApiKey(config.geminiApiKey);
         if (config.geminiModel) setGeminiModel(config.geminiModel);
         if (config.geminiLiveModel) setGeminiLiveModel(config.geminiLiveModel);
         setAppConfig(config);
         setShowApiKeySetup(false);
       } else {
+        // Even if config is null or key is missing, preserve the local volume setting
+        const partialConfig: Partial<AppConfig> = config || {};
+        partialConfig.volume = volume;
+        setAppConfig(partialConfig as AppConfig);
         setShowApiKeySetup(true);
       }
     } catch (error: any) {
@@ -112,6 +120,9 @@ export default function App() {
     }
 
     try {
+      if (config.volume !== undefined) {
+        localStorage.setItem('tutorxyz_volume', config.volume.toString());
+      }
       const success = await saveConfigToDrive(accessToken, config);
       if (success) {
         setGeminiApiKey(config.geminiApiKey);
@@ -310,8 +321,8 @@ export default function App() {
           </div>
         )}
         {mode === 'setup' && <SetupScreen onStart={handleStart} />}
-        {mode === 'learning' && <LearningScreen words={words} onComplete={handleLearningComplete} onRestart={handleRestart} teacherStyle={appConfig?.teacherStyle || 'enthusiastic'} />}
-        {mode === 'speaking' && <SpeakingScreen words={words} onComplete={handleSpeakingComplete} onRestart={handleRestart} teacherStyle={appConfig?.teacherStyle || 'enthusiastic'} />}
+        {mode === 'learning' && <LearningScreen words={words} onComplete={handleLearningComplete} onRestart={handleRestart} teacherStyle={appConfig?.teacherStyle || 'enthusiastic'} volume={appConfig?.volume ?? 100} />}
+        {mode === 'speaking' && <SpeakingScreen words={words} onComplete={handleSpeakingComplete} onRestart={handleRestart} teacherStyle={appConfig?.teacherStyle || 'enthusiastic'} volume={appConfig?.volume ?? 100} />}
         {mode === 'written' && <WrittenScreen words={words} onComplete={handleWrittenComplete} onRestart={handleRestart} />}
         {mode === 'report' && (
           <ReportScreen 

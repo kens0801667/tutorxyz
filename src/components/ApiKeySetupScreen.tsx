@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Key, ExternalLink, Loader2, CheckCircle2, AlertTriangle, Calendar, FileJson, Mic2 } from 'lucide-react';
+import { Key, ExternalLink, Loader2, CheckCircle2, AlertTriangle, Calendar, FileJson, Mic2, Volume2 } from 'lucide-react';
 import { TeacherStyle } from '../types';
 import { listAvailableModels } from '../services/gemini';
 
@@ -10,6 +10,7 @@ export interface AppConfig {
   teacherStyle: TeacherStyle;
   geminiModel?: string;
   geminiLiveModel?: string;
+  volume?: number;
 }
 
 interface Props {
@@ -26,6 +27,7 @@ export function ApiKeySetupScreen({ onSave, onCancel, initialConfig }: Props) {
   
   const [geminiModel, setGeminiModel] = useState(initialConfig?.geminiModel || 'gemini-3-flash-preview');
   const [geminiLiveModel, setGeminiLiveModel] = useState(initialConfig?.geminiLiveModel || 'gemini-2.5-flash-native-audio-preview-09-2025');
+  const [volume, setVolume] = useState(initialConfig?.volume ?? 100);
   
   const [availableModels, setAvailableModels] = useState<string[]>([]);
   const [availableLiveModels, setAvailableLiveModels] = useState<string[]>([]);
@@ -58,7 +60,8 @@ export function ApiKeySetupScreen({ onSave, onCancel, initialConfig }: Props) {
       configFileName: configFileName.trim(),
       teacherStyle,
       geminiModel,
-      geminiLiveModel
+      geminiLiveModel,
+      volume
     });
     setIsSaving(false);
   };
@@ -158,6 +161,51 @@ export function ApiKeySetupScreen({ onSave, onCancel, initialConfig }: Props) {
                   <option value={geminiLiveModel}>{geminiLiveModel}</option>
                 )}
               </select>
+            </div>
+
+            <div className="pt-4 border-t border-slate-200/60">
+              <div className="flex justify-between items-center mb-3">
+                <label className="text-sm font-medium text-slate-600 flex items-center gap-2">
+                  <Volume2 className="w-4 h-4 text-indigo-500" />
+                  提示音量
+                </label>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Level</span>
+                  <span className="text-sm font-black text-indigo-600 border-b-2 border-indigo-200 px-1">{volume}%</span>
+                </div>
+              </div>
+              
+              <div className="relative group pt-1">
+                <div className="flex items-end gap-1 h-12 mb-2 px-1">
+                  {Array.from({ length: 25 }).map((_, i) => {
+                    const threshold = (i / 24) * 100;
+                    const isActive = volume >= threshold;
+                    return (
+                      <div
+                        key={i}
+                        onClick={() => setVolume(Math.round(threshold))}
+                        className={`flex-1 rounded-full transition-all duration-300 cursor-pointer ${
+                          isActive 
+                            ? 'bg-gradient-to-t from-indigo-600 to-indigo-400 shadow-[0_0_8px_rgba(99,102,241,0.4)]' 
+                            : 'bg-slate-200 hover:bg-slate-300'
+                        }`}
+                        style={{ height: `${20 + (i / 24) * 80}%` }}
+                      ></div>
+                    );
+                  })}
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={volume}
+                  onChange={(e) => setVolume(parseInt(e.target.value))}
+                  className="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-indigo-600 hover:accent-indigo-500 mt-2"
+                />
+              </div>
+              <p className="text-[10px] text-slate-400 text-center mt-2 uppercase tracking-widest font-bold">
+                Adjust Voice Level Intensity
+              </p>
             </div>
           </div>
         </div>

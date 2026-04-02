@@ -71,7 +71,6 @@ export async function saveConfigToDrive(accessToken: string, config: AppConfig):
     
     const fileContent = JSON.stringify({ 
       geminiApiKey: config.geminiApiKey,
-      calendarName: config.calendarName,
       teacherStyle: config.teacherStyle,
       geminiModel: config.geminiModel,
       geminiLiveModel: config.geminiLiveModel
