@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.2.0](https://github.com/kens0801667/tutorxyz/compare/v1.1.0...v1.2.0) (2026-04-02)
+
+
+### Features
+
+* add Gemini model selection and live model configuration to settings UI ([ade5c8c](https://github.com/kens0801667/tutorxyz/commit/ade5c8cf1c436a6304f1ce7e3218c9d1622d6672))
+* add persistent volume control setting to app configuration and audio playback ([7fed107](https://github.com/kens0801667/tutorxyz/commit/7fed107c9d81a75227a697b2b806ac5fe0dca154))
+
 ## 1.1.0 (2026-04-02)
 
 
