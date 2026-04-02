@@ -18,3 +18,20 @@ View your app in AI Studio: https://ai.studio/apps/69b1b9a8-c1c8-4991-ba67-a51c3
 2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
 3. Run the app:
    `npm run dev`
+
+## Release
+
+To automatically update the version and generate a changelog, use the following command:
+
+1.  **Preview changes (Dry Run)**:
+    ```bash
+    npm run release -- --dry-run
+    ```
+2.  **Commit and tag new version**:
+    ```bash
+    npm run release
+    ```
+3.  **Push to remote with tags**:
+    ```bash
+    git push --follow-tags origin main
+    ```
