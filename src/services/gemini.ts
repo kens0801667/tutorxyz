@@ -113,7 +113,7 @@ export async function generateVocabulary(topic: string, level: string, count: nu
       }
     });
     
-    const responseText = response.candidates?.[0]?.content?.parts?.[0]?.text || "[]";
+    const responseText = response.text || response.candidates?.[0]?.content?.parts?.[0]?.text || "[]";
     const rawData = JSON.parse(responseText || "[]");
     return rawData.map((item: any) => ({
       word: item.word,
@@ -169,7 +169,7 @@ export async function extractWordsFromImage(base64Data: string, mimeType: string
       }
     });
 
-    const responseText = response.candidates?.[0]?.content?.parts?.[0]?.text || "[]";
+    const responseText = response.text || response.candidates?.[0]?.content?.parts?.[0]?.text || "[]";
     const rawData = JSON.parse(responseText || "[]");
     return rawData.map((item: any) => ({
       word: item.word,
@@ -220,7 +220,7 @@ export async function extractWordsFromText(text: string, count: number, lang: st
       }
     });
 
-    const responseText = response.candidates?.[0]?.content?.parts?.[0]?.text || "[]";
+    const responseText = response.text || response.candidates?.[0]?.content?.parts?.[0]?.text || "[]";
     const rawData = JSON.parse(responseText || "[]");
     return rawData.map((item: any) => ({
       word: item.word,
@@ -270,7 +270,7 @@ export async function fillWordDetails(words: string[], lang: string): Promise<Wo
       }
     });
 
-    const responseText = response.candidates?.[0]?.content?.parts?.[0]?.text || "[]";
+    const responseText = response.text || response.candidates?.[0]?.content?.parts?.[0]?.text || "[]";
     const rawData = JSON.parse(responseText || "[]");
     return rawData.map((item: any) => ({
       word: item.word,
@@ -302,7 +302,7 @@ export async function generateTeacherScript(word: string, meaning: string, lang:
       model: userModel,
       contents: `You are a friendly English tutor. The word to teach now is '${word}' (translation: ${meaning}). Please generate a short teaching script in ${langName} that includes: 1. Pronouncing the word twice, 2. Spelling out the letters, 3. A simple explanation, and 4. Creating a real-life English example sentence with its ${langName} translation. Please reply in plain text only for the TTS system to read.`,
     });
-    return response.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    return response.text || response.candidates?.[0]?.content?.parts?.[0]?.text || "";
   } catch (error) {
     logApiError('Gemini', 'generateTeacherScript', error, { word, meaning, lang });
     throw error;
@@ -363,7 +363,7 @@ export async function evaluateSpeakingDialog(word: string, meaning: string, stud
     });
 
     const response = await chat.sendMessage({ message: studentInput });
-    const responseText = response.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    const responseText = response.text || response.candidates?.[0]?.content?.parts?.[0]?.text || "";
     const isCorrect = responseText.includes("[CORRECT]");
     const cleanResponse = responseText.replace("[CORRECT]", "").trim();
 
@@ -560,7 +560,7 @@ export async function evaluatePronunciation(audioBase64: string, mimeType: strin
       }
     });
     
-    const responseText = response.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
+    const responseText = response.text || response.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
     return JSON.parse(responseText || '{"score": 0, "feedback": "Evaluation failed."}');
   } catch (error) {
     logApiError('Gemini', 'evaluatePronunciation', error, { word, mimeType, lang });
@@ -624,7 +624,7 @@ export async function generateWrittenTest(words: Word[], lang: string): Promise<
       }
     });
     
-    const responseText = response.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
+    const responseText = response.text || response.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
     const data = JSON.parse(responseText || '{"multiple_choice": [], "fill_in_the_blank": []}');
     const mcQuestions: MultipleChoiceQuestion[] = (data.multiple_choice || []).map((q: any) => ({ ...q, type: 'multiple_choice' }));
     const fitbQuestions: FillInTheBlankQuestion[] = (data.fill_in_the_blank || []).map((q: any) => ({ ...q, type: 'fill_in_the_blank' }));

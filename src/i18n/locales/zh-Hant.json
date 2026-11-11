@@ -43,6 +43,8 @@
       "camera_denied": "無法開啟相機，請確認是否已授權相機權限。",
       "image_no_words": "無法從圖片中辨識出任何英文單字，請重新拍攝或上傳更清晰的照片。",
       "text_no_words": "無法從文字中辨識出任何英文單字，請重新輸入。",
+      "quota_exceeded": "Gemini API 額度或預付餘額已用盡（402 / 429），請至 Google AI Studio 檢查帳單額度，或於右上角「設定」更換 API Key。",
+      "invalid_api_key": "Gemini API Key 無效或尚未設定，請於右上角「設定」檢查您的 API Key。",
       "failed": "產生單字失敗，請重試。"
     },
     "history_label": "歷史紀錄",

@@ -179,8 +179,24 @@ export default function App() {
       setSessionStartTime(new Date());
     } catch (error: any) {
       console.error(error);
-      if (error.message === 'NO_WORDS_DETECTED') {
+      const errMsg = String(error?.message || '');
+      const status = error?.status;
+      if (errMsg === 'NO_WORDS_DETECTED') {
         alert(t('setup.errors.image_no_words'));
+      } else if (
+        status === 402 ||
+        status === 429 ||
+        errMsg.includes('RESOURCE_EXHAUSTED') ||
+        errMsg.includes('credits are depleted') ||
+        errMsg.toLowerCase().includes('quota')
+      ) {
+        alert(t('setup.errors.quota_exceeded'));
+      } else if (
+        errMsg.includes('API_KEY_INVALID') ||
+        errMsg.includes('API key not valid') ||
+        errMsg.includes('API Key is missing')
+      ) {
+        alert(t('setup.errors.invalid_api_key'));
       } else {
         alert(t('setup.errors.failed'));
       }

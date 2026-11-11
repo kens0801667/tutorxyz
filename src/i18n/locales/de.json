@@ -43,6 +43,8 @@
       "camera_denied": "Kamera konnte nicht geöffnet werden. Berechtigungen prüfen.",
       "image_no_words": "Keine Wörter im Bild erkannt. Klareres Foto nutzen.",
       "text_no_words": "Keine Wörter erkannt. Bitte erneut versuchen.",
+      "quota_exceeded": "Gemini API-Kontingent oder Guthaben erschöpft (402 / 429). Bitte prüfen Sie Ihr Guthaben in Google AI Studio oder ändern Sie den API-Schlüssel in den Einstellungen.",
+      "invalid_api_key": "Gemini API-Schlüssel ist ungültig oder fehlt. Bitte prüfen Sie Ihren API-Schlüssel in den Einstellungen.",
       "failed": "Erzeugung fehlgeschlagen. Erneut versuchen."
     },
     "history_label": "Verlauf",

@@ -43,6 +43,8 @@
       "camera_denied": "Impossible d'ouvrir la caméra. Vérifiez les permissions.",
       "image_no_words": "Aucun mot reconnu dans l'image. Utilisez une photo plus claire.",
       "text_no_words": "Aucun mot reconnu. Veuillez réessayer.",
+      "quota_exceeded": "Quota ou crédit prépayé Gemini API épuisé (402 / 429). Vérifiez votre facturation dans Google AI Studio ou changez la clé API dans les Paramètres.",
+      "invalid_api_key": "Clé Gemini API invalide ou manquante. Veuillez vérifier votre clé API dans les Paramètres.",
       "failed": "Échec de la génération. Réessayez."
     },
     "history_label": "Historique",

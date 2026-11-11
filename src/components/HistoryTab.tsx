@@ -48,9 +48,27 @@ export function HistoryTab({ onStartTest }: Props) {
       updateCustomList(editingList.id, { words: filledWords, title: editingList.title });
       setLists(getCustomLists());
       setEditingList(null);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to save edited list:', error);
-      alert(t('setup.errors.failed'));
+      const errMsg = String(error?.message || '');
+      const status = error?.status;
+      if (
+        status === 402 ||
+        status === 429 ||
+        errMsg.includes('RESOURCE_EXHAUSTED') ||
+        errMsg.includes('credits are depleted') ||
+        errMsg.toLowerCase().includes('quota')
+      ) {
+        alert(t('setup.errors.quota_exceeded'));
+      } else if (
+        errMsg.includes('API_KEY_INVALID') ||
+        errMsg.includes('API key not valid') ||
+        errMsg.includes('API Key is missing')
+      ) {
+        alert(t('setup.errors.invalid_api_key'));
+      } else {
+        alert(t('setup.errors.failed'));
+      }
     } finally {
       setIsSaving(false);
     }
