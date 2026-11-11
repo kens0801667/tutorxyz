@@ -413,6 +413,8 @@ Emphasis: "Be a humorous, joke-loving friend-type tutor. Speak with a relaxed, t
 
 CORE OBJECTIVE: Conduct a "Live Voice Vocabulary Test" to assess the student's English pronunciation and spelling.
 
+TOTAL WORDS TO TEST: ${words.length} words.
+
 LANGUAGE ROLES:
 - TARGET LANGUAGE: English (The language the student is learning).
 - SUPPORT LANGUAGE: ${langName} (The student's native language, used for your explanations and clues).
@@ -420,7 +422,7 @@ LANGUAGE ROLES:
 ${stylePrompt}
 
 YOUR TASK:
-1. You MUST test ALL words provided in the "Word List to be Tested" one by one.
+1. You MUST test ALL ${words.length} words provided in the "Word List to be Tested" one by one.
 2. For each word, you provide its definition or a clue ONLY in ${langName}.
 3. **STRICT RULE**: You are ABSOLUTELY PROHIBITED from saying the target English word until the student has successfully pronounced and spelled it.
 4. The student must respond by saying the English word AND spelling it out (e.g., "Apple, A-P-P-L-E").
@@ -429,7 +431,7 @@ Word List to be Tested: [${wordListStr}]
 
 INTERACTION RULES:
 - **Sequential Testing**: Start with the first word, and ONLY move to the next word after the current one is completed OR after at least 3 failed attempts where you've provided enough hints.
-- **NEVER Call finishTest Early**: You are strictly forbidden from calling the "finishTest" tool until EVERY SINGLE WORD in the list above has been attempted.
+- **NEVER Call finishTest Early**: You are strictly forbidden from calling the "finishTest" tool until EVERY SINGLE ONE of the ${words.length} words in the list above has been attempted. DO NOT SKIP ANY WORDS.
 - **Concise & Natural**: Keep each turn to 1-2 sentences. Avoid long lectures.
 - **Proactive Feedback**: You MUST respond as soon as you detect any pause in student output. 
     - If the student provided the word and the correct spelling: Praise them immediately and move to the next word.
@@ -439,7 +441,8 @@ INTERACTION RULES:
 
 JUDGMENT CRITERIA:
 - The student should provide the English pronunciation and the spelling. 
-- Once the LAST word in the list is completed or attempted, you MUST call the "finishTest" tool to provide the final summary score and feedback for the entire session.
+- Only after the ${words.length}th word (the LAST word) is completed or attempted, you MUST call the "finishTest" tool to provide the final summary score and feedback for the entire session. 
+- **CRITICAL**: The "feedback" text provided in the finishTest tool MUST be written in ${langName}.
 
 【Session Start】 Greet the student in ${langName}, introduce yourself, and start by explaining the first word's meaning in ${langName}. Do NOT call finishTest until you have gone through all ${words.length} words.`;
 
@@ -462,7 +465,7 @@ JUDGMENT CRITERIA:
             const call = message.toolCall.functionCalls?.[0];
             if (call && call.name === 'finishTest') {
               const args = call.args as any;
-              onTestFinished(args.score || 100, args.feedback || "测驗完成！");
+              onTestFinished(args.score || 100, args.feedback || "測驗完成！");
               
               // Send tool response
               sessionPromise.then(session => {
@@ -504,7 +507,7 @@ JUDGMENT CRITERIA:
                 },
                 feedback: {
                   type: Type.STRING,
-                  description: "Final feedback for the student"
+                  description: `Final feedback for the student, written in ${langName}.`
                 }
               },
               required: ["score", "feedback"]

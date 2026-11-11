@@ -44,7 +44,7 @@ export function HistoryTab({ onStartTest }: Props) {
     setIsSaving(true);
     try {
       // Fetch details for the new list of words
-      const filledWords = await fillWordDetails(newWordsList);
+      const filledWords = await fillWordDetails(newWordsList, i18n.language);
       updateCustomList(editingList.id, { words: filledWords, title: editingList.title });
       setLists(getCustomLists());
       setEditingList(null);

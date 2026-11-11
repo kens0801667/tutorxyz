@@ -11,6 +11,9 @@ export async function getOrCreateCalendar(accessToken: string, calendarName: str
     if (listRes.status === 401) {
       throw new Error('UNAUTHORIZED');
     }
+    if (listRes.status === 403) {
+      throw new Error('FORBIDDEN');
+    }
     if (!listRes.ok) {
       throw new Error('Failed to list calendars');
     }
@@ -35,14 +38,18 @@ export async function getOrCreateCalendar(accessToken: string, calendarName: str
     if (createRes.status === 401) {
       throw new Error('UNAUTHORIZED');
     }
+    if (createRes.status === 403) {
+      throw new Error('FORBIDDEN');
+    }
     if (!createRes.ok) {
       throw new Error('Failed to create calendar');
     }
     
     const createData = await createRes.json();
     return createData.id;
-  } catch (error) {
-    if ((error as Error).message !== 'UNAUTHORIZED') {
+  } catch (error: any) {
+    const msg = error.message;
+    if (msg !== 'UNAUTHORIZED' && msg !== 'FORBIDDEN') {
       logApiError('Calendar', 'getOrCreateCalendar', error, { calendarName });
     }
     throw error;
@@ -92,11 +99,15 @@ export async function addTestResultToCalendar(
     if (res.status === 401) {
       throw new Error('UNAUTHORIZED');
     }
+    if (res.status === 403) {
+      throw new Error('FORBIDDEN');
+    }
     if (!res.ok) {
       throw new Error('Failed to add event to calendar');
     }
   } catch (error) {
-    if ((error as Error).message !== 'UNAUTHORIZED') {
+    const msg = (error as Error).message;
+    if (msg !== 'UNAUTHORIZED' && msg !== 'FORBIDDEN') {
       logApiError('Calendar', 'addTestResultToCalendar', error, { topic, score, mistakesCount: mistakes.length });
     }
     throw error;

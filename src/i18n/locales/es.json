@@ -155,10 +155,11 @@
       "login_failed": "Fallo al iniciar sesión.",
       "drive_auth_confirm": "Se requiere acceso a Drive. ¿Autorizar ahora?",
       "save_config_failed": "Error al guardar ajustes.",
-      "login_expired": "Sesión expirada. Inicie sesión de nuevo.",
-      "calendar_auth_confirm": "Se requiere acceso a Calendar. ¿Autorizar ahora?",
-      "save_calendar_success": "¡Guardado en Google Calendar!",
-      "save_calendar_failed": "Error al guardar en el calendario."
+      "login_expired": "Sesión expirada. Por favor, inicia sesión de nuevo.",
+      "calendar_auth_confirm": "Se requieren permisos para guardar en el calendario. ¿Deseas autorizar ahora?",
+      "calendar_forbidden": "Error al guardar. Asegúrate de haber marcado la casilla de permiso 'Ver y editar eventos en todos tus calendarios' durante el inicio de sesión.",
+      "save_calendar_success": "¡Resultado guardado en Google Calendar con éxito!",
+      "save_calendar_failed": "Error al guardar en el calendario. Revisa los permisos."
     },
     "footer": {
       "privacy": "Privacidad",

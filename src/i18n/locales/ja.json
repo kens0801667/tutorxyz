@@ -155,8 +155,9 @@
       "login_failed": "ログインに失敗しました。もう一度お試しください。",
       "drive_auth_confirm": "設定の保存には Google ドライブの権限が必要です。今すぐ認証しますか？",
       "save_config_failed": "設定の保存に失敗しました。",
-      "login_expired": "セッションが期限切れです。再度ログインしてください。",
-      "calendar_auth_confirm": "カレンダーへの保存には権限が必要です。今すぐ認証しますか？",
+      "login_expired": "ログインの有効期限が切れました。再度ログインしてください。",
+      "calendar_auth_confirm": "カレンダーへの保存には権限が必要です。今すぐ認証画面を開きますか？",
+      "calendar_forbidden": "保存に失敗しました。ログイン時に「すべてのカレンダーの予定の表示と編集」の権限にチェックを入れたことを確認してください。",
       "save_calendar_success": "テスト結果が Google カレンダーに保存されました！",
       "save_calendar_failed": "カレンダーへの保存に失敗しました。権限設定を確認してください。"
     },

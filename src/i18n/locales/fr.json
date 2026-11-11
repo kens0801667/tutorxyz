@@ -155,10 +155,11 @@
       "login_failed": "Échec de connexion.",
       "drive_auth_confirm": "Accès Drive requis. Autoriser ?",
       "save_config_failed": "Échec de sauvegarde.",
-      "login_expired": "Session expirée. Reconnectez-vous.",
-      "calendar_auth_confirm": "Accès Calendar requis. Autoriser ?",
-      "save_calendar_success": "Sauvegardé sur Google Calendar !",
-      "save_calendar_failed": "Échec de sauvegarde sur le calendrier."
+      "login_expired": "Session expirée. Veuillez vous reconnecter.",
+      "calendar_auth_confirm": "Autorisation requise pour l'agenda. Autoriser maintenant ?",
+      "calendar_forbidden": "Échec de l'enregistrement. Veuillez vous assurer d'avoir coché la case d'autorisation 'Afficher et modifier les événements sur tous vos agendas' lors de la connexion.",
+      "save_calendar_success": "Résultat enregistré avec succès dans Google Calendar !",
+      "save_calendar_failed": "Échec de l'enregistrement. Vérifiez les permissions."
     },
     "footer": {
       "privacy": "Confidentialité",

@@ -157,6 +157,7 @@
       "save_config_failed": "保存设置失败，请重试。",
       "login_expired": "登录已过期，请重新登录。",
       "calendar_auth_confirm": "保存至日历功能需要您的授权。是否现在进行授权？",
+      "calendar_forbidden": "保存失败，请确保在登录时勾选了「查看与编辑您的日历活动」权限（勾选框）。",
       "save_calendar_success": "测验成绩已成功保存至您的 Google 日历！",
       "save_calendar_failed": "保存至日历失败，请检查权限设置。"
     },

@@ -236,7 +236,7 @@ export default function App() {
         const endTime = new Date();
         const startTime = sessionStartTime || new Date(endTime.getTime() - 30 * 60000); 
 
-        if (!checkScope('https://www.googleapis.com/auth/calendar')) {
+        if (!checkScope('https://www.googleapis.com/auth/calendar') || !checkScope('https://www.googleapis.com/auth/calendar.events')) {
           const confirm = window.confirm(t('app.alerts.calendar_auth_confirm'));
           if (confirm) login();
           return;
@@ -251,6 +251,8 @@ export default function App() {
         if (error.message === 'UNAUTHORIZED') {
           alert(t('app.alerts.login_expired'));
           handleLogout();
+        } else if (error.message === 'FORBIDDEN') {
+          alert(t('app.alerts.calendar_forbidden'));
         } else {
           alert(t('app.alerts.save_calendar_failed'));
         }

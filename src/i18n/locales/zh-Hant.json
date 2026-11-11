@@ -157,6 +157,7 @@
       "save_config_failed": "儲存設定失敗，請重試。",
       "login_expired": "登入已過期，請重新登入。",
       "calendar_auth_confirm": "儲存至日曆功能需要您的授權。是否現在進行授權？",
+      "calendar_forbidden": "儲存失敗，請確保在登入時勾選了「查看與編輯您的日曆活動」權限（勾選框）。",
       "save_calendar_success": "測驗成績已成功儲存至您的 Google 日曆！",
       "save_calendar_failed": "儲存至日曆失敗，請檢查權限設定。"
     },

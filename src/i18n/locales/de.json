@@ -155,10 +155,11 @@
       "login_failed": "Login fehlgeschlagen.",
       "drive_auth_confirm": "Drive-Zugriff nötig. Jetzt autorisieren?",
       "save_config_failed": "Speichern fehlgeschlagen.",
-      "login_expired": "Sitzung abgelaufen. Erneut anmelden.",
-      "calendar_auth_confirm": "Kalender-Zugriff nötig. Jetzt autorisieren?",
-      "save_calendar_success": "In Google Kalender gespeichert!",
-      "save_calendar_failed": "Speichern fehlgeschlagen. Rechte prüfen."
+      "login_expired": "Sitzung abgelaufen. Bitte melden Sie sich erneut an.",
+      "calendar_auth_confirm": "Berechtigung für den Kalender erforderlich. Jetzt autorisieren?",
+      "calendar_forbidden": "Speichern fehlgeschlagen. Bitte stellen Sie sicher, dass Sie beim Login das Kästchen 'Termine in allen Ihren Kalendern anzeigen und bearbeiten' aktiviert haben.",
+      "save_calendar_success": "Testergebnis erfolgreich im Google Kalender gespeichert!",
+      "save_calendar_failed": "Speichern im Kalender fehlgeschlagen. Überprüfen Sie die Berechtigungen."
     },
     "footer": {
       "privacy": "Datenschutz",

@@ -156,7 +156,8 @@
       "drive_auth_confirm": "키를 저장하려면 Google Drive 권한이 필요합니다. 지금 권한을 요청하시겠습니까?",
       "save_config_failed": "설정 저장에 실패했습니다. 다시 시도해 주세요.",
       "login_expired": "로그인이 만료되었습니다. 다시 로그인해 주세요.",
-      "calendar_auth_confirm": "캘린더 저장 기능을 위해 권한이 필요합니다. 지금 권한을 요청하시겠습니까?",
+      "calendar_auth_confirm": "캘린더 저장 기능에는 권한이 필요합니다. 지금 인증하시겠습니까?",
+      "calendar_forbidden": "저장에 실패했습니다. 로그인 시 '모든 캘린더의 일정 보기 및 수정' 권한 체크박스를 선택했는지 확인해 주세요.",
       "save_calendar_success": "테스트 결과가 Google 캘린더에 성공적으로 저장되었습니다!",
       "save_calendar_failed": "캘린더 저장에 실패했습니다. 권한 설정을 확인해 주세요."
     },
